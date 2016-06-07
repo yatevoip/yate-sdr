@@ -22,6 +22,7 @@ require_once("ansql/lib_files.php");
 require_once("check_validity_fields_ybts.php");
 require_once("ybts_fields.php");
 require_once("ybts_menu.php");
+require_once("lib/lib_requests.php");
 
 /* Display form fields with their values. */
 function create_form_ybts_section($section, $subsection, $fields_sect_err=false, $error=null, $error_fields=array())
@@ -31,15 +32,17 @@ function create_form_ybts_section($section, $subsection, $fields_sect_err=false,
 	$structure = get_fields_structure_from_menu();
 	$filename = $yate_conf_dir. "ybts.conf";	
 
-	//read config parameters from conf file (ybts.conf) 
-	if (file_exists($filename)) {
-		$ybts = new ConfFile($filename, true, true, "\n\n");
-		$fields = create_fields_from_conffile($ybts->structure); 
-	}
+	$response_fields = request_api(array(), "get_bts_node", "node");
 
+	$default_fields = get_default_fields_ybts();
 	//if the params are not set in ybts get the default values to be displayed
-	if (!isset($fields))  
-		$fields = get_default_fields_ybts();
+	if (!isset($response_fields) || !isset($response_fields["ybts"]))  
+		$fields = $default_fields;
+	else {
+		$response_fields = $response_fields["ybts"];
+
+		$fields = create_fields_from_request($response_fields);
+	}
 	
 	if ($fields_sect_err) {//get fields value from getparam
 		foreach($structure as $m_section => $params) {
@@ -89,8 +92,12 @@ function get_status_fields($structure)
 	$ybts_fields_modified = false;
 	
 	if (file_exists($filename)) {
-	         $ybts = new ConfFile($filename, true, true, "\n\n");
-	         $fields = create_fields_from_conffile($ybts->structure, true);
+	        // $ybts = new ConfFile($filename, true, true, "\n\n");
+
+		$response_fields = request_api(array(), "get_bts_node", "node");
+		$response_fields = $response_fields["ybts"];
+		
+	        $fields = create_fields_from_conffile($response_fields, true);
 	} else 
 		return true;
 
@@ -122,6 +129,74 @@ function get_status_fields($structure)
 		}
 	}
 	return $ybts_fields_modified;
+}
+
+function create_fields_from_request($request_fields=null,$exists_in_file = false)
+{
+	$structure = get_fields_structure_from_menu();
+
+	$fields = get_default_fields_ybts();
+
+	if (!$request_fields)
+		return $fields;
+
+	foreach($structure as $section => $data) {
+		foreach($data as $key => $subsection) {
+			if ($exists_in_file) {
+				if (!isset($request_fields[$subsection])) {
+					$fields["not_in_file"] = true;
+					break 2;
+				}
+
+				foreach($fields[$section][$subsection] as $paramname => $data_fields) {
+					$allow_empty_params = array("Args", "DNS", "ShellScript", "MS.IP.Route", "Logfile.Name", "peer_arg");
+					if (!in_array($paramname, $allow_empty_params) && !isset($request_fields[$subsection][$paramname])) {
+						$fields["not_in_file"] = true;	
+						break 3;
+					}
+				}
+			}
+		}
+	}
+
+	$network_map = "";
+	foreach($structure as $section => $data) {
+		foreach($data as $key => $subsection) {
+			if (isset($request_fields[$subsection])) {
+				foreach($request_fields[$subsection] as $param => $data) {
+					if (is_numeric($param))  //keep the original comments from $fields
+						continue;
+					if (!isset($fields[$section][$subsection]))
+						continue;
+					if ($subsection=="gprs_roaming" && substr($param,0,2)=="__") {
+						if (strlen($network_map))
+							$network_map .= "\n";
+						$network_map .= substr($param,2)."=$data";
+						continue;
+					}
+					if ($subsection=="gprs_roaming" && $param=="nnsf_bits")
+						$param = "gprs_nnsf_bits";
+					if (!isset($fields[$section][$subsection][$param])) 
+						continue;
+
+					if ($fields[$section][$subsection][$param]["display"] == "select") 
+						$fields[$section][$subsection][$param][0]["selected"] = $data;
+					elseif ($fields[$section][$subsection][$param]["display"] == "checkbox") 
+						$fields[$section][$subsection][$param]["value"] = $data == "yes" ? "on" : "off";
+					else 
+						$fields[$section][$subsection][$param]["value"] = $data; 
+				}
+			}
+		}
+	}
+	if (strlen($network_map)) 
+		$fields["YBTS"]["gprs_roaming"]["network_map"]["value"] = $network_map;
+
+	if (isset($fields['GSM']['gsm']['Radio.Band'][0]["selected"])) {
+		$particle = $fields['GSM']['gsm']['Radio.Band'][0]["selected"];
+		$fields['GSM']['gsm']["Radio.C0"][0]["selected"] = "$particle-".$fields['GSM']['gsm']["Radio.C0"][0]["selected"];
+	}
+	return $fields;
 }
 
 /* Put the values that were set in ybts.conf file for each section from default $fields. */
@@ -201,6 +276,7 @@ function validate_fields_ybts($section, $subsection)
 	
 	$fields = get_default_fields_ybts();
 	$new_fields = array();
+	$request_fields = array();
 	$error_field = array();
 	$warning_field  = array();
 	
@@ -210,6 +286,8 @@ function validate_fields_ybts($section, $subsection)
 	foreach ($fields[$section][$subsection] as $param_name => $data) {
 		$paramname = str_replace(".", "_", $param_name);
 		$new_fields[$section][$subsection][$param_name] = $data;
+
+		$request_fields[$subsection][$param_name] = $data;
 
 		$field_param = getparam($paramname);
 		if (isset($data["display"]) && $data["display"] == "checkbox" && $field_param == NULL) 
@@ -236,6 +314,11 @@ function validate_fields_ybts($section, $subsection)
 		// they will be written commented in ybts.conf
 		if (!valid_param($field_param) || $field_param=="Factory calibrated")
 			$field_param = "";
+
+		/*if ($param_name=="RACH.AC")
+			$request_fields[$subsection][$param_name] = base_convert($field_param,16,16);
+		else*/
+			$request_fields[$subsection][$param_name] = $field_param;
 
 		if ($data["display"] == 'select')
 			$new_fields[$section][$subsection][$param_name][0]["selected"] = $field_param;
@@ -276,7 +359,7 @@ function validate_fields_ybts($section, $subsection)
 
 	//if no error found return the new fields from form data
 	if (!count($error_field))
-		return array(true,"fields"=> $new_fields, "warning"=>$warning, "warning_fields"=>$warning_fields);
+		return array(true,"fields"=> $new_fields, "request_fields"=>$request_fields, "warning"=>$warning, "warning_fields"=>$warning_fields);
 
 	$error = "";
 	$error_fields = array();
@@ -286,7 +369,7 @@ function validate_fields_ybts($section, $subsection)
 		$error_fields[] =  $err[1];
 	}
 
-	return array(false,"fields"=>$new_fields,"error"=>$error,"error_fields"=>$error_fields,"warning"=>$warning, "warning_fields"=>$warning_fields);
+	return array(false,"fields"=>$new_fields, "request_fields"=>$request_fields, "error"=>$error,"error_fields"=>$error_fields,"warning"=>$warning, "warning_fields"=>$warning_fields);
 }
 
 function validate_roaming_params()

@@ -20,6 +20,10 @@
 require_once("ybts/ybts_menu.php");
 require_once("ybts/lib_ybts.php");
 
+global $node;
+
+$node = "satsite";
+
 function bts_configuration()
 {
 	global $section, $subsection;
@@ -45,13 +49,15 @@ function bts_configuration()
 
 function bts_configuration_database()
 {
-	global $section, $subsection;
+	global $section, $subsection, $module;
 
 	$structure = get_fields_structure_from_menu();
 	$errors_found = false;
 	$warnings = "";
+	$fields = array();
 	foreach ($structure as $m_section => $data) {
 		foreach($data as $key => $m_subsection) {
+			Debug::xdebug($module,"Subsection $m_subsection");
 			$res = validate_fields_ybts($m_section, $m_subsection);
 			if (!$res[0]) { 
 				$errors_found = true;
@@ -61,7 +67,7 @@ function bts_configuration_database()
 				$_SESSION["subsection"] = $m_subsection;
 				break;
 			} else {
-				$fields[] = $res["fields"];  
+				$fields = array_merge($fields, $res["request_fields"]);  
 			}
 			if (isset($res["warning"])) {
 				$warnings .= $res["warning"];
@@ -99,22 +105,38 @@ function bts_configuration_database()
 			return;
 		}
 
-		//if no errors encounted on validate data fields then write the data to ybts.conf
-		$res1 = write_params_conf($fields);
-		if (!$res1[0]) {
+		//if no errors encountered on validate data fields then send API request
+
+		$c0 = $fields['gsm']['Radio.C0'];
+		$c0 = explode("-",$c0);
+		$c0 = $c0[1];
+		$fields['gsm']['Radio.C0'] = $c0;
+
+		$fields['gprs_roaming']['nnsf_bits'] = $fields['gprs_roaming']['gprs_nnsf_bits'];
+		unset($fields['gprs_roaming']['gprs_nnsf_bits']);
+
+		$fields = array("ybts"=>$fields);
+		$res = make_request($fields, "set_bts_node");
+
+		if (!isset($res["code"]) || $res["code"]!=0) {
 			print "<div id=\"file_err_$subsection\">";
-			errormess("Errors encountered while writting ybts.conf file: ".$res1[1]);
+			errormess("Errors encountered while writting ybts.conf file: ".$res["message"]);
 			print "</div>";
+			unset($_SESSION["section"], $_SESSION["subsection"]);
 		} else {
 			unset($_SESSION["section"], $_SESSION["subsection"]);
 			print "<div id=\"notice_$subsection\">";
-			message($res1[1], "no");
+			message("Finished configuring BTS.", "no");
 			print "</div>";
-			$res = set_codecs_ysipchan(getparam("mode"));
+			/*$res = set_codecs_ysipchan(getparam("mode"));
 			if (!$res[0]) {
 				errormess($res[1]);
-			}
+			}*/
 		}
+		$section = "GSM";
+		$subsection = "gsm";
+		
+
 		if (strlen($warnings))
 			message("Warning! ".$warnings,"no");
 

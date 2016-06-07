@@ -146,6 +146,8 @@ if (!isset($yate_conf_dir))
 	print ("Couldn't detect installed yate. Please install yate first before trying to use the NIB WebGui.");
 
 $yate_ip = "127.0.0.1";
+$server_name = $yate_ip;
+$func_build_request_url = "build_request_url_for_api";
 
 $default_ip = "tcp://".$yate_ip;
 $default_port = '5038';
@@ -157,4 +159,12 @@ $pysim_csv = $yate_conf_dir . "sim_data.csv";
 $sim_type = "sysmoSIM-GR2";
 # yate cdr logs file
 $yate_cdr = "/var/log/yate-cdr.csv";
+
+// log dirs
+$parse_errors = "/var/log/lmi/parse_errors.txt";
+$logs_in = array("/var/log/lmi/ansql_logs.txt");
+
+# mark that this is private version. Enables dataroam mode in BTS settings
+$private_version = true;
+
 ?>
