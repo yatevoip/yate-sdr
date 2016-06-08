@@ -177,9 +177,11 @@ function create_fields_from_request($request_fields=null,$exists_in_file = false
 					if (!isset($fields[$section][$subsection][$param])) 
 						continue;
 
-					if ($fields[$section][$subsection][$param]["display"] == "select") 
+					if ($fields[$section][$subsection][$param]["display"] == "select") {
+						if ($data=="" && in_array("Factory calibrated", $fields[$section][$subsection][$param][0]))
+							$data = "Factory calibrated";
 						$fields[$section][$subsection][$param][0]["selected"] = $data;
-					elseif ($fields[$section][$subsection][$param]["display"] == "checkbox") 
+					} elseif ($fields[$section][$subsection][$param]["display"] == "checkbox") 
 						$fields[$section][$subsection][$param]["value"] = $data == "yes" ? "on" : "off";
 					else 
 						$fields[$section][$subsection][$param]["value"] = $data; 
