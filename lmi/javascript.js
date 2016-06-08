@@ -215,6 +215,30 @@ function in_array(needle, haystack)
     }
     return false;
 }
+
+// Toggle configuration menu (Advanced/Basic) in BTS configuration and EnodeB configuration
+function toggle_menu()
+{
+	var i = 1;
+	var current_state = document.getElementById("section_1").style.display;
+	var next_state = (current_state!="none") ? "none" : "table-cell";
+	var toggle_content = (current_state!="none") ? "Advanced >>" : "<< Basic";
+	var menu_tab;
+
+	menu_tab = document.getElementById("menu_fill");
+	if (menu_tab) 
+		menu_tab.style.display = current_state;
+
+	while(true) {
+		menu_tab = document.getElementById("section_"+i);
+		if (menu_tab==null)
+			break;
+		menu_tab.style.display = next_state;
+		i++;
+	}
+	set_html_obj("menu_toggle",toggle_content);
+}
+
 /*
 function advanced(identifier)
 {

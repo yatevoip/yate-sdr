@@ -77,6 +77,66 @@ function bts_configuration_database()
 		       	break;
 	}
 
+	if (!$errors_found) {
+		$ybts_fields_modified = get_status_fields($structure);
+		if ($ybts_fields_modified) {
+
+			//if no errors encountered on validate data fields then send API request
+
+			$c0 = $fields['gsm']['Radio.C0'];
+			$c0 = explode("-",$c0);
+			$c0 = $c0[1];
+			$fields['gsm']['Radio.C0'] = $c0;
+
+			$fields['gprs_roaming']['nnsf_bits'] = $fields['gprs_roaming']['gprs_nnsf_bits'];
+			unset($fields['gprs_roaming']['gprs_nnsf_bits']);
+
+
+			$network_map = $fields['gprs_roaming']['network_map'];
+			$network_map = explode("\r\n",$network_map);
+			unset($fields['gprs_roaming']['network_map']);
+			foreach ($network_map as $assoc) {
+				$assoc = explode("=",$assoc);
+				if (count($assoc)!=2)
+					continue;
+				$fields['gprs_roaming'][$assoc[0]] = trim($assoc[1]);
+			}
+
+			$fields = array("ybts"=>$fields);
+			$res = make_request($fields, "set_bts_node");
+
+			if (!isset($res["code"]) || $res["code"]!=0) {
+
+				// find subsection where error was detected so it can be opened
+				$pos_section = strrpos($res["message"],"'",-15);
+				$subsection = substr($res["message"],$pos_section+1);
+				$subsection = substr($subsection,0,strpos($subsection,"'"));
+
+				$section = find_section($subsection);
+				if (!$section) {
+					$section = "GSM";
+					$subsection = "gsm";
+				}
+
+				$_SESSION["subsection"] = $subsection;
+				$_SESSION["section"] = $section;
+
+				$fields_sect_error = true;
+				$error = $res["message"];
+			} else {
+				$fields_sect_error = false;
+				$error = NULL;
+				unset($_SESSION["section"], $_SESSION["subsection"]);
+				
+				/*$res = set_codecs_ysipchan(getparam("mode"));
+				if (!$res[0]) {
+					errormess($res[1]);
+				}*/
+			}
+
+		}
+	}
+
 ?>
 <table class="page" cellspacing="0" cellpadding="0">
 <tr>
@@ -89,8 +149,6 @@ function bts_configuration_database()
 		create_form_ybts_section($section, $subsection, true, $res["error"], $res["error_fields"]);
 	}
 	else {
-		
-		$ybts_fields_modified = get_status_fields($structure);
 		if (!$ybts_fields_modified) {
 			print "<div id=\"notice_$subsection\">";
                         message("Finish editing sections. Nothing to update in ybts.conf file.", "no");
@@ -105,59 +163,12 @@ function bts_configuration_database()
 			return;
 		}
 
-		//if no errors encountered on validate data fields then send API request
-
-		$c0 = $fields['gsm']['Radio.C0'];
-		$c0 = explode("-",$c0);
-		$c0 = $c0[1];
-		$fields['gsm']['Radio.C0'] = $c0;
-
-		$fields['gprs_roaming']['nnsf_bits'] = $fields['gprs_roaming']['gprs_nnsf_bits'];
-		unset($fields['gprs_roaming']['gprs_nnsf_bits']);
-
-
-		$network_map = $fields['gprs_roaming']['network_map'];
-		$network_map = explode("\r\n",$network_map);
-		unset($fields['gprs_roaming']['network_map']);
-		foreach ($network_map as $assoc) {
-			$assoc = explode("=",$assoc);
-			if (count($assoc)!=2)
-				continue;
-			$fields['gprs_roaming'][$assoc[0]] = trim($assoc[1]);
-		}
-
-		$fields = array("ybts"=>$fields);
-		$res = make_request($fields, "set_bts_node");
-
-		if (!isset($res["code"]) || $res["code"]!=0) {
-
-			// find subsection where error was detected so it can be opened
-			$pos_section = strrpos($res["message"],"'",-15);
-			$subsection = substr($res["message"],$pos_section+1);
-			$subsection = substr($subsection,0,strpos($subsection,"'"));
-
-			$section = find_section($subsection);
-			if (!$section) {
-				$section = "GSM";
-				$subsection = "gsm";
-			}
-
-			$_SESSION["subsection"] = $subsection;
-			$_SESSION["section"] = $section;
-
-			$fields_sect_error = true;
-			$error = $res["message"];
-		} else {
-			$fields_sect_error = false;
-			$error = NULL;
-			unset($_SESSION["section"], $_SESSION["subsection"]);
+		if (isset($res["code"]) && $res["code"]=="0") {
 			print "<div id=\"notice_$subsection\">";
 			message("Finished configuring BTS.", "no");
 			print "</div>";
-			/*$res = set_codecs_ysipchan(getparam("mode"));
-			if (!$res[0]) {
-				errormess($res[1]);
-			}*/
+
+
 		}
 
 		if (strlen($warnings))

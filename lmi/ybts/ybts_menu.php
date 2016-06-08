@@ -65,6 +65,11 @@ function ybts_menu()
 	
 	$structure = get_menu_structure();
 
+	foreach ($structure as $first_section=>$subsections) {
+		foreach ($subsections as $first_subsection)
+			break;
+		break;
+	}
 
 //Create the open/close menu structure
 ?>
@@ -107,10 +112,29 @@ function ybts_menu()
 			$css = "open";
 		else
 			$css = "close";
-		print "<td class='menu_$css' id='section_$i' onclick=\"show_submenu_tabs($i, $total, '$subsect')\">". $menu."</td>";
+		print "<td class='menu_$css' id='section_$i' onclick=\"show_submenu_tabs($i, $total, '$subsect')\"";
+		// If section that should be opened is the first one then it's ok to hide advanced
+		if ($i && $section==$first_section)
+			print "style='display:none;'";
+		print ">". $menu."</td>";
+
 		print "<td class='menu_space'>&nbsp;</td>";
-		if ($i == $total-1)
+
+		if ($i == $total-1) {
 			print "<td class='menu_empty'>&nbsp;</td>";
+		}
+		if (!$i && $section==$first_section) {
+			// If section that should be opened is the first one then it's ok to hide advanced and show the Advanced button
+			print "<td class='menu_toggle' id='menu_toggle' onclick='toggle_menu();'>Advanced >></td>";
+			print "<td class='menu_fill' id='menu_fill'>&nbsp;</td>";
+			print "<td class='menu_space'>&nbsp;</td>";
+		} elseif (!$i) {
+			// Otherwise show them and add the Basic button
+			print "<td class='menu_toggle' id='menu_toggle' onclick='toggle_menu();'> << Basic </td>";
+			print "<td class='menu_fill' id='menu_fill' style='display:none;'>&nbsp;</td>";
+			print "<td class='menu_space'>&nbsp;</td>";
+		}
+
 		$i++;
 	}
 ?>
