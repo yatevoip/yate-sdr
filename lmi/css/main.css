@@ -127,7 +127,7 @@ table.firstmenu
   /*  margin-top:5px;*/
     margin-left:1%;
    /* margin-right:20px;*/
-    width:90%;
+    width:1200px;
 }
 
 td.firstmenu
@@ -314,7 +314,7 @@ table.secondmenu
     border:1px solid #cccccc;
 	border-top:0px;
 	border-bottom:2px solid #cccccc;
-    width:90%;
+    width:1200px;
 	/*padding-left:15px;*/
 }
 
@@ -324,7 +324,7 @@ table.holdcontent, div.footer_note
 	border:1px solid #cccccc;
 	border-top:0px;
 	border-bottom:2px solid #ccc;
-	width:90%;
+	width:1200px;
 	padding:10px;
 	font:12px  Arial, Verdana, Helvetica, sans-serif;
 }
@@ -1288,3 +1288,7 @@ table.menu a.menu_links { border-bottom:none;}
 div.error_link { border-bottom:2px solid #93c300;width:75px;display:inline;}
 div.err_link_pysim { display:inline;}
 div.next_lines {text-align:right;margin-right:5%;}
+
+#section_0 { width: 98px;}
+table.menu td.menu_toggle { width:122px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; cursor:pointer; color: #0189D7;}
+table.menu td.menu_fill {width: 606px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; }
