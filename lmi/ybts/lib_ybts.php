@@ -164,14 +164,12 @@ function create_fields_from_request($request_fields=null,$exists_in_file = false
 		foreach($data as $key => $subsection) {
 			if (isset($request_fields[$subsection])) {
 				foreach($request_fields[$subsection] as $param => $data) {
-					if (is_numeric($param))  //keep the original comments from $fields
-						continue;
 					if (!isset($fields[$section][$subsection]))
 						continue;
-					if ($subsection=="gprs_roaming" && substr($param,0,2)=="__") {
+					if ($subsection=="gprs_roaming" && Numerify($param)!="NULL") {
 						if (strlen($network_map))
-							$network_map .= "\n";
-						$network_map .= substr($param,2)."=$data";
+							$network_map .= "\r\n";
+						$network_map .= "$param=$data";
 						continue;
 					}
 					if ($subsection=="gprs_roaming" && $param=="nnsf_bits")

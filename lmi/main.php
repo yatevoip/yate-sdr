@@ -33,9 +33,15 @@ $module = (!$module) ? getparam("module") : $module;
 if(!$module) {
         $module = "subscribers";
 }
-// Parameters used in MODULE: BTS Configuration 
-$section = (isset($_SESSION["section"])) ? $_SESSION["section"] : 'GSM';
-$subsection = (isset($_SESSION["subsection"])) ? $_SESSION["subsection"]  :'gsm';
+
+if ($module == "bts_configuration") {
+	// Parameters used in MODULE: BTS Configuration 
+	$section = (isset($_SESSION["section"])) ? $_SESSION["section"] : 'GSM';
+	$subsection = (isset($_SESSION["subsection"])) ? $_SESSION["subsection"]  :'gsm';
+} else {
+	unset($_SESSION["section"]);
+	unset($_SESSION["subsection"]);
+}
 
 $action = getparam("action");
 $method = (!$method) ? getparam("method") : $method;

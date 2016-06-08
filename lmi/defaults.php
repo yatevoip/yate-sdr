@@ -152,7 +152,7 @@ $func_build_request_url = "build_request_url_for_api";
 $default_ip = "tcp://".$yate_ip;
 $default_port = '5038';
 
-$proj_title = "Yatebts NIB";
+$proj_title = "YateSDR Local Management Interface";
 # the file used by PySim to write the SIM credentials 
 $pysim_csv = $yate_conf_dir . "sim_data.csv";
 # type of card SIM used by PySIM. Types allowed: fakemagicsim, supersim, magicsim, grcardsim, sysmosim-gr1, sysmosim-gr1, sysmoSIM-GR2, sysmoUSIM-GR1 or try auto 

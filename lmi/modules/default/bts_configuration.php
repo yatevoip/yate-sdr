@@ -115,15 +115,41 @@ function bts_configuration_database()
 		$fields['gprs_roaming']['nnsf_bits'] = $fields['gprs_roaming']['gprs_nnsf_bits'];
 		unset($fields['gprs_roaming']['gprs_nnsf_bits']);
 
+
+		$network_map = $fields['gprs_roaming']['network_map'];
+		$network_map = explode("\r\n",$network_map);
+		unset($fields['gprs_roaming']['network_map']);
+		foreach ($network_map as $assoc) {
+			$assoc = explode("=",$assoc);
+			if (count($assoc)!=2)
+				continue;
+			$fields['gprs_roaming'][$assoc[0]] = trim($assoc[1]);
+		}
+
 		$fields = array("ybts"=>$fields);
 		$res = make_request($fields, "set_bts_node");
 
 		if (!isset($res["code"]) || $res["code"]!=0) {
-			print "<div id=\"file_err_$subsection\">";
-			errormess("Errors encountered while writting ybts.conf file: ".$res["message"]);
-			print "</div>";
-			unset($_SESSION["section"], $_SESSION["subsection"]);
+
+			// find subsection where error was detected so it can be opened
+			$pos_section = strrpos($res["message"],"'",-15);
+			$subsection = substr($res["message"],$pos_section+1);
+			$subsection = substr($subsection,0,strpos($subsection,"'"));
+
+			$section = find_section($subsection);
+			if (!$section) {
+				$section = "GSM";
+				$subsection = "gsm";
+			}
+
+			$_SESSION["subsection"] = $subsection;
+			$_SESSION["section"] = $section;
+
+			$fields_sect_error = true;
+			$error = $res["message"];
 		} else {
+			$fields_sect_error = false;
+			$error = NULL;
 			unset($_SESSION["section"], $_SESSION["subsection"]);
 			print "<div id=\"notice_$subsection\">";
 			message("Finished configuring BTS.", "no");
@@ -133,14 +159,11 @@ function bts_configuration_database()
 				errormess($res[1]);
 			}*/
 		}
-		$section = "GSM";
-		$subsection = "gsm";
-		
 
 		if (strlen($warnings))
 			message("Warning! ".$warnings,"no");
-
-		create_form_ybts_section($section, $subsection);
+;
+		create_form_ybts_section($section, $subsection, $fields_sect_error, $error);
  }
 ?></td>
     <td class="content_info"><?php description_ybts_section(); ?></td>
@@ -148,6 +171,20 @@ function bts_configuration_database()
 <tr><td class="page_space" colspan="2"> &nbsp;</td></tr>
 </table>
 <?php
+}
+
+function find_section($subsection)
+{
+	$menu = get_menu_structure();
+	$subsection = str_replace("_", " ",strtolower($subsection));
+
+	foreach ($menu as $section=>$subsections) {
+		foreach ($subsections as $menu_subsection)
+			if ($subsection == strtolower($menu_subsection))
+				return $section;
+	}
+
+	return;
 }
 
 function set_codecs_ysipchan($mode)
