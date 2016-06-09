@@ -17,6 +17,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+//#pragma trace "cachegrind.out.generic_config"
+
 function GenericConfig(file, section_names, overwrite)
 {
     if (overwrite == undefined)
@@ -66,27 +68,30 @@ GenericConfig.prototype.setConfig = function()
 	// received configurations will be put over this ones
     }
 
-    //return error if required section is missing
+    //return error if any required section is missing
     for (section_name_req in this.params_required) {
 	if (!params[section_name_req]) {
-	    this.error.reason = "Required section: '"+ section_name_req +"' is missing.";
+	    this.error.reason = "Missing required section: '"+ section_name_req +"'.";
 	    this.error.error = 402;
 	    return false;
 	}
     }
 
     for (var i = 0; i < this.sections.length; i++) {
-	section_name = this.sections[i];
+	var section_name = this.sections[i];
 
-	section_params = params[section_name];
+	var section_params = params[section_name];
 	if (!section_params)
 	    continue;
 
-	section = this.conf.getSection(section_name,true);
+	var section = this.conf.getSection(section_name,true);
 	for (param_name in section_params) {
-	    param_value = section_params[param_name];
+	    var param_value = section_params[param_name];
+	    
 	    if (!this.validateConfig(section_name, param_name, param_value)) 
 		return false;
+	    if (this.skip_empty_params[section_name][param_name])
+		continue;
 
 	    section.setValue(param_name, param_value);
 	}
@@ -102,19 +107,29 @@ GenericConfig.prototype.validateConfig = function(section_name, param_name, para
     var required = this.params_required[section_name];
     if (required!=undefined) {
 	for (var i=0; i<required.length; i++) {
-	    var param_desc = "required: " + required[i];
-	    if (isParamMissing(this.error, param_desc, params.gsm[required[i]]))
+	    var param_desc = required[i];
+	    if (isParamMissing(this.error, param_desc, params.gsm[required[i]],section_name))
 		return false;
 	}
     }
 
-    if (param_value === null || param_value == "") {
-	if (!inArray(param_name, this.params_allowed_empty)) {
-	    this.error.reason = "Field "+param_name+" from "+ section_name +" can't be empty."; 
-	    this.error.error = 402;
-	    return false;
+    if (param_value=="") {
+	if (validations) {
+	    if (!inArray(param_name, this.params_allowed_empty)) {
+		this.error.reason = "Field "+param_name+" can't be empty in section '"+ section_name +"'."; 
+		this.error.error = 402;
+		return false;
+	    }
+	} else {
+	    if (!this.skip_empty_params[section_name]) 
+		this.skip_empty_params[section_name] = new Object();
+
+	    this.skip_empty_params[section_name][param_name] = true;
+	    return true;
+
 	}
-    }
+    }	
+
     if (validations["minimum"] != undefined)
 	if (!checkFieldValidity(this.error, section_name, param_name, param_value, validations["minimum"], validations["maximum"]))
 	    return false;
