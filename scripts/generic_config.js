@@ -144,7 +144,7 @@ GenericConfig.prototype.validateConfig = function(section_name, param_name, para
 
     if (validations["callback"] != undefined) {
 	var callback = validations["callback"];
-	if ("object" == typeof callback) {
+	if ("function" == typeof callback.apply) {
 	    if (!callback(this.error, param_name, param_value, section_name))
 		return false;
 	}
