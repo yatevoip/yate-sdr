@@ -89,7 +89,9 @@ function checkJson(error,params,json)
 // Implement basic get request
 API.on_get_node = function(params,msg)
 {
-    var func, have_settings, error;
+    var func;
+    var have_settings;
+    var error;
 
     json = {};
     for (var conf of confs) {
@@ -113,7 +115,9 @@ API.on_set_node = function(params,msg)
     if (!checkJson(error,params,msg.json))
 	return error;
 
-    var confParams, func, error;
+    var confParams;
+    var func;
+    var error;
     var have_settings = false;
 
     for (var conf of confs) {
