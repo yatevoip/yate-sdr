@@ -122,14 +122,14 @@ API.on_set_node = function(params,msg)
 
     for (var conf of confs) {
 	if (debug)
-	    Engine.debug(Engine.DebugAll, "Searching config params for file "+conf);
+	    Engine.debug(Engine.DebugAll, "Searching config params for file " + conf);
 	confParams = params[conf];
 	if (!confParams)
 	    continue;
 	func = API["on_set_"+conf+"_node"];
 	if ("function" != typeof func.apply) {
-	    var mess_reason = "Missing support for configuring "+conf;
-	    return { reason: mess_reason, error: 201};
+	    var mess_reason = "Missing support for configuring " + conf;
+	    return { reason: mess_reason, error: 201 };
 	}
 	error = func(confParams,msg,true);
 	if (error.reason) {
@@ -146,7 +146,7 @@ API.on_set_node = function(params,msg)
 	Engine.output("Equipment restart on node config: " + msg.received);
 	Engine.restart();
     }
-    return { name: "node", object: conf_node};
+    return { name: "node", object: conf_node };
 };
 
 // Callback used when handler for api.request message is installed
