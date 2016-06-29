@@ -70,7 +70,6 @@ GenericConfig.prototype.setConfig = function(params)
 	}
 	// received configurations will be put over this ones
     }
-
     //return error if any required section is missing
     for (section_name_req in this.params_required) {
 	if (!params[section_name_req]) {
@@ -91,20 +90,20 @@ GenericConfig.prototype.setConfig = function(params)
 	for (param_name in section_params) {
 	    var param_value = section_params[param_name];
 	    
-	    if (!this.validateConfig(section_name, param_name, param_value, params)) 
+	    if (!this.validateConfig(section_name,param_name,param_value,params)) 
 		return false;
 	    // skip writing empty params only if they weren't previous written in file
 	    if (this.skip_empty_params[section_name][param_name] && !this.current_config[section_name][param_name])
 		continue;
 
-	    section.setValue(param_name, param_value);
+	    section.setValue(param_name,param_value);
 	}
     }
     return true;
 };
 
 // Validate new configurations
-GenericConfig.prototype.validateConfig = function(section_name, param_name, param_value, params)
+GenericConfig.prototype.validateConfig = function(section_name,param_name,param_value,params)
 {
     var validations = this.validations[section_name][param_name];
 
@@ -112,7 +111,7 @@ GenericConfig.prototype.validateConfig = function(section_name, param_name, para
     if (Array.isArray(required)) {
 	for (var i = 0; i < required.length; i++) {
 	    var param_desc = required[i];
-	    if (isParamMissing(this.error, param_desc, params.gsm[required[i]], section_name))
+	    if (isParamMissing(this.error,param_desc,params[section_name][required[i]],section_name)) 
 		return false;
 	}
     }
@@ -120,7 +119,7 @@ GenericConfig.prototype.validateConfig = function(section_name, param_name, para
     if (param_value == "") {
 	if (validations) {
 	    if (this.params_allowed_empty.indexOf(param_name) < 0) {
-		this.error.reason = "Field "+param_name+" can't be empty in section '"+ section_name +"'."; 
+		this.error.reason = "Field " + param_name + " can't be empty in section '" + section_name + "'."; 
 		this.error.error = 402;
 		return false;
 	    }
@@ -130,26 +129,25 @@ GenericConfig.prototype.validateConfig = function(section_name, param_name, para
 
 	    this.skip_empty_params[section_name][param_name] = true;
 	    return true;
-
 	}
     }	
 
     if (validations["minimum"] != undefined)
-	if (!checkFieldValidity(this.error, section_name, param_name, param_value, validations["minimum"], validations["maximum"]))
+	if (!checkFieldValidity(this.error,section_name,param_name,param_value,validations["minimum"],validations["maximum"]))
 	    return false;
 
     if (validations["regex"] != undefined)
-	if (!checkFieldValidity(this.error, section_name, param_name, param_value, undefined, undefined, validations["regex"]))
+	if (!checkFieldValidity(this.error,section_name,param_name,param_value,undefined,undefined,validations["regex"]))
 	    return false;
 
     if (validations["select"] != undefined)
-	if (!checkValidSelect(this.error, param_name, param_value, validations["select"], section_name))
+	if (!checkValidSelect(this.error,param_name,param_value,validations["select"],section_name))
 	    return false;
 
     if (validations["callback"] != undefined) {
 	var callback = validations["callback"];
 	if ("function" == typeof callback.apply) {
-	    if (!callback(this.error, param_name, param_value, section_name, params))
+	    if (!callback(this.error,param_name,param_value,section_name,params))
 		return false;
 	}
     }
@@ -236,7 +234,6 @@ function prepareConf(name,msg,clear)
 {
     if (!name)
 	return false;
-
     var c = new ConfigFile(Engine.configFile(name));
     var l = c.getBoolValue("general","locked");
     if (false !== clear)
