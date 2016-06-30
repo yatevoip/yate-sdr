@@ -164,7 +164,4 @@ $yate_cdr = "/var/log/yate-cdr.csv";
 $parse_errors = "/var/log/lmi/parse_errors.txt";
 $logs_in = array("/var/log/lmi/ansql_logs.txt");
 
-# mark that this is private version. Enables dataroam mode in BTS settings
-$private_version = true;
-
 ?>
