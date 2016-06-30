@@ -142,7 +142,9 @@ function show_submenu_fields(name)
 	//  subsections variable is now built dynamically depending on the detected section in ybts_fields
         //	var subsections = ["gsm", "gsm_advanced","gprs","gprs_advanced","sgsn","ggsn", "control", "transceiver", "tapping", "test","ybts","security"];
 	var forms_ids = ["","info_","err_","file_err_","notice_"];
-	
+	var opened = false;
+	var subsection;
+
 	for (var i=0; i<subsections.length; i++) {
 		for (var j=0; j<forms_ids.length; j++) {
 			if (document.getElementById("tab_"+subsections[i]) && document.getElementById("tab_"+subsections[i]).className == 'submenu_open')
@@ -151,6 +153,7 @@ function show_submenu_fields(name)
 				document.getElementById(forms_ids[j]+subsections[i]).style.display = "none";
 
 			if (subsections[i] == name) {
+				opened = true;
 				if (document.getElementById("tab_"+subsections[i]))
 					document.getElementById("tab_"+subsections[i]).className = 'submenu_open';
 				if (document.getElementById(forms_ids[j]+subsections[i]) && forms_ids[j]!= "notice_")
@@ -158,7 +161,24 @@ function show_submenu_fields(name)
 			}
 		}
 	}
-
+	if (!opened) {
+		console.log("start cicle");
+		// in the end configuration, the default subtab in each tab doesn't necessarily have the same name as the tab
+		for (var section in main_subsections) {
+			console.log("Trying "+section+", name="+name);
+			if (section==name) {
+				
+				subsection = main_subsections[section];
+				console.log("match on "+subsection);
+				
+				if (document.getElementById("tab_"+subsection))
+					document.getElementById("tab_"+subsection).className = 'submenu_open';
+				for (j=0; j<forms_ids.length; j++)
+					if (document.getElementById(forms_ids[j]+subsection) && forms_ids[j]!= "notice_")
+						document.getElementById(forms_ids[j]+subsection).style.display = "block";
+			}
+		}
+	}
 }
 
 function show_hide_cols()
@@ -214,29 +234,6 @@ function in_array(needle, haystack)
 		return true;
     }
     return false;
-}
-
-// Toggle configuration menu (Advanced/Basic) in BTS configuration and EnodeB configuration
-function toggle_menu()
-{
-	var i = 1;
-	var current_state = document.getElementById("section_1").style.display;
-	var next_state = (current_state!="none") ? "none" : "table-cell";
-	var toggle_content = (current_state!="none") ? "Advanced >>" : "<< Basic";
-	var menu_tab;
-
-	menu_tab = document.getElementById("menu_fill");
-	if (menu_tab) 
-		menu_tab.style.display = current_state;
-
-	while(true) {
-		menu_tab = document.getElementById("section_"+i);
-		if (menu_tab==null)
-			break;
-		menu_tab.style.display = next_state;
-		i++;
-	}
-	set_html_obj("menu_toggle",toggle_content);
 }
 
 /*
