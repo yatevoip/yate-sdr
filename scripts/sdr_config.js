@@ -31,7 +31,7 @@ function SatSiteConfig()
     this.sections = ["basic", "site-equipment", "shutdown"];
     this.overwrite = false;
 };
-SatSiteConfig.prototype = GenericConfig.prototype;
+SatSiteConfig.prototype = new GenericConfig;
 
 // Get configurations from satsite.conf
 API.on_get_satsite_node = function(params,msg)
@@ -55,7 +55,7 @@ function YBladeRfConfig()
     this.sections = ["general", "libusb", "filedump", "test_name"];
     this.overwrite = false;
 }
-YBladeRfConfig.prototype = GenericConfig.prototype;
+YBladeRfConfig.prototype = new GenericConfig;
 
 // Get configurations from ybladerfconf
 API.on_get_ybladerf_node = function(params,msg)
@@ -93,6 +93,9 @@ API.on_get_node = function(params,msg)
     var have_settings;
     var error;
 
+    if (debug)
+	dumpObj("on_get_node, json",msg.json);
+
     json = {};
     for (var conf of confs) {
     	func = API["on_get_"+conf+"_node"];
@@ -109,7 +112,7 @@ API.on_get_node = function(params,msg)
 API.on_set_node = function(params,msg)
 {
     if (debug)
-	dumpObj("on_set_node (params)",msg.json);
+	dumpObj("on_set_node, json",msg.json);
 
     var error = new Object;
     if (!checkJson(error,params,msg.json))

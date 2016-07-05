@@ -42,6 +42,9 @@ GenericConfig.prototype = new Object;
 // Load and clear config file if overwrite was true
 GenericConfig.prototype.prepareConfig = function(params)
 {
+    if (debug)
+	 Engine.output("Entered prepareConfig for object name " + this.name);
+	     
     this.conf = prepareConf(this.file,true,this.overwrite);
 
     // clear ybts sections
@@ -60,6 +63,9 @@ GenericConfig.prototype.setConfig = function(params)
     var param_name;
     var param_value;
 
+    if (debug) 
+	dumpObj("Entered setConfig for object name " + this.name, params);
+
     if (!this.overwrite) {
 	// keep existing section and values
 	for (section_name in this.current_config) {
@@ -73,11 +79,14 @@ GenericConfig.prototype.setConfig = function(params)
     //return error if any required section is missing
     for (section_name_req in this.params_required) {
 	if (!params[section_name_req]) {
-	    this.error.reason = "Missing required section: '"+ section_name_req +"'.";
+	    this.error.reason = "Missing required section: '" + section_name_req + "'.";
 	    this.error.error = 402;
 	    return false;
 	}
     }
+
+    if (!this.initConfig(params))
+	return false;
 
     for (var i = 0; i < this.sections.length; i++) {
 	var section_name = this.sections[i];
@@ -102,10 +111,21 @@ GenericConfig.prototype.setConfig = function(params)
     return true;
 };
 
+// Reimplement this to add verifications that aren't done per parameter or that verify correlations between parameters
+GenericConfig.prototype.initConfig = function(params)
+{
+    return true;
+};
+
 // Validate new configurations
 GenericConfig.prototype.validateConfig = function(section_name,param_name,param_value,params)
 {
     var validations = this.validations[section_name][param_name];
+
+    if (debug) {
+	Engine.output("Entered " + this.name +" validateConfig for " + param_name + "=" + param_value);
+//	dumpObj("validation",validations);
+    }
 
     var required = this.params_required[section_name];
     if (Array.isArray(required)) {
@@ -158,6 +178,9 @@ GenericConfig.prototype.validateConfig = function(section_name,param_name,param_
 // Save config files
 GenericConfig.prototype.saveConfig = function()
 {
+    if (debug)
+	Engine.output("Entered saveConfig for object name " + this.name);
+
     if (!checkUnlocked(this.error,[this.conf]))
 	return false;
     if (!saveConf(this.error,this.conf))
@@ -175,8 +198,11 @@ GenericConfig.prototype.getConfig = function()
     var section;
     var res;
 
+    if (debug)
+	Engine.output("Entered getConfig for object name " + this.name);
+
     c = new ConfigFile(Engine.configFile(this.file));
-    c.load("Could not load "+this.name);
+    c.load("Could not load " + this.name);
     sections = c.sections();
 
     res = {};
@@ -195,7 +221,7 @@ GenericConfig.prototype.getConfig = function()
 API.on_get_generic_file = function(configObj,params)
 {
     if (debug)
-	dumpObj("configObj",configObj);
+	dumpObj("on_get_generic_file with configObj",configObj);
     return configObj.getConfig();
 };
 
@@ -203,10 +229,10 @@ API.on_get_generic_file = function(configObj,params)
 API.on_set_generic_file = function(configObj,params,msg,setNode)
 {
     if (debug)
-	dumpObj("configObj",configObj);
+	dumpObj("on_set_generic_file with configObj",configObj);
 
     if (setNode && !params) {
-	configObj.prepareConfig(msg);
+	configObj.prepareConfig(params);
 	if (!configObj.saveConfig())
 	    return configObj.error;
 	return { name: configObj.name };
@@ -215,7 +241,7 @@ API.on_set_generic_file = function(configObj,params,msg,setNode)
     if (!checkJson(configObj.error,params,msg.json))
 	return configObj.error;
 
-    configObj.prepareConfig(msg);
+    configObj.prepareConfig(params);
 
     if (!configObj.setConfig(params))
 	return configObj.error;
