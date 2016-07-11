@@ -35,6 +35,7 @@ function GenericConfig(file, section_names, overwrite)
 	this.sections = [];
 
     this.overwrite = overwrite;
+    this.change_date = "";
 }
 
 GenericConfig.prototype = new Object;
@@ -45,12 +46,10 @@ GenericConfig.prototype.prepareConfig = function(params)
     if (debug)
 	 Engine.output("Entered prepareConfig for object name " + this.name);
 	     
-    this.conf = prepareConf(this.file,true,this.overwrite);
+    this.conf = prepareConf(this.file,this.change_date,this.overwrite);
 
-    // clear ybts sections
-    if (this.overwrite)
-	this.conf.clearSection();
-    else
+    // retrieve current configuration and merge settings if file is not to be overwritten
+    if (!this.overwrite)
 	this.current_config = this.getConfig();
 };
 
@@ -231,6 +230,8 @@ API.on_set_generic_file = function(configObj,params,msg,setNode)
     if (debug)
 	dumpObj("on_set_generic_file with configObj",configObj);
 
+    configObj.change_date = msg.received;
+
     if (setNode && !params) {
 	configObj.prepareConfig(params);
 	if (!configObj.saveConfig())
@@ -256,7 +257,7 @@ API.on_set_generic_file = function(configObj,params,msg,setNode)
 
 // Prepare a config file:
 // Load, clear, set updated info
-function prepareConf(name,msg,clear)
+function prepareConf(name,update_date,clear)
 {
     if (!name)
 	return false;
@@ -264,7 +265,7 @@ function prepareConf(name,msg,clear)
     var l = c.getBoolValue("general","locked");
     if (false !== clear)
 	c.clearSection();
-    c.setValue("general","updated",msg.received);
+    c.setValue("general","updated",update_date);
     c.setValue("general","locked",l);
     return c;
 };
