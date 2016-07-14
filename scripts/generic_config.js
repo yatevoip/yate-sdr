@@ -142,13 +142,12 @@ GenericConfig.prototype.validateConfig = function(section_name,param_name,param_
 		this.error.error = 402;
 		return false;
 	    }
-	} else {
-	    if (!this.skip_empty_params[section_name]) 
-		this.skip_empty_params[section_name] = new Object();
-
-	    this.skip_empty_params[section_name][param_name] = true;
-	    return true;
 	}
+	if (!this.skip_empty_params[section_name]) 
+	    this.skip_empty_params[section_name] = new Object();
+
+	this.skip_empty_params[section_name][param_name] = true;
+	return true;
     }	
 
     if (validations["minimum"] != undefined)
@@ -157,6 +156,10 @@ GenericConfig.prototype.validateConfig = function(section_name,param_name,param_
 
     if (validations["regex"] != undefined)
 	if (!checkFieldValidity(this.error,section_name,param_name,param_value,undefined,undefined,validations["regex"]))
+	    return false;
+
+    if (validations["fixed"] != undefined)
+	if (!checkFieldValidity(this.error,section_name,param_name,param_value,undefined,undefined,undefined,validations["fixed"]))
 	    return false;
 
     if (validations["select"] != undefined)
