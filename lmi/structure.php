@@ -30,6 +30,6 @@ $struct["default_subscribers"] = array("list_subscribers", "country_code_and_sms
 
 // methods listed here won't be saved in saved_pages -> needed to know where to return for Cancel button or Return button
 // besides method listed here, all methods starting with add_,edit_,delete_ are not saved
-$exceptions_to_save = array();
+$exceptions_to_save = array("working_mode"=>"modify_working_mode");
 
 ?>
