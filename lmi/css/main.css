@@ -130,7 +130,7 @@ table.firstmenu
     width:1200px;
 }
 
-td.firstmenu
+td.firstmenu, td.menu_unavailable
 {
     border: 1px solid #93c300; /*#0189d7;/*#376EA4;/*#104a73;*/
     padding-left:8px;
@@ -141,6 +141,11 @@ td.firstmenu
     background-color:#93c300;/*#0189d7;/*#376EA4;/*#104a73;*/
     color:white;
     width:50px;
+}
+
+td.menu_unavailable
+{
+    background-color: #aaa;
 }
 
 td.firstmenu_selected
@@ -1292,3 +1297,5 @@ div.next_lines {text-align:right;margin-right:5%;}
 #section_0, #section_1 { width: 98px;}
 table.menu td.menu_toggle { width:122px; padding:0px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; cursor:pointer; color: #0189D7;}
 table.menu td.menu_fill {width: 255px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; }
+
+table.workingmode td, table.workingmode th {height: 30px; padding-left:10px; text-align:left;}

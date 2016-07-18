@@ -6,6 +6,12 @@ function working_mode($editable=false)
 	global $module;
 	// retrieve working mode using API request
 
+	if (!isset($_SESSION["sdr_mode"]) || !strlen($_SESSION["sdr_mode"]) ||  $_SESSION["sdr_mode"]=="not configured") {
+		br(2);
+		note("It is required to choose a working mode before doing any other configuration.");
+		br(2);
+	} 
+
 //	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["working_mode"])) {
 		$node_types = request_api(array(), "get_node_type", "node_type");
 
@@ -124,6 +130,7 @@ function modify_working_mode_database()
 		message("Working mode succesfully updated.","no");
 		unset($_SESSION["node_types"]);
 		$SESSION["working_mode"] = $mode;
+		load_page();
 	}
 	working_mode();
 }

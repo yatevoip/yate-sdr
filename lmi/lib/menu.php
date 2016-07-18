@@ -19,7 +19,7 @@
 
 include ("structure.php");
 
-global $module, $method, $support, $level, $do_not_load, $iframe;
+global $module, $method, $support, $level, $do_not_load, $iframe, $working_mode;
 
 function get_login_form()
 {
@@ -122,7 +122,7 @@ function get_content()
 
 function menu()
 {
-	global $level,$support, $module;
+	global $level,$support, $module, $working_mode;
 
 	$names = array();
 	if ($handle = opendir("modules/$level/")) {
@@ -142,8 +142,25 @@ function menu()
 		$names = array_merge(array("home"), $names);
 	if(is_file("modules/$level/subscribers.php"))
 		$names = array_merge(array("subscribers"), $names);
+
+	$all_modules = $names;
+
+	// instead of loading all files from modules/default directory, define menu based on working_mode
+	$modules_per_mode = array(
+		"" => array("working_mode"),
+		"nib" => array("working_mode", "subscribers", "bts_configuration", "outbound", "call_logs"),
+		"roaming" => array("working_mode", "bts_configuration"),
+		"dataroam" => array("working_mode", "enb_configuration"),
+		"enb" => array("working_mode", "enb_configuration"),
+	);
+
+	if (!isset($modules_per_mode[$working_mode])) 
+		return errormess("Invalid working mode "+ $working_mode, "no");
+
+	$names = $modules_per_mode[$working_mode];
+
 	//array with the structure name (files) and the new name that will be displayed
-	$change_structure_names = array( "hlr" => "HLR","vlr" => "VLR", "home" => "HOME", "lightcore" => "LightCORE", "stp"=> "STP", "ss7_manager"=> "SS7_Manager","bts_configuration" => "BTS_Configuration");
+	$change_structure_names = array("bts_configuration" => "BTS_Configuration", "enb_configuration" => "ENB_Configuration");
 	$i = 0;
 	foreach ($names as $name) {
 		if (dont_load($name) || $name == "verify_settings")
@@ -164,6 +181,16 @@ function menu()
 
 		print "</td>";
 		$i++;
+	}
+
+	foreach ($all_modules as $name) {
+		if (in_array($name,$names))
+			continue;
+		print "<td class=\"separator\">&nbsp;</td>";
+		if (isset($change_structure_names[$name]))
+			$name = $change_structure_names[$name];
+		$name = str_replace(" ","&nbsp;",ucwords(str_replace("_"," ",$name)));
+		print "<td class=\"menu_unavailable\"><div class='link_unavailable'>".$name."</div></td>";
 	}
 	print("<td class=\"fillspace\">&nbsp;</td>");
 }
