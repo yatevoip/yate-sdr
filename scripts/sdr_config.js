@@ -86,6 +86,61 @@ function checkJson(error,params,json)
     return false;
 }
 
+API.on_get_node_type = function(params,msg)
+{
+    if (!confs)
+	return { error: 201, reason: "Devel/configuration error: no config files defined."};
+
+    // read satsite.conf general section to see if satsite works as enb or as bts
+    var satsite_conf = new ConfigFile(Engine.configFile("satsite"));
+    var sdr_mode = satsite_conf.getValue("general","sdr_mode","not configured"); 
+
+    if (sdr_mode == "bts") {
+	// read mode from ybts.conf
+	var ybts_conf = new ConfigFile(Engine.configFile("ybts"));
+	sdr_mode = ybts_conf.getValue("ybts","mode","not configured");
+    }
+
+    if (confs.indexOf("ybts") >= 0)
+	return { name: "node", object: { "type": "bts", "sdr_mode": sdr_mode }};
+    else if (confs.indexOf("openenb") >= 0)
+	return { name: "node", object: { "type": "enb", "sdr_mode": sdr_mode }};
+
+    return { error: 201, reason: "Missing both ybts as openenb in confs."};
+};
+
+API.on_set_sdr_mode = function(params,msg)
+{
+    if (!confs)
+	return { error: 201, reason: "Devel/configuration error: no config files defined."};
+    if (!params.sdr_mode)
+	return { error: 402, reason: "Missing sdr_mode in request" };
+
+    var error = new Object;
+    var bts_modes = ["nib", "roaming", "dataroam"];
+    var satsite_conf = new ConfigFile(Engine.configFile("satsite"));
+
+    if (params.sdr_mode == "enb") {
+	satsite_conf.setValue("general", "sdr_mode", "enb");
+    } else if (bts_modes.indexOf(params.sdr_mode) >= 0) {
+	satsite_conf.setValue("general", "sdr_mode", "bts");
+
+	var ybts_conf = new ConfigFile(Engine.configFile("ybts"));
+	ybts_conf.setValue("ybts","mode",params.sdr_mode);
+	if (!saveConf(error,ybts_conf))
+	    return error;
+    } else {
+	error.error = 201;
+    	error.reason = "Invalid sdr_mode '" + params.sdr_mode +  "'.";	
+    	return error;
+    }
+    
+    if (!saveConf(error,satsite_conf))
+	return error;
+
+    return {};
+};
+
 // Implement basic get request
 API.on_get_node = function(params,msg)
 {
@@ -149,15 +204,18 @@ API.on_set_node = function(params,msg)
 	Engine.output("Equipment restart on node config: " + msg.received);
 	Engine.restart();
     }
-    return { name: "node", object: conf_node };
+    return { name: "node" };
 };
 
 // Callback used when handler for api.request message is installed
 function onApiRequest(msg)
 {
     var func = API["on_" + msg.operation];
-    if ("function" != typeof func.apply)
+    if ("function" != typeof func.apply) {
+	if (debug)
+	    Engine.output("Undefined function " + func + " in onApiRequest");
 	return false;
+    }
     var res = func(JSON.parse(msg.json),msg);
     if (!res)
 	return false;
