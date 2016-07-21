@@ -286,7 +286,7 @@ function checkUnlocked(error,confs)
 {
     for (var c of confs) {
 	if (c.getBoolValue("general","locked"))
-	    return setStorageError(this.error,"One or more of the config files is locked",false);
+	    return setStorageError(error,"One or more of the config files is locked",false);
     }
     return true;
 }
@@ -295,5 +295,14 @@ function dumpObj(prefix,obj)
 {
     var dump = Engine.dump_r(obj);
     Engine.output(prefix + ":\r\n-----\r\n" + dump + "\r\n-----");
+}
+
+function setStorageError(error,reason,retVal)
+{
+    error.reason = reason + ".";
+    error.error = 501;
+    if (undefined === retVal)
+	return null;
+    return retVal;
 }
 /* vi: set ts=8 sw=4 sts=4 noet: */
