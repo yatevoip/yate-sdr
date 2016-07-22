@@ -30,30 +30,37 @@ $method = NULL;
 $dir = $level = "default";
 
 $module = (!$module) ? getparam("module") : $module;
-if(!$module) {
+if (!$module) {
         $module = "working_mode";
 }
 
 if ($module == "bts_configuration") {
 	// Parameters used in MODULE: BTS Configuration 
-	$section = (isset($_SESSION["section"])) ? $_SESSION["section"] : 'GSM';
-	$subsection = (isset($_SESSION["subsection"])) ? $_SESSION["subsection"]  :'gsm';
+	$section = (isset($_SESSION["BTS"]["section"])) ? $_SESSION["BTS"]["section"] : 'Radio';
+	$subsection = (isset($_SESSION["BTS"]["subsection"])) ? $_SESSION["BTS"]["subsection"]  :'gsm';
 } else {
-	unset($_SESSION["section"]);
-	unset($_SESSION["subsection"]);
+	unset($_SESSION["BTS"]);
+}
+
+if ($module == "enb_configuration") {
+	// Parameters used in MODULE: ENB Configuration 
+	$section = (isset($_SESSION["ENB"]["section"])) ? $_SESSION["ENB"]["section"] : 'Radio';
+	$subsection = (isset($_SESSION["ENB"]["subsection"])) ? $_SESSION["ENB"]["subsection"]  :'EnodeB';
+} else {
+	unset($_SESSION["ENB"]);
 }
 
 $action = getparam("action");
 $method = (!$method) ? getparam("method") : $method;
 
 $page = getparam("page");
-if(!$page)
+if (!$page)
         $page = 0;
 
 $_SESSION["limit"] = (isset($_SESSION["limit"])) ? $_SESSION["limit"] : 20;
 $limit = getparam("limit") ? getparam("limit") : $_SESSION["limit"];
 $_SESSION["limit"] = $limit;
-if($method == "manage")
+if ($method == "manage")
         $method = $module;
 
 $_SESSION["main"] = "main.php";
