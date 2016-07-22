@@ -150,7 +150,7 @@ function menu()
 		"" => array("working_mode"),
 		"nib" => array("working_mode", "subscribers", "bts_configuration", "outbound", "call_logs"),
 		"roaming" => array("working_mode", "bts_configuration"),
-		"dataroam" => array("working_mode", "enb_configuration"),
+		"dataroam" => array("working_mode", "bts_configuration"),
 		"enb" => array("working_mode", "enb_configuration"),
 	);
 
