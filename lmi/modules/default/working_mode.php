@@ -12,7 +12,7 @@ function working_mode($editable=false)
 		br(2);
 	} 
 
-//	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["working_mode"])) {
+	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["sdr_mode"])) {
 		$node_types = request_api(array(), "get_node_type", "node_type");
 
 		if (!count($node_types)) {
@@ -22,11 +22,10 @@ function working_mode($editable=false)
 		$_SESSION["node_types"] = $node_types;;
 		$sdr_mode = $node_types[0]["sdr_mode"];
 		$_SESSION["sdr_mode"] = $sdr_mode;
-/*	} else {
-		$sdr_use     = $_SESSION["sdr_mode"];
+	} else {
+		$sdr_mode     = $_SESSION["sdr_mode"];
 		$node_types = $_SESSION["node_types"];
-	}*/
-
+	}
 
 	$available_nodes = array();
 	foreach ($node_types as $node_type)
@@ -81,7 +80,6 @@ function working_mode($editable=false)
 	end_form();
 }
 
-
 function modify_working_mode()
 {
 	working_mode(true);
@@ -128,8 +126,8 @@ function modify_working_mode_database()
 		errormess("Could not update working mode: "."[".$res["code"]."] ".$res["message"],"no");
 	} else {
 		message("Working mode succesfully updated.","no");
-		unset($_SESSION["node_types"]);
-		$SESSION["working_mode"] = $mode;
+	//	unset($_SESSION["node_types"]);
+		$_SESSION["sdr_mode"] = $mode;
 		load_page();
 	}
 	working_mode();
