@@ -122,7 +122,7 @@ function get_content()
 
 function menu()
 {
-	global $level,$support, $module, $working_mode;
+	global $level,$support, $module, $working_mode, $devel_mode;
 
 	$names = array();
 	if ($handle = opendir("modules/$level/")) {
@@ -154,10 +154,13 @@ function menu()
 		"enb" => array("working_mode", "enb_configuration"),
 	);
 
-	if (!isset($modules_per_mode[$working_mode])) 
-		return errormess("Invalid working mode "+ $working_mode, "no");
+	if (!$devel_mode) {
 
-	$names = $modules_per_mode[$working_mode];
+		if (!isset($modules_per_mode[$working_mode])) 
+			return errormess("Invalid working mode "+ $working_mode, "no");
+
+		$names = $modules_per_mode[$working_mode];
+	}
 
 	//array with the structure name (files) and the new name that will be displayed
 	$change_structure_names = array("bts_configuration" => "BTS_Configuration", "enb_configuration" => "ENB_Configuration");

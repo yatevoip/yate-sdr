@@ -164,4 +164,6 @@ $yate_cdr = "/var/log/yate-cdr.csv";
 $parse_errors = "/var/log/lmi/parse_errors.txt";
 $logs_in = array("/var/log/lmi/ansql_logs.txt");
 
+//working mode is ignored if set to true
+$devel_mode = false;
 ?>
