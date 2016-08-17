@@ -411,16 +411,16 @@ function check_permission($dir)
 
 function change_key_name($array, $key_changes)
 {
-	foreach ($array as $key => $value){ 
+	foreach ($array as $key=>$value){ 
 		if (is_array($value)) {
 			$array[$key] = change_key_name($value,$key_changes);
 		} else {
-			foreach($key_changes as $old_key => $new_key) {
-				$array[$new_key] =  $array[$old_key];  
+			foreach ($key_changes as $old_key=>$new_key) {
+				$array[$new_key] = isset($array[$old_key]) ? $array[$old_key] : "";  
 			}
 		}	
 	}
-	foreach($key_changes as $old_key => $new_key) 
+	foreach ($key_changes as $old_key=>$new_key) 
 		unset($array[$old_key]);          
 
 	return $array;   
