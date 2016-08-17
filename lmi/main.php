@@ -23,6 +23,7 @@ require_once("ansql/set_debug.php");
 require_once("ansql/lib.php");
 require_once("ansql/lib_files.php");
 require_once("lib/menu.php");
+require_once("lib/lib_requests.php");
 
 $module = NULL;
 $method = NULL;
@@ -66,6 +67,17 @@ if ($method == "manage")
 $_SESSION["main"] = "main.php";
 
 $working_mode = (isset($_SESSION["sdr_mode"])) ? $_SESSION["sdr_mode"] : "";
+
+if (!$working_mode) {
+	$node_types = request_api(array(), "get_node_type", "node_type");
+
+	if (count($node_types)) {
+		$_SESSION["node_types"] = $node_types;;
+		$sdr_mode = $node_types[0]["sdr_mode"];
+		$_SESSION["sdr_mode"] = $sdr_mode;
+		$working_mode = $sdr_mode;
+	}
+}
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
