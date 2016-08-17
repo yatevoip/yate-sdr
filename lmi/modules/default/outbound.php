@@ -3,7 +3,7 @@
  * outgoing.php
  * This file is part of the Yate-BTS Project http://www.yatebts.com
  *
- * Copyright (C) 2014 Null Team
+ * Copyright (C) 2014 - 2016 Null Team
  *
  * This software is distributed under multiple licenses;
  * see the COPYING file in the main directory for licensing
@@ -69,35 +69,29 @@ $iax_fields = array(
 	"trunk_nominits_ts_diff_restart" => array("advanced"=>true, "comment"=>"The difference (in milliseconds) between current timestamp and first timestamp of incoming trunked audio data without miniframe timestamps at which to restart timestamps build data. Minimum allowed value is 1000. Default value is 5000.")
 );
 
-function outgoing($notice=false)
+function outbound($notice=false)
 {
-	$res = test_default_config();
-	if (!$res[0]) {//permission errors
-		errormess($res[1], "no");
-		return;
-	}
-
-	$account = get_outgoing();
+	$account = get_outbound();
 
 	if (!$account[0]) {
 		message("Outbound connection not set: ".$account[1],"no");
-		return edit_outgoing(false);
+		return edit_outbound(false);
 	} elseif (!isset($account[1]))
-		// if outgoing is not configured
-		return edit_outgoing(false);
+		// if outbound is not configured
+		return edit_outbound(false);
 	if ($notice)
 		notice($notice, "no");
-	display_outgoing($account[1]);
+	display_outbound($account[1]);
 }
 
-function display_outgoing($account)
+function display_outbound($account)
 {
 	global $sip_fields, $iax_fields;
 
 	$protocol = get_param($account,"protocol");
 
 	if (!$protocol)
-		return edit_outgoing();
+		return edit_outbound();
 
 	$fields = ${$protocol."_fields"};
 
@@ -124,24 +118,24 @@ function display_outgoing($account)
 		$prot = "SIP";
 	}
 	start_form(NULL,"post",false,"outbound");
-	addHidden(null, array("method"=>"edit_outgoing", "switch_protocol"=> $prot));
+	addHidden(null, array("method"=>"edit_outbound", "switch_protocol"=> $prot));
 	editObject(null,$fields,"Outbound connection",array("Modify",$switch),NULL,true);
 	end_form();
 }
 
-function edit_outgoing($read_account=true, $error=NULL, $error_fields=array())
+function edit_outbound($read_account=true, $error=NULL, $error_fields=array())
 {
 	global $method, $sip_fields, $iax_fields;
 
 	$prot = getparam("switch_protocol");
 	if (getparam("Switch_to_$prot"))
-		return delete_and_switch_outgoing();
+		return delete_and_switch_outbound();
 
-	$method = "edit_outgoing";
+	$method = "edit_outbound";
 
 	$account = array();
 	if ($read_account) {
-		$account = get_outgoing();
+		$account = get_outbound();
 		if (!$account[0]) {
 			errormess($account[1],"no");
 		} else
@@ -165,14 +159,12 @@ function edit_outgoing($read_account=true, $error=NULL, $error_fields=array())
 		$protocols = array("sip", "iax");
 		$protocols["selected"] = $protocol;
 
-		if($protocol)
-		{
+		if ($protocol) {
 			$fields = $protocol."_fields";
-			foreach(${$fields} as $fieldname=>$fieldformat)
-			{
+			foreach(${$fields} as $fieldname=>$fieldformat)	{
 				$form_fieldname = "reg_".$protocol . $fieldname;
 				$form_value  = getparam($form_fieldname);
-				if($form_value) {
+				if ($form_value) {
 					if ($fieldformat!="select" && $fieldformat!="checkbox")
 						${$fields}[$fieldname]["value"] = $form_value;
 					elseif ($fieldformat=="checkbox")
@@ -190,7 +182,7 @@ function edit_outgoing($read_account=true, $error=NULL, $error_fields=array())
 			error_handle($error,${$fields},$error_fields);
 		}
 
-		addHidden("write_to_file",array("method"=>"eadd_outgoing"));
+		addHidden("write_to_file",array("method"=>"eadd_outbound"));
 		//select protocol for gateway with registration
 		?><div id="div_Yes"><?php
 		editObject(NULL,
@@ -200,8 +192,7 @@ function edit_outgoing($read_account=true, $error=NULL, $error_fields=array())
 		?></div><?php
 
 		// display all the divs with fields for gateway with registration depending on the protocol
-		for($i=0; $i<count($protocols); $i++)
-		{
+		for ($i=0; $i<count($protocols); $i++) {
 			if(!isset($protocols[$i]) || !isset(${$protocols[$i]."_fields"})) 
 				continue;
 
@@ -223,7 +214,7 @@ function edit_outgoing($read_account=true, $error=NULL, $error_fields=array())
 		$fields["protocol"] = array("value"=>strtoupper($protocol), "display"=>"fixed");
 
 		$fields = array_merge($fields,${$protocol."_fields"});
-		foreach($fields as $fieldname=>$fieldformat) {
+		foreach ($fields as $fieldname=>$fieldformat) {
 			$file_value = get_param($account,$fieldname);
 			if ($file_value) {
 				if (!isset($fieldformat["display"]) ||
@@ -261,35 +252,35 @@ function edit_outgoing($read_account=true, $error=NULL, $error_fields=array())
 	end_form();
 }
 
-function eadd_outgoing_write_to_file()
+function eadd_outbound_write_to_file()
 {
 	$protocol = getparam("regprotocol");
-	return edit_outgoing_write_to_file("reg_".$protocol, "reg");
+	return edit_outbound_write_to_file("reg_".$protocol, "reg");
 }
 
-function edit_outgoing_write_to_file($prefix='',$prefix_protocol='')
+function edit_outbound_write_to_file($prefix='',$prefix_protocol='')
 {
 	$protocol = getparam($prefix_protocol."protocol");
 
 	$read_account = ($prefix=='') ? true : false;
 
 	if (!$protocol || !in_array($protocol,array("sip","iax")))
-		return edit_outgoing($read_account, "Please select 'Protocol'", array($prefix_protocol."protocol"));
+		return edit_outbound($read_account, "Please select 'Protocol'", array($prefix_protocol."protocol"));
 
 	$params = array("protocol"=>$protocol);
 
 	$compulsory = array("username", "server", "password");
-	for($i=0; $i<count($compulsory); $i++) {
+	for ($i=0; $i<count($compulsory); $i++) {
 		$val = getparam($prefix.$compulsory[$i]);
 		if (!$val)
-			return edit_outgoing($read_account, "Field '".$compulsory[$i]."' is required.");
+			return edit_outbound($read_account, "Field '".$compulsory[$i]."' is required.");
 		$params[$compulsory[$i]] = getparam($prefix.$compulsory[$i]);
 	}
 
 	$sip = array('authname','outbound', 'domain', 'localaddress', 'description', 'interval', 'rtp_localip', 'ip_transport', 'ip_transport_remoteip', 'ip_transport_localip', 'ip_transport_localport', 'keepalive');
 	$iax = array('description', 'interval', 'connection_id', 'ip_transport_localip', 'ip_transport_localport', 'trunk_sendinterval', 'trunk_maxlen', 'trunk_nominits_ts_diff_restart', 'port');
 	
-	for($i=0; $i<count(${$protocol}); $i++) {
+	for ($i=0; $i<count(${$protocol}); $i++) {
 		$value = getparam($prefix.${$protocol}[$i]);
 		if ($value)
 			$params[${$protocol}[$i]] = $value;
@@ -317,16 +308,15 @@ function edit_outgoing_write_to_file($prefix='',$prefix_protocol='')
 	}
 	$validate_results = validate_account($params);
 
-	if(!$validate_results[0])
-		return edit_outgoing($read_account, $validate_results[1], $validate_results[2]);
+	if (!$validate_results[0])
+		return edit_outbound($read_account, $validate_results[1], $validate_results[2]);
 
-
-	$outgoing_file = get_outgoing();
-	if (isset($outgoing_file[0]) && $outgoing_file[0]) {
-		$params_modified = verify_modification_params($params, $outgoing_file[1]);
+	$outbound_file = get_outbound();
+	if (isset($outbound_file[0]) && $outbound_file[0]) {
+		$params_modified = verify_modification_params($params, $outbound_file[1]);
 
 		if (!$params_modified) {
-			outgoing();
+			outbound();
 			return;
 		}
 	}
@@ -334,18 +324,11 @@ function edit_outgoing_write_to_file($prefix='',$prefix_protocol='')
 	if (isset($params["out:caller"]) && $params["out:caller"]=="")
 		unset($params["out:caller"]);
 
-	$res = set_outgoing($params);
+	$res = set_outbound($params);
 	if (!$res[0])
-		return edit_outgoing($read_account, $res[1]);
+		return edit_outbound($read_account, $res[1]);
 	
-	$res = restart_yate();
-
-	if ($res[0] && isset($res[1])) //yate is not running
-		outgoing("Finished setting outbound connection. " . $res[1]);
-	elseif (!$res[0]) //errors on socket connection
-		outgoing("Finished setting outbound connection. For changes to take effect please restart yate or reload just accfile module from telnet with command: \"reload accfile\".");
-	else //yate was restarted
-		outgoing("Finished setting outbound connection.");
+	outbound("Finished setting outbound connection.");
 }
 
 function verify_modification_params($edited_params, $file_params)
@@ -353,12 +336,12 @@ function verify_modification_params($edited_params, $file_params)
 	//$edited_params -> params from form
 	//$file_params -> params from file 
 	$modified = false;
-	foreach ($edited_params as $name => $value) {
+	foreach ($edited_params as $name=>$value) {
 		if (!in_array($value,$file_params)) {
 			$modified = true;
 			break;
 		}
-		if (isset($file_params[$name]) && $value != $file_params[$name]) {
+		if (isset($file_params[$name]) && $value!=$file_params[$name]) {
 			$modified = true;
 			break;
 		}
@@ -369,13 +352,13 @@ function verify_modification_params($edited_params, $file_params)
 function validate_account($params)
 {
 	if ($params['protocol'] == 'sip') {
-		if ( !empty($params['localaddress']) && $params['localaddress'] == 'no' && $params['keepalive'] != 0)
+		if (!empty($params['localaddress']) && $params['localaddress'] == 'no' && $params['keepalive'] != 0)
 			return array(false, "Invalid keepalive value if localaddress is not set.", array('keepalive', 'localaddress'));
-		if ($params['ip_transport'] == 'UDP' && empty($params['ip_transport_localip']) && !empty($params['ip_transport_localport']))
+		if ($params['ip_transport']=='UDP' && empty($params['ip_transport_localip']) && !empty($params['ip_transport_localport']))
 			return array(false, "Field Ip transport localip must be set. This parameter is used in conjuction Ip transport localport to identify the transport to use.", array('ip_transport_localip'));
-		if ($params['ip_transport'] == 'UDP' && !empty($params['ip_transport_localip']) && empty($params['ip_transport_localport']))
+		if ($params['ip_transport']=='UDP' && !empty($params['ip_transport_localip']) && empty($params['ip_transport_localport']))
 			return array(false, "Field Ip transport localport must be set. This parameter is used in conjuction Ip transport localip to identify the transport to use.", array('ip_transport_localport'));
-		if ($params['ip_transport'] != 'UDP' && !empty($params['ip_transport_localport']))
+		if ($params['ip_transport']!='UDP' && !empty($params['ip_transport_localport']))
 			return array(false, "Invalid Transport. The Transport must be on UDP.", array('ip_transport'));
 	} else {
 		if (!empty($params['trunk_sendinterval']) && $params['trunk_sendinterval'] < 5)
@@ -391,65 +374,36 @@ function validate_account($params)
 	return array(true);
 }
 
-function delete_and_switch_outgoing()
+function delete_and_switch_outbound()
 {
 	global $method;
 	$switch_protocol = getparam("switch_protocol");
-	$method= "delete_and_switch_outgoing";
+	$method= "delete_and_switch_outbound";
 	ack_delete("the existing outbound connection to switch to $switch_protocol",null,null,"regprotocol","",strtolower($switch_protocol));
 }
 
-function delete_and_switch_outgoing_database()
+function delete_and_switch_outbound_database()
 {
 	global $method;
 
-	$method = "outgoing";
-	$res = set_outgoing(array());
-	if (!$res[0])
-		errormess("Could not delete outbound connection: ".$res[1], "no");
-	else
-		message("Outbound connection was deleted.","no");
-	edit_outgoing(false);
+	$method = "outbound";
+	message("Outbound connection was deleted.","no");
+	edit_outbound(false);
 }
 
-function get_outgoing()
+function get_outbound()
 {
-	global $yate_conf_dir;
-
-	$accfile_name = $yate_conf_dir."accfile.conf";
-	if (!is_file($accfile_name))
-	    return array(true);
-
-	$accfile = new ConfFile($accfile_name);
-
-	if (!$accfile->status())
-		return array(false, $accfile->getError());
-
-	$res = $accfile->getSection("outbound");
-	if (!$accfile->status())
-		return array(false, $accfile->getError());
-	return array(true,$res);
+	$res = request_api(array(), "get_nib_outbound", "outbound");
+	if (!count($res)) {
+		Debug::xdebug("outbound", "Could not retrieve outbound from api.");
+		return null;
+	}
+	return array(true, $res);
 }
 
-function set_outgoing($account_info)
+function set_outbound($account_info)
 {
-	global $yate_conf_dir;
-
-	$accfile_name = $yate_conf_dir."accfile.conf";
-	$accfile = new ConfFile($accfile_name,false);
-
-	if (!$accfile->status())
-		return array(false, $accfile->getError());
-
-	if(count($account_info))
-		$accfile->structure["outbound"] = $account_info;
-	else
-		$accfile->structure = array();
-	$accfile->safeSave();
-	if (!$accfile->status())
-		return array(false, $accfile->getError());
-
+    $res = request_api($account_info, "set_nib_outbound");
 	return array(true);
 }
-
 ?>
