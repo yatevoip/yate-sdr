@@ -1294,8 +1294,20 @@ div.error_link { border-bottom:2px solid #93c300;width:75px;display:inline;}
 div.err_link_pysim { display:inline;}
 div.next_lines {text-align:right;margin-right:5%;}
 
-#section_0, #section_1 { width: 98px;}
-table.menu td.menu_toggle { width:122px; padding:0px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; cursor:pointer; color: #0189D7;}
-table.menu td.menu_fill {width: 255px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; }
+/* Computed tabs for ENB configuration */
+table.menu_enb #section_0,table.menu_enb #section_1 { width: 108px;}
+table.menu_enb #section_2 { width: 112px; }
+table.menu_enb #section_3 { width: 75px; padding-left:7px;}
+table.menu_enb #section_4 { width: 75px; }
+table.menu_enb td.menu_toggle { width:127px; padding:0px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; cursor:pointer; color: #0189D7; }
+table.menu_enb td.menu_fill {width: /*255px*/ 157px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; padding-left:20px; padding-right:20px;}
+
+table.menu_bts #section_0,table.menu_bts #section_1 { width: 92px;}
+table.menu_bts #section_2 { width: 101px; padding-left:7px;}
+table.menu_bts #section_3 { width: 98px; }
+table.menu_bts #section_4 { width: 95px; }
+table.menu_bts td.menu_toggle { width:127px; padding:0px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; cursor:pointer; color: #0189D7; }
+table.menu_bts td.menu_fill {width: /*255px*/ 323px; border-top:none; border-left:none; border-right:none; border-bottom:1px solid #CCCCCC; padding-left:20px; padding-right:20px;}
+
 
 table.workingmode td, table.workingmode th {height: 30px; padding-left:10px; text-align:left;}
