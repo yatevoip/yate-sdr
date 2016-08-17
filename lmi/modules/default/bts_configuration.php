@@ -28,12 +28,6 @@ function bts_configuration()
 {
 	global $section, $subsection;
 
-	$res = test_default_config();
-	if (!$res[0]) {//permission errors
-		errormess($res[1], "no");
-		return;
-	}
-
 	$form = new BtsTabbedSettings();
 	$form->displayTabbedSettings();
 }
