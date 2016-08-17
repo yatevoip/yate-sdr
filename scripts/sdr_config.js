@@ -28,10 +28,28 @@ function SatSiteConfig()
 {
     GenericConfig.apply(this);
     this.file = "satsite";
-    this.sections = ["basic", "site-equipment", "shutdown"];
-    this.overwrite = false;
+    this.sections = ["basic", "site_equipment", "shutdown"];
+    this.overwrite = true;
 };
 SatSiteConfig.prototype = new GenericConfig;
+
+SatSiteConfig.prototype.validations = {
+    "basic": {
+	"location"        : {"callback": checkValidGeoLocation},
+	"antennaDirection": {"callback": checkValidFloat},
+	"antennaBeamwidth": {"minimum": 1, "maximum": 360},
+	"reportingPeriod" : {"callback": checkValidInteger}
+    },
+    "shutdown": {
+	"maxVswr":                 {"callback": checkValidFloat},
+	"amplifierShutdownTemp":   {"mininum": 1, "maximum": 85},
+	"amplifierRestartTemp":    {"mininum": 1, "maximum": 85},
+	"powerSupplyShutdownTemp": {"mininum": 1, "maximum": 85},
+	"powerSupplyRestartTemp":  {"mininum": 1, "maximum": 85},
+	"softwareShutdownTemp":    {"mininum": 1, "maximum": 100},
+	"softwareRestartTemp":     {"mininum": 1, "maximum": 85}
+    } 
+};
 
 // Get configurations from satsite.conf
 API.on_get_satsite_node = function(params,msg)
