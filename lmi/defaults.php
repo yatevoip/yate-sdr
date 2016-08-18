@@ -23,6 +23,22 @@ $func_build_request_url = "build_request_url_for_api";
 # yate cdr logs file
 $yate_cdr = "/var/log/yate-cdr.csv";
 
+$dirs = array("/etc/yate/", "/usr/local/etc/yate/");
+foreach ($dirs as $pos_dir) {
+	if (is_dir($pos_dir)) 
+		$yate_conf_dir = $pos_dir;
+	if (is_readable($pos_dir) && is_writable($pos_dir))
+		break;
+}
+if (!isset($yate_conf_dir)) 
+	print ("Couldn't detect installed yate. Please install yate first before trying to use the NIB WebGui.");
+ 
+$yate_ip = "127.0.0.1";
+$server_name = $yate_ip;
+
+$default_ip = "tcp://".$yate_ip;
+$default_port = '5038';
+
 $upload_path = "/var/log/lmi/";
 
 # log dirs
