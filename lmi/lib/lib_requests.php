@@ -43,7 +43,7 @@ function build_request_url_for_api(&$out,&$request)
 	if (!isset($request_protocol))
 		$request_protocol = "http";
 
-	$out = array("request"=>$request,"node"=>"satsite","params"=>$out);
+	$out = array("request"=>$request,"node"=>"sdr","params"=>$out);
 	$url = "$request_protocol://$server_name/api.php";
 	return $url;
 }
