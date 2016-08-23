@@ -60,7 +60,7 @@ function list_subscribers()
 		start_form();
 		addHidden(null, array("method"=>"edit_regexp", "regexp"=>$regexp));
 		$fields = array("regexp"=>array("value"=>$regexp, "display"=>"fixed"));
-		editObject(null,$fields,"Regular expression based on which subscriber IMSI are accepted for registration",array("Modify", "Set subscribers"),null,true);
+		editObject(null,$fields,"Regular expression based on which subscriber IMSI are accepted for registration",array("Modify", /*"Set subscribers"*/ "Return to setting subscribers individually"),null,true);
 		end_form();
 	}
 }
@@ -103,10 +103,15 @@ function rejected_imsis()
 
 function edit_regexp($error=null,$error_fields=array())
 {
-	if (getparam("Set_subscribers")=="Set subscribers")
-		return edit_subscriber();
+	//	if (getparam("Set_subscribers")=="Set subscribers")
+	//		return edit_subscriber();
+	if (getparam("Return_to_setting_subscribers_individually")=="Return to setting subscribers individually") {
+		$res = request_api(array(";regexp"=>getparam("regexp")), "set_nib_system");
+		return list_subscribers();
+	}
 
 	$regexp = getparam("regexp");
+
 
 	$response_fields = get_bts_node();
 
@@ -426,9 +431,7 @@ function set_subscribers($subscribers)
 
 function set_regexp($regexp)
 {
-	global $method;
-	
-	$res = request_api(array("regexp"=>$regexp), "set_nib_system", $method);
+	$res = request_api(array("regexp"=>$regexp), "set_nib_system");
 	return array(true);
 }
 
