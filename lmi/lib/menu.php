@@ -157,7 +157,7 @@ function menu()
 	if (!$devel_mode) {
 
 		if (!isset($modules_per_mode[$working_mode])) 
-			return errormess("Invalid working mode "+ $working_mode, "no");
+			return errormess("Invalid working mode '".$working_mode."'", "no");
 
 		$names = $modules_per_mode[$working_mode];
 	}
