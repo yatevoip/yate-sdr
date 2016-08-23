@@ -211,7 +211,7 @@ function show_hide(element)
 				div.style.display = (ie > 1 && ie<8) ? "block" : "table-cell";
 			else
 				div.style.display = "block";
-	}else{
+	} else {
 		div.style.display = "none";
 	}
 }
@@ -228,12 +228,39 @@ function show_hide_pysim_traceback(pysim_err)
 
 function in_array(needle, haystack) 
 {
-    var length = haystack.length;
-    for (var i = 0; i < length; i++) {
-        if (haystack[i] == needle) 
-		return true;
-    }
-    return false;
+	var length = haystack.length;
+	for (var i = 0; i < length; i++) {
+		if (haystack[i] == needle) 
+			return true;
+	}
+	return false;
+}
+
+function srb_mode(srb_index)
+{
+	var show_fields, hide_fields;
+	var fields_ack = ["rlcTPollRetransmit", "rlcTReordering", "rlcTStatusProhibit", "rlcMaxRetxThreshold", "rlcPollPdu", "rlcPollByte"];
+	var fields_unack = ["rlcSnFieldLength" ,"rlcTReordering"];
+
+	var mode = get_selected("Srb" + srb_index + ".mode");
+	if (mode=="acknowledged") {
+		show_fields = fields_ack;
+		hide_fields = fields_unack;
+	} else if (mode=="unacknowledged") {
+		show_fields = fields_unack;
+		hide_fields = fields_ack;
+	} else if (mode=="default") {
+		show_fields = [];
+		hide_fields = fields_unack.concat(fields_ack);
+	} else {
+		alert("Please select Srb mode");
+		return;
+	}
+
+	for (var i=0; i<hide_fields.length; i++)
+		hide("tr_Srb" + srb_index + "." + hide_fields[i]);
+	for (i=0; i<show_fields.length; i++)
+		show("tr_Srb" + srb_index + "." + show_fields[i]);
 }
 
 /*

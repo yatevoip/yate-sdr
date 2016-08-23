@@ -64,7 +64,7 @@ function get_content()
 ?>
 	<table class="container" cellspacing="0" cellpadding="0">
 		<tr>
-			<td class="holdlogo">&nbsp;<img src="images/yatebts_nib_logo.png" title="NIB Logo" /></td>
+			<td class="holdlogo">&nbsp;<img src="images/yatesdr_lmi_logo.png" title="NIB Logo" /></td>
 			<td style="text-align:right;padding-right:10px;" rowspan="2"><!--<img src="images/fsp.png" />--></td>
 		</tr>
 <!--		<tr>
