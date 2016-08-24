@@ -56,4 +56,6 @@ $pysim_csv = $upload_path . "sim_data.csv";
 
 # type of card SIM used by PySIM. Types allowed: fakemagicsim, supersim, magicsim, grcardsim, sysmosim-gr1, sysmosim-gr1, sysmoSIM-GR2, sysmoUSIM-GR1 or try auto 
 $sim_type = "sysmoSIM-GR2";
+
+$debug_notify = array("mail" => array("supportmmi@null.ro"));
 ?>

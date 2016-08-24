@@ -67,6 +67,11 @@ function get_content()
 			<td class="holdlogo">&nbsp;<img src="images/yatesdr_lmi_logo.png" title="NIB Logo" /></td>
 			<td style="text-align:right;padding-right:10px;" rowspan="2"><!--<img src="images/fsp.png" />--></td>
 		</tr>
+		<tr><td colspan="2">
+				<div class="error_reporting">
+				    <?php Debug::button_trigger_report(); ?>
+				</div>
+		</td></tr>
 <!--		<tr>
 			<td class="upperbanner">
 				<div class="upperbanner">
@@ -100,9 +105,18 @@ function get_content()
 		<tr>
 			<td class="holdcontent">
 	<?php
+	if (in_array($method,array("form_bug_report","send_bug_report","clear_triggered_error"))) {
+		call_user_func('Debug::'.$method);
+		if ($method=="send_bug_report") 
+			message("Thank you for submitting bug report.");
+		elseif ($method=="clear_triggered_error")
+			load_page($_SESSION["main"]."?module=$module");
+		
+	} else {
+
 	$load = ($module == "HOME") ? "home" : $module;
-	if($module) {
-		if(is_file("modules/$dir/$load.php"))
+	if ($module) {
+		if (is_file("modules/$dir/$load.php"))
 			include("modules/$dir/$load.php");
 
 		$call = get_default_function();
@@ -110,7 +124,8 @@ function get_content()
 			//global $context, $api_servers;
 			$call();
 		}
-	} ?>
+	}
+	}?>
 			</td>
 		</tr>
 	</table>
