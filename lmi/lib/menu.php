@@ -163,6 +163,7 @@ function menu()
 	// instead of loading all files from modules/default directory, define menu based on working_mode
 	$modules_per_mode = array(
 		"" => array("working_mode"),
+		"not configured" => array("working_mode"),
 		"nib" => array("working_mode", "subscribers", "bts_configuration", "outbound", "call_logs"),
 		"roaming" => array("working_mode", "bts_configuration"),
 		"dataroam" => array("working_mode", "bts_configuration"),
