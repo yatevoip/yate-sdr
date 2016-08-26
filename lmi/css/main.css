@@ -413,6 +413,7 @@ td.right_column
 a.llink
 {
 	color:#0189d7;
+	cursor:pointer;
 }
 
 /* style for creating the tables */
