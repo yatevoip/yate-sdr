@@ -31,38 +31,33 @@ $method = NULL;
 $dir = $level = "default";
 
 $module = (!$module) ? getparam("module") : $module;
-if (!$module) {
+if (!$module)
         $module = "working_mode";
-}
 
 if ($module == "bts_configuration") {
 	// Parameters used in MODULE: BTS Configuration 
 	$section = (isset($_SESSION["BTS"]["section"])) ? $_SESSION["BTS"]["section"] : 'Radio';
 	$subsection = (isset($_SESSION["BTS"]["subsection"])) ? $_SESSION["BTS"]["subsection"]  :'gsm';
-} else {
+} else
 	unset($_SESSION["BTS"]);
-}
 
 if ($module == "enb_configuration") {
 	// Parameters used in MODULE: ENB Configuration 
 	$section = (isset($_SESSION["ENB"]["section"])) ? $_SESSION["ENB"]["section"] : 'Radio';
 	$subsection = (isset($_SESSION["ENB"]["subsection"])) ? $_SESSION["ENB"]["subsection"]  :'EnodeB';
-} else {
+} else
 	unset($_SESSION["ENB"]);
-}
 
 $action = getparam("action");
-$method = (!$method) ? getparam("method") : $method;
-
-$page = getparam("page");
-if (!$page)
-        $page = 0;
-
-$_SESSION["limit"] = (isset($_SESSION["limit"])) ? $_SESSION["limit"] : 20;
-$limit = getparam("limit") ? getparam("limit") : $_SESSION["limit"];
-$_SESSION["limit"] = $limit;
+$method = getparam("method");
 if ($method == "manage")
         $method = $module;
+
+$page   = (!getparam("page")) ? 0 : getparam("page");
+
+$_SESSION["limit"] = (isset($_SESSION["limit"])) ? $_SESSION["limit"] : 20;
+$limit             = (getparam("limit")) ? getparam("limit") : $_SESSION["limit"];
+$_SESSION["limit"] = $limit;
 
 $_SESSION["main"] = "main.php";
 
@@ -73,9 +68,9 @@ if (!$working_mode) {
 
 	if (count($node_types)) {
 		$_SESSION["node_types"] = $node_types;;
-		$sdr_mode = $node_types[0]["sdr_mode"];
-		$_SESSION["sdr_mode"] = $sdr_mode;
-		$working_mode = $sdr_mode;
+		$sdr_mode               = $node_types[0]["sdr_mode"];
+		$_SESSION["sdr_mode"]   = $sdr_mode;
+		$working_mode           = $sdr_mode;
 	}
 }
 
