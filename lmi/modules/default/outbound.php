@@ -1,6 +1,6 @@
 <?php
 /**
- * outgoing.php
+ * outbound.php
  * This file is part of the Yate-BTS Project http://www.yatebts.com
  *
  * Copyright (C) 2014 - 2016 Null Team
@@ -276,6 +276,9 @@ function edit_outbound_write_to_file($prefix='',$prefix_protocol='')
 			return edit_outbound($read_account, "Field '".$compulsory[$i]."' is required.");
 		$params[$compulsory[$i]] = getparam($prefix.$compulsory[$i]);
 	}
+
+	if (!valid_address(getparam($prefix."server")))
+        return edit_outbound($read_account, "Invalid 'Server' value: ".getparam($prefix."server"));
 
 	$sip = array('authname','outbound', 'domain', 'localaddress', 'description', 'interval', 'rtp_localip', 'ip_transport', 'ip_transport_remoteip', 'ip_transport_localip', 'ip_transport_localport', 'keepalive');
 	$iax = array('description', 'interval', 'connection_id', 'ip_transport_localip', 'ip_transport_localport', 'trunk_sendinterval', 'trunk_maxlen', 'trunk_nominits_ts_diff_restart', 'port');
