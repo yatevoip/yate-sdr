@@ -31,15 +31,13 @@ foreach ($dirs as $pos_dir) {
 		break;
 }
 if (!isset($yate_conf_dir)) 
-	print ("Couldn't detect installed yate. Please install yate first before trying to use the NIB WebGui.");
+	print ("Couldn't detect installed yate. Please install yate first before trying to use the YateSDR Local Management Interface.");
  
 $yate_ip = "127.0.0.1";
 $server_name = $yate_ip;
 
 $default_ip = "tcp://".$yate_ip;
 $default_port = '5038';
-
-$upload_path = "/var/log/lmi/";
 
 # log dirs
 $parse_errors = "/var/log/lmi/parse_errors.txt";
@@ -52,7 +50,7 @@ $devel_mode = false;
 $pysim_mode = false;
 
 # the file used by PySim to write the SIM credentials 
-$pysim_csv = $upload_path . "sim_data.csv";
+$pysim_csv = $yate_conf_dir . "sim_data.csv";
 
 # type of card SIM used by PySIM. Types allowed: fakemagicsim, supersim, magicsim, grcardsim, sysmosim-gr1, sysmosim-gr1, sysmoSIM-GR2, sysmoUSIM-GR1 or try auto 
 $sim_type = "sysmoSIM-GR2";
