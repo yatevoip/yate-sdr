@@ -542,7 +542,7 @@ function display_add_into_subscribers($imsi, $ki)
 
 function write_sim_form($error=null, $error_fields=array(), $generate_random_imsi = true, $insert_subscribers = true, $add_existing_subscriber=false, $params = array())
 {
-	global $upload_path, $sim_type, $method;
+	global $yate_conf_dir, $sim_type, $method;
 
 	$method = "write_sim_form";
 	$pysim_installed = detect_pysim_installed();
@@ -669,7 +669,7 @@ function get_card_types()
 
 function write_sim_form_to_pysim()
 {
-	global $upload_path, $method;
+	global $yate_conf_dir, $method;
 
 	$error = "";
 	$params = array("operator_name","country_code","mobile_country_code","mobile_network_code", "card_type");
@@ -840,7 +840,7 @@ function execute_pysim($params, $command_manually=false)
 		// $pipes now looks like this:
 		// 0 => writeable handle connected to child stdin
 		// 1 => readable handle connected to child stdout
-		// Any error output will be appended to $upload_path."pysim-error.log"
+		// Any error output will be appended to $yate_conf_dir."pysim-error.log"
 		$output = false;
 		do {
 			$read = array($pipes[1]);$write=array();$except=array();
@@ -904,10 +904,10 @@ function generateToken($length)
 
 function read_csv()
 {
-	global $upload_path;
+	global $yate_conf_dir;
 
 	$sim_data = array();
-	$filename = $upload_path.'sim_data.csv';
+	$filename = $yate_conf_dir.'sim_data.csv';
 	if (!file_exists($filename))
 		return $sim_data;
 
@@ -1032,7 +1032,7 @@ function import_subscribers($error=null,$error_fields=array())
 
 function import_subscribers_from_csv()
 {
-	global $module, $upload_path;
+	global $module, $yate_conf_dir;
 
 	$filename = basename($_FILES["insert_file_location"]["name"]);
 	$ext = strtolower(substr($filename,-4));
@@ -1040,7 +1040,7 @@ function import_subscribers_from_csv()
 		return import_subscribers("File format must be .csv", array("insert_file_location"));
 
 	$real_name = time().".csv";
-	$file = "$upload_path/$real_name";
+	$file = "$yate_conf_dir/$real_name";
 	if (!move_uploaded_file($_FILES["insert_file_location"]['tmp_name'],$file))
 		return import_subscribers("Could not upload file.", array("insert_file_location"));
 
@@ -1058,8 +1058,8 @@ function import_subscribers_from_csv()
 			$new_subscribers[$imsi]["op"] = "";
 		if ($data["imsi_type"] == "3G" &&  $data["op"] == "")
 			$new_subscribers[$imsi]["op"] = "00000000000000000000000000000000";
-		if (preg_match()) {
-			print "Skipping IMSI: ".$imsi.". Error: The IMSI must contain only 14 or 15 digits."; 
+		if (!preg_match("/[0-9]{14,15}/", $imsi)) {
+			print "Skipping IMSI: ".$imsi.". Error: The IMSI must contain only 14 or 15 digits.<br/>"; 
 			continue;
 		}
 		$res = validate_subscribers($data);
@@ -1067,18 +1067,16 @@ function import_subscribers_from_csv()
 			print "Skipping IMSI: ".$imsi.". Error: ".$res[1];
 			continue;
 		} else {
-			$fields = array("subscribers"=>$data);
-			$res = make_request($fields,"set_subscriber");
+			$fields = array("subscribers"=>array($imsi=>$data));
+			$res = make_request($fields,"set_nib_subscribers");
 			if ($res["code"]!="0") {
-				errormess("Error when importing subscriber with IMSI ".$imsi.". Error: ".$res["message"] ,"no");
+				errormess("Error when importing subscriber with IMSI ".$imsi.". Error [".$res["code"]."] ". $res["message"] ,"no");
 				message("Fix error and reupload file.","no");
 				break;
 			}
 			else
 				$imported += 1;
-
 		}
-
 	}
 	notice("Finished importing subscribers. Imported ".$imported." subscribers.", "list_subscribers");
 }
@@ -1101,6 +1099,7 @@ function validate_subscribers($fields)
 
 	return array(true);
 }
+
 function get_subscribers_from_uploaded_csv($file)
 {
 	$new_subscribers = array();
@@ -1119,7 +1118,7 @@ function get_subscribers_from_uploaded_csv($file)
 
 	return array(true,$new_subscribers);
 }
-
+// Old implementation to overwrite the imsis when importing a csv file
 function overwrite_imsi_form($error=null, $error_fields=array())
 {
 	global $method;
@@ -1170,7 +1169,7 @@ function overwrite_imsi_in_file()
 
 function export_subscribers_in_csv()
 {
-	global $upload_path, $pysim_mode;
+	global $yate_conf_dir, $pysim_mode;
 
 	$subscribers = get_subscribers();
 	if (!$subscribers[0]) {
@@ -1211,7 +1210,7 @@ function export_subscribers_in_csv()
 	}
 	$filename = "list_subscribers.csv";
 
-	$csv = new CsvFile($upload_path.$filename, $formats, $new, false, false);
+	$csv = new CsvFile($yate_conf_dir.$filename, $formats, $new, false, false);
 
 	if (!$csv->status())
 		return notice($csv->getError(),"list_subscribers");
