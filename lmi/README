@@ -1,9 +1,18 @@
-What is Network in a Box Web GUI
---------------------------------
+What is YateSDR Local Management Interface 
+------------------------------------------
 
-A Graphical Web Interface used to create configurations files for YateBTS.
+A Graphical Web Interface used to create configurations files for YateSDR.
 
-It has tree parts:
+It is required to choose a working mode before doing any other configuration.
+
+The working modes are:
+
+ 1. GSM nib       - GSM Network in a box
+ 2. GSM roaming   - GSM BTS connected to YateUCN/HostedCore for voice/sms services
+ 3. GSM dataroam  - GSM BTS connected to YateUCN/HostedCore for voice/sms/data services
+ 4. LTE enb	  - LTE EnodeB connected to a MME/HostedCore
+
+If 'GSM nib' mode is set, there are three parts:
 
 1. Subscribers contains: List Subscribers, Online Subscribers, Rejected IMSIs
 List Subscribers - each IMSI can be inserted individually or
@@ -15,7 +24,21 @@ Rejected IMSIs - lists all the rejected subscribers.
 
 2. BTS Configuration - has all the sections from ybts.conf file that can be configured.
  
-3. Outgoing - configure outbound connection On IAX or SIP protocol with their specific parameters.
+3. Outgoing - configure outbound connection on IAX or SIP protocol with their specific parameters.
+
+
+If 'GSM roaming' mode is set:
+
+BTS Configuration - has all the sections from ybts.conf file that can be configured.
+
+If 'GSM dataroam' mode is set:
+
+BTS Configuration - has all the sections from ybts.conf file that can be configured.
+
+If 'LTE enb' mode is set:
+
+ENB Configuration - has all the section from openenb.conf, satsite.conf, gtp.conf file that can be configured.
+
 
 Requirements
 ------------
@@ -24,6 +47,7 @@ PHP, Apache, YateBTS are required to run the software.
 
 Installing
 ----------
+TBI: modify the installation part 
 
 Depending on your operating system the main web directory will be /var/www (debian based systems) 
 or /var/www/html otherwise. If you don't have this path, then you need to install Apache server.
