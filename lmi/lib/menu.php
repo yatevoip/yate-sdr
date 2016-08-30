@@ -129,9 +129,9 @@ function get_content()
 			</td>
 		</tr>
 	</table>
-	<div class="footer_note">
+<!--	<div class="footer_note">
 		Note! To disable nib mode and enable roaming mode see <a class='llink' href='http://wiki.yatebts.com/index.php/Javascript_Roaming'>Javascript Roaming</a>
-	</div>
+	</div>-->
 <?php
 }
 
