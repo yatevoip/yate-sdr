@@ -76,12 +76,15 @@ GenericConfig.prototype.setConfig = function(params)
 	// received configurations will be put over this ones
     }
     //return error if any required section is missing
-    for (section_name_req in this.params_required) {
-	if (!params[section_name_req]) {
-	    this.error.reason = "Missing required section: '" + section_name_req + "'.";
-	    this.error.error = 402;
-	    return false;
-	}
+   
+    if (Array.isArray(this.params_required)) {
+	for (section_name_req in this.params_required) {
+	    if (!params[section_name_req]) {
+		this.error.reason = "Missing required section: '" + section_name_req + "'.";
+		this.error.error = 402;
+		return false;
+	    }
+        }
     }
 
     if (!this.initConfig(params))
