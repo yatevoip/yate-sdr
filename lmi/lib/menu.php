@@ -129,10 +129,6 @@ function get_content()
 			</td>
 		</tr>
 	</table>
-	<div class="footer_note">
-		Note! There are 2 types of error messages: generated from web interface and received from API.<br/>
-		Error messages from API have an error code: [NNN]. See more information about the <a class='llink' target='_blank' href='http://wiki.yatebts.com/index.php/JSON_API#Error_codes'>error codes</a> from API.
-	</div>
 <?php
 }
 
