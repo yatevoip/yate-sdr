@@ -62,7 +62,7 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 
 	$error = false;
 	if ($res["code"]!="0") {
-		errormess("[".$res["code"]."] ".$res["message"],"no");
+		errormess("[API: ".$res["code"]."] ".$res["message"],"no");
 		$error = true;
 	} elseif ($response_field && !isset($res[$response_field])) {
 		errormess("Could not retrieve $response_field from api response.","no");

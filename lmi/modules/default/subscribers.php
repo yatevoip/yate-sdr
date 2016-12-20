@@ -1070,7 +1070,7 @@ function import_subscribers_from_csv()
 			$fields = array("subscribers"=>array($imsi=>$data));
 			$res = make_request($fields,"set_nib_subscribers");
 			if ($res["code"]!="0") {
-				errormess("Error when importing subscriber with IMSI ".$imsi.". Error [".$res["code"]."] ". $res["message"] ,"no");
+				errormess("Error when importing subscriber with IMSI ".$imsi.". Error [API: ".$res["code"]."] ". $res["message"] ,"no");
 				message("Fix error and reupload file.","no");
 				break;
 			}

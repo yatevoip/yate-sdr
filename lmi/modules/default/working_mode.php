@@ -123,7 +123,7 @@ function modify_working_mode_database()
 	$res = make_request($request_fields, "set_sdr_mode");
 
 	if (!isset($res["code"]) || $res["code"]!=0) {
-		errormess("Could not update working mode: "."[".$res["code"]."] ".$res["message"],"no");
+		errormess("Could not update working mode: "."[API: ".$res["code"]."] ".$res["message"],"no");
 	} else {
 		message("Working mode succesfully updated.","no");
 	//	unset($_SESSION["node_types"]);
