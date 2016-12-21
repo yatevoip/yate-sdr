@@ -70,7 +70,7 @@ function get_content()
 			<td class="holdlinks">
 
 				<div class="right_upperbanner">Welcome</div>
-				<div class="download_config"><a class="llink" href="download.php?method=config">Download configuration</a></div>
+				<div class="download_config"><a class="llink" href="download.php?method=config&module=<?php print $module;?>">Download configuration</a></div>
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
 				</div>
@@ -116,6 +116,8 @@ function get_content()
 		elseif ($method=="clear_triggered_error")
 			load_page($_SESSION["main"]."?module=$module");
 		
+	} elseif ($method == "download_config_error") {
+		errormess(getparam("errormess"));
 	} else {
 
 	$load = ($module == "HOME") ? "home" : $module;

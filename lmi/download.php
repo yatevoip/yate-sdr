@@ -20,7 +20,10 @@ if (getparam("file")) {
 		$res = make_request($request_params, $operation);
 
 		if ($res && is_array($res)) {
-			errormess("[API: ".$res["code"]."]".$res["message"]);
+
+			$module = getparam("module");
+			$err = "[API: ".$res["code"]."] " . $res["message"];
+			Header("Location: main.php?module=".$module."&method=download_config_error&errormess=".$err);	
 			exit();
 		}
 
