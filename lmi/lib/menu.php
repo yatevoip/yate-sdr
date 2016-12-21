@@ -64,13 +64,17 @@ function get_content()
 ?>
 	<table class="container" cellspacing="0" cellpadding="0">
 		<tr>
-			<td class="holdlogo">&nbsp;<img src="images/yatesdr_lmi_logo.png" title="NIB Logo" /></td>
-			<td style="text-align:right;padding-right:10px;" rowspan="2"><!--<img src="images/fsp.png" />--></td>
-		</tr>
-		<tr><td colspan="2">
+			<td class="holdlogo">
+				<div class="left_upperbanner"><img src="images/yatesdr_lmi_logo.png" title="NIB Logo" /></div>
+			</td>
+			<td class="holdlinks">
+
+				<div class="right_upperbanner">Welcome</div>
+				<div class="download_config"><a class="llink" href="download.php?method=config">Download configuration</a></div>
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
 				</div>
+				<div class="version">Version: <?php print get_version();?></div>
 		</td></tr>
 <!--		<tr>
 			<td class="upperbanner">
@@ -283,18 +287,20 @@ function submenu()
 
 function get_version()
 {
-	if (is_file("../version.php")) {
+	if (is_file("version.php")) {
+		include ("version.php");
+		return $version;
+	} elseif (is_file("../version.php")) {
 		include ("../version.php");
 		return $version;
-	} elseif (is_file(".svn/entries")) {
-		$fh = fopen(".svn/entries","r");
-		fgets($fh);
-		fgets($fh);
-		fgets($fh);
-		$rev = fgets($fh);
-		return "svn rev. $rev";
+	} else {
+		$rev = "";
+		exec("svn info 2>/dev/null | sed -n 's,^Revision: *,,p'",$rev);
+		if (!is_array($rev) || !isset($rev[0]))
+			return "Could not detect version";
+		else
+			return "svn rev. ".$rev[0];
 	}
-	return "Could not detect version";	
 }
 
 ?>

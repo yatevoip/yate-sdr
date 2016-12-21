@@ -47,7 +47,7 @@ body.mainbody
 
 table.container
 {
-	width:90%;
+	width:1200px;
 /*	border-style:solid;
 	border-color:#0189d7;
 	border-width:1px;
@@ -70,20 +70,18 @@ td.upperbanner
 	padding-top:1px;
 	padding-bottom:11px;
 }
-
-div.upperbanner
+td.holdlinks {padding-right:20px;padding-top:8px;}
+div.right_upperbanner, div.version
 {
     text-align:left;
-    font-size:11px;
+    font-size:12px;
     color:#666666;
-    margin-left:10px;
 }
 
-td.version
-{
-	text-align:right;
-	padding-right:10px;
-}
+div.error_reporting, div.download_config, div.right_upperbanner, div.version {text-align:right; padding-bottom:5px;}
+div.right_upperbanner { border-bottom: 1px solid #ccc;padding-bottom:2px;}
+div.download_config {padding-top:5px;}
+div.left_upperbanner {text-align:left; }
 
 a.uplink
 {
@@ -898,6 +896,7 @@ td.holdlogo
 	color: #0189D7;
 /*	padding-bottom:15px;*/
 	padding-left:15px;
+	width:70%;
 }
 
 div.summary
@@ -1313,4 +1312,3 @@ table.menu_bts td.menu_fill {width: /*255px*/ 323px; border-top:none; border-lef
 
 table.workingmode td, table.workingmode th {height: 30px; padding-left:10px; text-align:left;}
 div.objtitle { font-weight:bold; padding-top:8px; padding-bottom:3px; }
-div.error_reporting {width:1200px; text-align:right; padding-right:20px;}
