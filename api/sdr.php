@@ -3,10 +3,10 @@
 /* sdr.php
  * This file is part of the YATE Project http://YATE.null.ro
  *
- * JSON API handler for SatSite
+ * JSON API handler for Yate based Software Defined Radio products
  *
  * Yet Another Telephony Engine - a fully featured software PBX and IVR
- * Copyright (C) 2015-2016 Null Team
+ * Copyright (C) 2015-2017 Null Team
  *
  * This software is distributed under multiple licenses;
  * see the COPYING file in the main directory for licensing
@@ -44,7 +44,7 @@ function sdrHandler($request,$json,$recv,$node)
 
 	    $node_types = array();
 	    foreach ($sdr_nodes as $nodename=>$node_script) {
-		$node_response = yateRequest(1051,$node_script,$request,getParam($json,"params"),$recv,5,false);
+		$node_response = yateRequest(1049,$node_script,$request,getParam($json,"params"),$recv,5,false);
 		if (!isset($node_response["code"]) || !isset($node_response["node"]["sdr_mode"]) || $node_response["code"] != 0)
 			continue;
 		else
@@ -71,18 +71,18 @@ function sdrHandler($request,$json,$recv,$node)
 	case "get_nib_cdrfile":
 	    if ("sdr" != $node)
 		return null;
-	    return yateRequest(1051,"config_bts",$request,getParam($json,"params"),$recv);
+	    return yateRequest(1049,"config_bts",$request,getParam($json,"params"),$recv);
 	case "set_enb_node":
 	case "get_enb_node":
 	    if ("sdr" != $node)
-	        return null;	    
-	    return yateRequest(1051,"config_enb",$request,getParam($json,"params"),$recv);
+	        return null;
+	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
 	case "set_sdr_mode":
 	    // try find sending it to bts_config, if no answer, try sending it to enb_config
-	    $res = yateRequest(1051,"config_bts",$request,getParam($json,"params"),$recv,5,false);
+	    $res = yateRequest(1049,"config_bts",$request,getParam($json,"params"),$recv,5,false);
 	    if ($res["code"] != 200)
-		return $res;	    
-	    return yateRequest(1051,"config_enb",$request,getParam($json,"params"),$recv);
+		return $res;
+	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
     }
     return null;
 }

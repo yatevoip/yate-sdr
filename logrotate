@@ -1,0 +1,10 @@
+/var/log/yate-sdr /var/log/yate-sdr-cdr.tsv {
+    size=100M
+    rotate 5
+    missingok
+    sharedscripts
+    notifempty
+    postrotate
+	/bin/kill -HUP `/bin/cat /var/run/yate-sdr.pid`
+    endscript
+}
