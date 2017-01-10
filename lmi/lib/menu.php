@@ -70,7 +70,10 @@ function get_content()
 			<td class="holdlinks">
 
 				<div class="right_upperbanner">Welcome</div>
-				<div class="download_config"><a class="llink" href="download.php?method=config&module=<?php print $module;?>">Download configuration</a></div>
+				<div class="download_config">
+					<a class="llink" href="download.php?method=config&module=<?php print $module;?>">Download configuration</a>
+					 <a class="llink" href="main.php?method=force_calibration">Force calibration</a>
+				</div>
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
 				</div>
@@ -305,4 +308,27 @@ function get_version()
 	}
 }
 
+function force_calibration()
+{
+	print "Are you sure you want to force calibration? Yate will be automatically restarted after calibration is finished.";
+	print "<br/><br/>";
+
+	$link = "main.php?method=force_calibration&action=database";
+	print '<a class="llink" href="'.htmlentities($link).'">Yes</a>';
+
+	print '&nbsp;&nbsp;&nbsp;&nbsp;';
+
+	$link = $_SESSION["main"].'?';
+	if (isset($_SESSION["previous_page"])) {
+		foreach ($_SESSION["previous_page"] as $param=>$value)
+			$link .= "$param=$value&";
+	}
+	print '<a class="llink" href="'.htmlentities($link).'">No</a>';
+}
+
+function force_calibration_database()
+{
+	$res = request_api(array(), "calibrate");
+	notice("Finished forcing calibration.", "working_mode");
+}
 ?>
