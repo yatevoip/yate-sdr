@@ -15,7 +15,7 @@ function working_mode($editable=false)
 	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["sdr_mode"])) {
 		$node_types = request_api(array(), "get_node_type", "node_type");
 
-		if (!count($node_types)) {
+		if (!count($node_types) || !isset($node_types[0]["sdr_mode"])) {
 			errormess("Incomplete installation! Could not retrieve node types.","no");
 			return;
 		}

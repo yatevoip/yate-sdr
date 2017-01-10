@@ -66,8 +66,8 @@ $working_mode = (isset($_SESSION["sdr_mode"])) ? $_SESSION["sdr_mode"] : "";
 if (!$working_mode) {
 	$node_types = request_api(array(), "get_node_type", "node_type");
 
-	if (count($node_types)) {
-		$_SESSION["node_types"] = $node_types;;
+	if (count($node_types) && isset($node_types[0]["sdr_mode"]) ) {
+		$_SESSION["node_types"] = $node_types;
 		$sdr_mode               = $node_types[0]["sdr_mode"];
 		$_SESSION["sdr_mode"]   = $sdr_mode;
 		$working_mode           = $sdr_mode;
