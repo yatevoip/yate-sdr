@@ -71,7 +71,7 @@ function YBladeRfConfig()
 {
     GenericConfig.apply(this);
     this.file = "ybladerf";
-    this.sections = ["general", "libusb", "filedump", "test_name"];
+    this.sections = ["general", "libusb", "filedump"];
     this.overwrite = false;
 }
 YBladeRfConfig.prototype = new GenericConfig;
