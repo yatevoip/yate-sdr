@@ -74,7 +74,6 @@ function sdrHandler($request,$json,$recv,$node)
 	    return yateRequest(1049,"config_bts",$request,getParam($json,"params"),$recv);
 	case "set_enb_node":
 	case "get_enb_node":
-	case "calibrate":
 	    if ("sdr" != $node)
 	        return null;
 	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
@@ -84,6 +83,10 @@ function sdrHandler($request,$json,$recv,$node)
 	    if ($res["code"] != 200)
 		return $res;
 	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
+	case "calibrate_start":
+	case "calibrate_poll":
+	    // No need to check node: calibration will be handled if loaded
+	    return yateRequest(1049,"control",$request,getParam($json,"params"),$recv);
     }
     return null;
 }

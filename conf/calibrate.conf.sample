@@ -1,0 +1,32 @@
+; This file holds configuration of radio calibration module
+; All parameters are applied when module starts operating, unless otherwise specified
+
+[general]
+
+; mode: string: Radio mode
+; Values: enb, bts
+; A value of '-' indicates no radio module is loaded/handled: the calibrate module
+;  can be used for custom radio device calibration (command line only)
+; This parameter is not applied on reload unless previous value was incorrect
+; The module starts operating when a valid value is read from configuration
+;mode=
+
+; calibration_file: string: Path for calibration data storage file
+;calibration_file=${sharedpath}/data/ybladerf_calibration.conf
+
+; auto_calibration: boolean: Enable auto calibration
+; This parameter is applied on reload
+; Defaults to on
+;auto_calibration=on
+
+; freqoffs_calibration: boolean: Enable frequency offset calibration
+; This parameter is applied on reload
+; Defaults to on
+;freqoffs_calibration=on
+
+; debug: string: Initial debug string
+;debug=
+
+
+[calibrate_params]
+; Arbitrary parameters to be set in message used to start radio calibration
