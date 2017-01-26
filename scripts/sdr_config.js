@@ -22,6 +22,7 @@
 //#pragma trace "cachegrind.out.sdr_config"
 
 #require "generic_config.js"
+#require "lib_sdr_api.js"
 
 //  Satsite file configuration object
 function SatSiteConfig()
@@ -88,21 +89,6 @@ API.on_set_ybladerf_node = function(params,msg,setNode)
     var ybladerf = new YBladeRfConfig;
     return API.on_set_generic_file(ybladerf,params,msg,setNode);
 };
-
-function checkJson(error,params,json)
-{
-    if (params)
-    	return true;
-    if (json) {
-    	error.reason = "Invalid JSON content.";
-    	error.error = 401;
-    }
-    else {
-    	error.reason = "Missing all parameters.";
-    	error.error = 402;
-    }
-    return false;
-}
 
 API.on_get_node_type = function(params,msg)
 {
@@ -224,35 +210,6 @@ API.on_set_node = function(params,msg)
     }
     return { name: "node" };
 };
-
-// Callback used when handler for api.request message is installed
-function onApiRequest(msg)
-{
-    var func = API["on_" + msg.operation];
-    if ("function" != typeof func.apply) {
-	if (debug)
-	    Engine.output("Undefined function " + func + " in onApiRequest");
-	return false;
-    }
-    var res = func(JSON.parse(msg.json),msg);
-    if (!res)
-	return false;
-    if ("" != res.reason) {
-	msg.retValue("-");
-	msg.error = res.error;
-	msg.reason = res.reason;
-	if (debug)
-	    Engine.debug(Engine.DebugNote,
-		msg.operation + " failed: " + res.error + " '" + res.reason + "'");
-    }
-    else {
-	msg.retValue(res.name);
-	msg.json = JSON.stringify(res.object);
-	if (debug)
-	    Engine.debug(Engine.DebugInfo,msg.operation + " succeeded");
-    }
-    return true;
-}
 
 // Callback used when handler for engine.init message is installed
 function onReload(msg)
