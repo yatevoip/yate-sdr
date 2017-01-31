@@ -328,7 +328,7 @@ function force_calibration()
 
 function force_calibration_database()
 {
-	$res = request_api(array(), "calibrate");
+	$res = request_api(array(), "calibrate_start");
 	notice("Finished forcing calibration.", "working_mode");
 }
 ?>
