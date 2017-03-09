@@ -21,15 +21,25 @@
  */
 
 global $sdr_version;
+global $bts_version;
+global $enb_version;
 
 @include_once("sdr_version.php");
+@include_once("bts_version.php");
+@include_once("enb_version.php");
 
 if (!isset($sdr_version))
     $sdr_version = "unknown";
+if (!isset($bts_version))
+    $bts_version = $sdr_version;
+if (!isset($enb_version))
+    $enb_version = $sdr_version;
 
 function sdrHandler($request,$json,$recv,$node)
 {
     global $sdr_version;
+    global $bts_version;
+    global $enb_version;
 
     if (("sdr" != $node) && (null !== $node) && ("" != $node))
 	    return null;
@@ -38,17 +48,17 @@ function sdrHandler($request,$json,$recv,$node)
 	case "get_node_type":
 	    //return array("type" => "sdr", "version" => $sdr_version);
 	    $sdr_nodes = array(
-			"bts" => "config_bts", 
-			"enb" => "config_enb"
+			"bts" => array("type" => "config_bts", "version" => $bts_version),
+			"enb" => array("type" => "config_enb", "version" => $enb_version)
 		);
 
 	    $node_types = array();
-	    foreach ($sdr_nodes as $nodename=>$node_script) {
-		$node_response = yateRequest(1049,$node_script,$request,getParam($json,"params"),$recv,5,false);
+	    foreach ($sdr_nodes as $nodename=>$info) {
+		$node_response = yateRequest(1049,$info["type"],$request,getParam($json,"params"),$recv,5,false);
 		if (!isset($node_response["code"]) || !isset($node_response["node"]["sdr_mode"]) || $node_response["code"] != 0)
 			continue;
 		else
-			$node_types[] = array("type"=>$nodename, "version" => $sdr_version, "sdr_mode"=>$node_response["node"]["sdr_mode"]);
+			$node_types[] = array("type"=>$nodename, "version" => $info["version"], "sdr_mode"=>$node_response["node"]["sdr_mode"]);
 	    }
 	    return $node_types;
 	case "get_version":
