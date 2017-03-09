@@ -3,7 +3,7 @@
  * defaults.php
  * This file is part of the Yate-BTS Project http://www.yatebts.com
  *
- * Copyright (C) 2014 - 2016 Null Team
+ * Copyright (C) 2014-2017 Null Team
  *
  * This software is distributed under multiple licenses;
  * see the COPYING file in the main directory for licensing
@@ -20,10 +20,10 @@
 $proj_title = "YateSDR Local Management Interface";
 
 $func_build_request_url = "build_request_url_for_api";
-# yate cdr logs file
-$yate_cdr = "/var/log/yate-cdr.csv";
+# yate-sdr cdr logs file
+$yate_cdr = "/var/log/yate-sdr-cdr.csv";
 
-$dirs = array("/etc/yate/", "/usr/local/etc/yate/");
+$dirs = array("/etc/yate/sdr/", "/usr/local/etc/yate/");
 foreach ($dirs as $pos_dir) {
 	if (is_dir($pos_dir)) 
 		$yate_conf_dir = $pos_dir;
@@ -37,11 +37,14 @@ $yate_ip = "127.0.0.1";
 $server_name = $yate_ip;
 
 $default_ip = "tcp://".$yate_ip;
-$default_port = '5038';
+$default_port = '5037';
 
 # log dirs
 $parse_errors = "/var/log/lmi/parse_errors.txt";
 $logs_in = array("/var/log/lmi/ansql_logs.txt");
+
+// where to upload files
+$upload_path = "/var/lib/lmi/upload";
 
 #working mode is ignored if set to true
 $devel_mode = false;

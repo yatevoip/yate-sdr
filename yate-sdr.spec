@@ -61,12 +61,16 @@ The Software Defined Radio holds resources common to all Yate based radio produc
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_datadir}/yate/api/*
 %{_datadir}/yate/scripts/*
+/var/www/html/lmi
 %dir %{_sysconfdir}/yate/sdr
+%{_sysconfdir}/yate/sdr/*.conf.sample
 %defattr(600,root,root)
 %config(noreplace) %{_sysconfdir}/yate/sdr/*.conf
 
 
 %post
+mkdir -p /var/log/lmi /var/lib/lmi/upload
+chown -R apache.apache /var/log/lmi /var/lib/lmi
 %if "%{systemd}" != "0"
 /usr/bin/systemctl daemon-reload
 %endif
@@ -130,11 +134,13 @@ mkdir -p %{buildroot}%{_datadir}/yate/api
 mkdir -p %{buildroot}%{_datadir}/yate/data
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sysconfdir}/yate/sdr
+mkdir -p %{buildroot}/var/www/html/lmi
 ln -sf yate %{buildroot}%{_bindir}/%{name}
 cp -p scripts/* %{buildroot}%{_datadir}/yate/scripts/
 cp -p logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 cp -p conf/* %{buildroot}%{_sysconfdir}/yate/sdr/
 cp -p api/* %{buildroot}%{_datadir}/yate/api/
+cp -rp lmi/* %{buildroot}/var/www/html/lmi/
 echo '<?php global $sdr_version; $sdr_version = "%{version}-%{release}"; ?>' > %{buildroot}%{_datadir}/yate/api/sdr_version.php
 
 

@@ -50,9 +50,6 @@ function sdrHandler($request,$json,$recv,$node)
 		else
 			$node_types[] = array("type"=>$nodename, "version" => $sdr_version, "sdr_mode"=>$node_response["node"]["sdr_mode"]);
 	    }
-	    if (!count($node_types))
-		return array();
-
 	    return $node_types;
 	case "get_version":
 	    return buildSuccess("version",$sdr_version);

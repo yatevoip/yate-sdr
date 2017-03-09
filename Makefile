@@ -6,6 +6,7 @@ VERSION := $(shell sed -n 's/^Version:[[:space:]]*//p' $(PKGNAME).spec)
 RELEASE := $(shell sed -n 's/^%define[[:space:]]\+buildnum[[:space:]]\+//p' $(PKGNAME).spec)
 TARNAME := $(PKGNAME)-$(VERSION)-$(RELEASE)
 SVNREV  := $(shell LANG=C LC_MESSAGES=C svn info 2>/dev/null | sed -n 's,^Last Changed Rev: *,,p')
+ANSQLREV:= $(shell (cd lmi/ansql; LANG=C LC_MESSAGES=C svn info) 2>/dev/null | sed -n 's,^Last Changed Rev: *,,p')
 RPMOPT  :=
 
 .PHONY: all clean install uninstall rpm srpm srpm-svn check-svn tarball
@@ -22,7 +23,7 @@ srpm: tarball
 	rpmbuild -ta --define 'tarname $(TARNAME)' $(RPMOPT) tarballs/$(TARNAME).tar.gz
 
 srpm-svn: check-svn tarball
-	rpmbuild -ta --define 'tarname $(TARNAME)' --define 'revision _r$(SVNREV)' $(RPMOPT) tarballs/$(TARNAME).tar.gz
+	rpmbuild -ta --define 'tarname $(TARNAME)' --define 'revision _r$(SVNREV)_r$(ANSQLREV)' $(RPMOPT) tarballs/$(TARNAME).tar.gz
 
 check-svn:
 	@if [ -z "$(SVNREV)" ]; then echo "Cannot determine SVN revision" >&2; false; fi
