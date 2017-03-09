@@ -60,19 +60,7 @@ $limit             = (getparam("limit")) ? getparam("limit") : $_SESSION["limit"
 $_SESSION["limit"] = $limit;
 
 $_SESSION["main"] = "main.php";
-
-$working_mode = (isset($_SESSION["sdr_mode"])) ? $_SESSION["sdr_mode"] : "";
-
-if (!$working_mode) {
-	$node_types = request_api(array(), "get_node_type", "node_type");
-
-	if (count($node_types) && isset($node_types[0]["sdr_mode"]) ) {
-		$_SESSION["node_types"] = $node_types;
-		$sdr_mode               = $node_types[0]["sdr_mode"];
-		$_SESSION["sdr_mode"]   = $sdr_mode;
-		$working_mode           = $sdr_mode;
-	}
-}
+$working_mode = get_working_mode();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 

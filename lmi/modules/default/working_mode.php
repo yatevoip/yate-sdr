@@ -10,20 +10,14 @@ function working_mode($editable=false)
 		br(2);
 		note("It is required to choose a working mode before doing any other configuration.");
 		br(2);
-	} 
+	}
+
+        $sdr_mode = get_working_mode();
 
 	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["sdr_mode"])) {
-		$node_types = request_api(array(), "get_node_type", "node_type");
-
-		if (!count($node_types) || !isset($node_types[0]["sdr_mode"])) {
-			errormess("Incomplete installation! Could not retrieve node types.","no");
-			return;
-		}
-		$_SESSION["node_types"] = $node_types;;
-		$sdr_mode = $node_types[0]["sdr_mode"];
-		$_SESSION["sdr_mode"] = $sdr_mode;
+		errormess("Incomplete installation! Could not retrieve node types.","no");
+		return;
 	} else {
-		$sdr_mode     = $_SESSION["sdr_mode"];
 		$node_types = $_SESSION["node_types"];
 	}
 
