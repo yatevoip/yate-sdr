@@ -52,7 +52,7 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"api request");
 
-	global $method, $action, $accept_loop;
+	global $method, $action, $accept_loop, $parse_errors;
 
 	$res = make_request($out,$request);
 	if ($res["code"]<0) {
@@ -62,10 +62,10 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 
 	$error = false;
 	if ($res["code"]!="0") {
-		errormess("[API: ".$res["code"]."] ".$res["message"],"no");
+		errormess("[API: ".$res["code"]."] ".$res["message"]. " See $parse_errors for more details.","no");
 		$error = true;
 	} elseif ($response_field && !isset($res[$response_field])) {
-		errormess("Could not retrieve $response_field from api response.","no");
+		errormess("Could not retrieve $response_field from api response.". " See $parse_errors for more details.","no");
 		//$errormess = $res["message"];
 		$error = true;
 	}
