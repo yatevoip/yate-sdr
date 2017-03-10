@@ -32,7 +32,9 @@ function call_logs()
 		if (!isset($conf->structure["general"]["file"]) ) 
 			form_enable_call_logs();
 		elseif (isset($conf->structure["general"]["file"]) && $conf->structure["general"]["file"] != $yate_cdr) 
-			nib_note("Detected differences between the CDR file settings. The file set in configuration file: '".$yate_conf_dir. "cdrfile.conf' in parameter 'file=". $conf->structure["general"]["file"]."' is different from the one set in 'defaults.php' in parameter: '\$yate_cdr= ".$yate_cdr."'. Please modify the value in defaults.php in parameter: '\$yate_cdr = ".$conf->structure["general"]["file"]."' or modify in '".$yate_conf_dir. "cdrfile.conf' in [general] section the value of parameter 'file=".$yate_cdr."'" );
+			nib_note("Detected differences between the CDR file settings. "
+                                . "<br/><br/>The file set in configuration file: '".$yate_conf_dir. "cdrfile.conf' in parameter 'file=". $conf->structure["general"]["file"]."' is different from the one set in 'defaults.php' in parameter: '\$yate_cdr= ".$yate_cdr."'. Please verify configuration."
+                                . "<br/><br/>Set the value in config.php in parameter: '\$yate_cdr = ".$conf->structure["general"]["file"]."' or modify in '".$yate_conf_dir. "cdrfile.conf' in [general] section the value of parameter 'file=".$yate_cdr."'" );
 		else 
 			nib_note("There aren't any call logs.");
 

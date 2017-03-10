@@ -60,7 +60,6 @@ $limit             = (getparam("limit")) ? getparam("limit") : $_SESSION["limit"
 $_SESSION["limit"] = $limit;
 
 $_SESSION["main"] = "main.php";
-$working_mode = get_working_mode();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 

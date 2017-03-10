@@ -60,7 +60,7 @@ function get_content()
 	global $module,$dir,$support,$iframe,$function_called,$module_db_identifier,$default_server,$default_ip;
 	global $method;
 	global $proj_title;
-	global $context, $api_servers;
+	global $dump_request_params;
 ?>
 	<table class="container" cellspacing="0" cellpadding="0">
 		<tr>
@@ -109,6 +109,13 @@ function get_content()
 	</table>
 	<?php submenu();?>
 	<table class="holdcontent" cellspacing="0" cellpadding="0">
+        <?php
+        if (isset($dump_request_params) && $dump_request_params) {
+                print "<tr id='dumped_request' style='display:none;'><td class=\"holdcontent\">";
+                print_r ($_REQUEST);
+                print "</td></tr>";
+        }
+        ?>
 		<tr>
 			<td class="holdcontent">
 	<?php
@@ -130,7 +137,6 @@ function get_content()
 
 		$call = get_default_function();
 		if (!isset($function_called) || !$function_called && function_exists($call) ) {
-			//global $context, $api_servers;
 			$call();
 		}
 	}
@@ -143,7 +149,7 @@ function get_content()
 
 function menu()
 {
-	global $level,$support, $module, $working_mode, $devel_mode;
+	global $level,$support, $module, $working_mode, $sdr_mode, $devel_mode;
 
 	$names = array();
 	if ($handle = opendir("modules/$level/")) {
@@ -166,6 +172,9 @@ function menu()
 
 	$all_modules = $names;
 
+        $working_mode = get_working_mode();
+        $sdr_mode = $working_mode;
+        
 	// instead of loading all files from modules/default directory, define menu based on working_mode
 	$modules_per_mode = array(
 		"" => array("working_mode"),

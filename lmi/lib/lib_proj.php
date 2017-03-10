@@ -208,35 +208,6 @@ function get_suggested_imsis($offset=0)
 	return $recommended;
 }
 
-function retrieve_connections()
-{
-	global $api_servers;
-
-	$servers = Model::selection("server");
-	if (!$servers)
-		return false;
-
-	$total = count($servers);
-	for ($i=0; $i<$total; $i++) {
-		$type = strtolower($servers[$i]->type);
-		if (!isset($api_servers[$type]))
-			$api_servers[$type] = array();
-		$server = $servers[$i]->ip;
-		$api_servers[$type][$servers[$i]->server_id] = array("server"=>$server, "secret"=>$servers[$i]->header_password, "name"=>$servers[$i]->server);
-	}
-	if (!count($api_servers))
-		print "No server connections defined. Please check MMI internal database.";
-	return true;
-}
-
-function set_server_conn_from_multiple()
-{
-	$conn = getparam("vlr_conn");
-	$server = Model::selection("server",array("server"=>$conn));
-	if (count($server))
-		$_SESSION["server_id"] = $server[0]->server_id;
-}
-
 function network_settings()
 {
 	global $method;
@@ -309,21 +280,12 @@ function set_timezone()
 
 function nib_note($text)
 {
-	print "<div class='note'>";
-	if (is_file("images/note.jpg"))
-		print "<img src='images/note.jpg' />";
-	else
-		print "Note! ";
-	print $text;
-	print "</div>";
+        notice($text, "no");
 }
 
 function warning_note($text)
 {
-	print "<div class='note'>";
-	print "<font class='error'>Warning!</font>&nbsp;";
-	print $text;
-	print "</div>";
+        notice($text, "no", false);
 }
 
 function parse_socket_response($socket_response)
