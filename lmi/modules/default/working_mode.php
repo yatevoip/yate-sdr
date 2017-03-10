@@ -15,7 +15,7 @@ function working_mode($editable=false)
         $sdr_mode = get_working_mode();
 
 	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["sdr_mode"])) {
-		errormess("Incomplete installation! Could not retrieve node types.","no");
+		errormess("Incomplete installation! Could not retrieve node types. Check equipment api_logs.php","no");
 		return;
 	} else {
 		$node_types = $_SESSION["node_types"];
