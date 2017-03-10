@@ -139,7 +139,7 @@ GenericConfig.prototype.validateConfig = function(section_name,param_name,param_
     }
 
     if (param_value == "") {
-	if (validations) {
+	if (validations && Array.isArray(this.params_allowed_empty)) {
 	    if (this.params_allowed_empty.indexOf(param_name) < 0) {
 		this.error.reason = "Field '" + param_name + "' can't be empty in section '" + section_name + "'."; 
 		this.error.error = 402;
