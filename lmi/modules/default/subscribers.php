@@ -26,7 +26,7 @@ function list_subscribers()
 {
 	global $pysim_mode, $limit, $page;
 	
-	nib_note("Subscribers are accepted based on two criteria: regular expression that matches the IMSI or they be inserted individually.");
+	nib_note("Subscribers are accepted based on two criteria: regular expression that matches the IMSI or they must be inserted individually.");
 
 	$have_subscribers = true;
 	$regexp = get_regexp();
@@ -452,7 +452,7 @@ function get_subscribers($imsi=false)
 			return array(true, $res);
 		}
 
-		return array(true, "");
+		return array(true, array());
 	}
 }
 
