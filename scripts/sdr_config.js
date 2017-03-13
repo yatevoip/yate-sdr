@@ -28,7 +28,7 @@
 function SatSiteConfig()
 {
     GenericConfig.apply(this);
-    this.file = "satsite";
+    this.file = "sdr";
     this.sections = ["basic", "site_equipment", "shutdown"];
     this.overwrite = true;
 };
@@ -53,14 +53,14 @@ SatSiteConfig.prototype.validations = {
 };
 
 // Get configurations from satsite.conf
-API.on_get_satsite_node = function(params,msg)
+API.on_get_sdr_node = function(params,msg)
 {
     var satsite = new SatSiteConfig;
     return API.on_get_generic_file(satsite,msg);
 };
 
 // Configure satsite.conf related parameters
-API.on_set_satsite_node = function(params,msg,setNode)
+API.on_set_sdr_node = function(params,msg,setNode)
 {
     var satsite = new SatSiteConfig;
     return API.on_set_generic_file(satsite,params,msg,setNode);
@@ -107,10 +107,10 @@ API.on_get_node_type = function(params,msg)
 
     if (confs.indexOf("ybts") >= 0)
 	return { name: "node", object: { "type": "bts", "sdr_mode": sdr_mode }};
-    else if (confs.indexOf("openenb") >= 0)
+    else if (confs.indexOf("yateenb") >= 0)
 	return { name: "node", object: { "type": "enb", "sdr_mode": sdr_mode }};
 
-    return { error: 201, reason: "Missing both ybts as openenb in confs."};
+    return { error: 201, reason: "Missing both ybts as yateenb in confs."};
 };
 
 API.on_set_sdr_mode = function(params,msg)
