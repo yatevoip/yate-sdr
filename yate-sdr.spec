@@ -43,6 +43,7 @@ Requires:	logrotate
 Requires:	yate
 Requires:	yate-scripts
 Requires:	yate-common
+Requires:	php-curl
 Recommends:	netkit-telnet
 
 
