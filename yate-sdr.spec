@@ -141,6 +141,7 @@ cp -p logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 cp -p conf/* %{buildroot}%{_sysconfdir}/yate/sdr/
 cp -p api/* %{buildroot}%{_datadir}/yate/api/
 cp -rp lmi/* %{buildroot}/var/www/html/lmi/
+echo '<?php $version = "%{version}-%{release}" ?>' > %{buildroot}/var/www/html/lmi/version.php
 echo '<?php global $sdr_version; $sdr_version = "%{version}-%{release}"; ?>' > %{buildroot}%{_datadir}/yate/api/sdr_version.php
 
 
