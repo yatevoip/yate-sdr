@@ -65,7 +65,6 @@ The Software Defined Radio holds resources common to all Yate based radio produc
 /var/www/html/lmi
 %dir %{_sysconfdir}/yate/sdr
 %{_sysconfdir}/yate/sdr/*.conf.sample
-%defattr(600,root,root)
 %config(noreplace) %{_sysconfdir}/yate/sdr/*.conf
 
 
