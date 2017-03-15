@@ -37,7 +37,7 @@ BTS Configuration - has all the sections from ybts.conf file that can be configu
 
 If 'LTE enb' mode is set:
 
-ENB Configuration - has all the section from openenb.conf, satsite.conf, gtp.conf file that can be configured.
+ENB Configuration - has all the section from yateenb.conf, sdr.conf, gtp.conf file that can be configured.
 
 
 Requirements
