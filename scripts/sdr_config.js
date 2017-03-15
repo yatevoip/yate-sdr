@@ -95,9 +95,15 @@ API.on_get_node_type = function(params,msg)
     if (!confs)
 	return { error: 201, reason: "Devel/configuration error: no config files defined."};
 
-    // read satsite.conf general section to see if satsite works as enb or as bts
-    var satsite_conf = new ConfigFile(Engine.configFile("satsite"));
-    var sdr_mode = satsite_conf.getValue("general","sdr_mode","not configured"); 
+    // read sdr-jscript.conf general to find routing script to see if sdr works as enb or as bts 
+    var sdr_jscript = new ConfigFile(Engine.configFile("sdr-jscript"));
+    var sdr_mode = sdr_jscript.getValue("general","routing","not configured");
+    if (sdr_mode == "welcome.js")
+	sdr_mode = "bts";
+    else if (sdr_mode == "enb-rrc.js")
+	sdr_mode = "enb";
+    else
+	sdr_mode = "not configured";
 
     if (sdr_mode == "bts") {
 	// read mode from ybts.conf
@@ -122,24 +128,46 @@ API.on_set_sdr_mode = function(params,msg)
 
     var error = new Object;
     var bts_modes = ["nib", "roaming", "dataroam"];
-    var satsite_conf = new ConfigFile(Engine.configFile("satsite"));
+
+    var sdr_jscript = prepareConf("sdr-jscript",msg.received,false);
+    var ybts_conf   = prepareConf("ybts",msg.received,false);
+    var enb_conf    = prepareConf("yateenb",msg.received,false);
+    var gtp_conf    = prepareConf("gtp",msg.received,false);
 
     if (params.sdr_mode == "enb") {
-	satsite_conf.setValue("general", "sdr_mode", "enb");
-    } else if (bts_modes.indexOf(params.sdr_mode) >= 0) {
-	satsite_conf.setValue("general", "sdr_mode", "bts");
+	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
+	ybts_conf.setValue("ybts","autostart",false);
+	enb_conf.setValue("general","autostart",true);
+	gtp_conf.setValue("ran_u","enabled",true);
+	gtp_conf.setValue("ran_c","enabled",false);
 
-	var ybts_conf = new ConfigFile(Engine.configFile("ybts"));
+    } else if (bts_modes.indexOf(params.sdr_mode) >= 0) {
+	sdr_jscript.setValue("general", "routing", "welcome.js");
 	ybts_conf.setValue("ybts","mode",params.sdr_mode);
-	if (!saveConf(error,ybts_conf))
-	    return error;
+	ybts_conf.setValue("ybts","autostart",true);
+	enb_conf.setValue("general","autostart",false);
+
+	if (params.sdr_mode == "nib" || params.sdr_mode == "roaming") {
+	    gtp_conf.setValue("ran_u","enabled",false);
+	    gtp_conf.setValue("ran_c","enabled",false);
+	} else {
+	    gtp_conf.setValue("ran_u","enabled",true);
+	    gtp_conf.setValue("ran_c","enabled",true);
+	}
+	
     } else {
 	error.error = 201;
     	error.reason = "Invalid sdr_mode '" + params.sdr_mode +  "'.";	
     	return error;
     }
     
-    if (!saveConf(error,satsite_conf))
+    if (!saveConf(error,sdr_jscript))
+	return error;
+    if (!saveConf(error,ybts_conf))
+	return error;
+    if (!saveConf(error,enb_conf))
+	return error;
+    if (!saveConf(error,gtp_conf))
 	return error;
 
     return {};
