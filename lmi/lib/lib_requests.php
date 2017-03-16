@@ -52,20 +52,24 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"api request");
 
-	global $method, $action, $accept_loop, $parse_errors;
+	global $method, $action, $accept_loop, $parse_errors, $func_build_request_url;
 
 	$res = make_request($out,$request);
 	if ($res["code"]<0) {
 		// library generated error. Port this to project error standard
 		$res["code"] = $res["code"] * -300;
 	}
+        
+        $url = $func_build_request_url($out,$request);
 
 	$error = false;
 	if ($res["code"]!="0") {
-		errormess("[API: ".$res["code"]."] ".$res["message"]. " See $parse_errors for more details.","no");
+                write_error($request, $out, "", "", $url, $res);
+		errormess("[API: ".$res["code"]."] ".$res["message"]. " Full response in $parse_errors.","no");
 		$error = true;
 	} elseif ($response_field && !isset($res[$response_field])) {
-		errormess("Could not retrieve $response_field from api response.". " See $parse_errors for more details.","no");
+		write_error($request, $out, "", "", $url, $res);
+		errormess("Could not retrieve $response_field from api response.". " Full response in $parse_errors.","no");
 		//$errormess = $res["message"];
 		$error = true;
 	}
