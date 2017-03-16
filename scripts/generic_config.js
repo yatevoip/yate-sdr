@@ -70,8 +70,11 @@ GenericConfig.prototype.setConfig = function(params)
 	for (section_name in this.current_config) {
 	    section = this.conf.getSection(section_name,true);
 	    section_params = this.current_config[section_name];
-	    for (param_name in section_params) 
+	    for (param_name in section_params) {
+		if (section_name=="general" && (param_name=="updated" || param_name=="locked"))
+			continue;
 		section.setValue(param_name, section_params[param_name]);
+	    }
 	}
 	// received configurations will be put over this ones
     }
@@ -105,6 +108,9 @@ GenericConfig.prototype.setConfig = function(params)
 		return false;
 	    // skip writing empty params only if they weren't previous written in file
 	    if (this.skip_empty_params[section_name][param_name] && !this.current_config[section_name][param_name])
+		continue;
+
+            if (section_name=="general" && (param_name=="updated" || param_name=="locked"))
 		continue;
 
 	    section.setValue(param_name,param_value);
