@@ -1,7 +1,7 @@
 <?php
 /**
  * subscribers.php
- * This file is part of the Yate-BTS Project http://www.yatebts.com
+ * This file is part of the Yate-SDR Project http://www.yatebts.com
  *
  * Copyright (C) 2014 - 2016 Null Team
  *
@@ -24,7 +24,7 @@ function subscribers()
 
 function list_subscribers()
 {
-	global $pysim_mode, $limit, $page;
+	global $pysim_mode, $page;
 	
 	nib_note("Subscribers are accepted based on two criteria: regular expression that matches the IMSI or they must be inserted individually.");
 
@@ -38,7 +38,7 @@ function list_subscribers()
 		$subscribers = array();
 		$res = get_subscribers();
 		if ($res[0])
-			 $subscribers = $res[1];
+			$subscribers = $res[1];
 	}
 
 	if ($have_subscribers) {
@@ -103,16 +103,12 @@ function rejected_imsis()
 
 function edit_regexp($error=null,$error_fields=array())
 {
-	//	if (getparam("Set_subscribers")=="Set subscribers")
-	//		return edit_subscriber();
 	if (getparam("Return_to_setting_subscribers_individually")=="Return to setting subscribers individually") {
 		$res = request_api(array(";regexp"=>getparam("regexp")), "set_nib_system");
 		return list_subscribers();
 	}
 
 	$regexp = getparam("regexp");
-
-
 	$response_fields = get_bts_node();
 
 	$warning_data = array();
@@ -131,10 +127,10 @@ function edit_regexp($error=null,$error_fields=array())
 		"regexp" => array("value"=> $regexp, "required"=>true, "comment"=>"Ex: ^001")
 	);
 	error_handle($error,$fields,$error_fields);
-    start_form();
-    addHidden("write_file");
-    editObject(NULL,$fields,"Regular expression based on which subscriber IMSI are accepted for registration","Save");
-    end_form();
+        start_form();
+        addHidden("write_file");
+        editObject(NULL,$fields,"Regular expression based on which subscriber IMSI are accepted for registration","Save");
+        end_form();
 }
 
 function edit_regexp_write_file()
@@ -179,9 +175,9 @@ function country_code_and_smsc()
 		if (isset($res[1]["country_code"]))
 			$country_code = $res[1]["country_code"];
 		if (isset($res[1]["smsc"]))
-			$smsc = $res[1]["smsc"];
+			$smsc         = $res[1]["smsc"];
 		if (isset($res[1]["gw_sos"]))
-			$gw_sos = $res[1]["gw_sos"];
+			$gw_sos       = $res[1]["gw_sos"];
 	}
 
 	if (!strlen($country_code)) 
@@ -302,7 +298,7 @@ function edit_subscriber($error=null,$error_fields=array())
 
 	if (get_param($subscriber,"imsi_type"))
 		$imsi_type["selected"] = get_param($subscriber,"imsi_type");
-	$active = (get_param($subscriber,"active") == "on") ? 't' : 'f';
+	$active = (in_array(get_param($subscriber,"active"), array("on","true","enabled","enable","1"))) ? true : false;
 	$op = get_param($subscriber,"op") ? get_param($subscriber,"op") : "00000000000000000000000000000000";
 
 	$fields = array(
@@ -331,7 +327,6 @@ function edit_subscriber($error=null,$error_fields=array())
 
 function edit_subscriber_write_file()
 {
-	$imsi = false;
 	$imsi = (getparam("imsi")) ? getparam("imsi") : getparam("imsi_val");
 
 	$res = get_subscribers($imsi);
@@ -366,7 +361,10 @@ function edit_subscriber_write_file()
 		$val = getparam($name);
 		if ($required && !$val)
 			return edit_subscriber("Field $name is required");
-		$subscriber[$name] = $val;
+                if ($name != "active")
+                        $subscriber[$name] = $val;
+                else
+                        $subscriber[$name] = ($val=="on") ? "on" : "off";
 	}
 //	$subscriber["active"] = ($subscriber["active"]=="on") ? 1 : 0;
 	if ($subscriber["imsi_type"]=="2G")
@@ -417,7 +415,7 @@ function delete_subscriber()
 function delete_subscriber_database()
 {
 	$imsi = getparam("imsi");
-	$res = request_api(array("imsi"=>$imsi), "delete_nib_subscriber");
+	$res = request_api(array("imsi"=>$imsi), "delete_nib_subscriber", null, "subscribers");
 	notice("Finished removing subscriber with IMSI $imsi.", "subscribers");
 }
 
@@ -1032,7 +1030,7 @@ function import_subscribers($error=null,$error_fields=array())
 
 function import_subscribers_from_csv()
 {
-	global $module, $yate_conf_dir;
+	global $yate_conf_dir;
 
 	$filename = basename($_FILES["insert_file_location"]["name"]);
 	$ext = strtolower(substr($filename,-4));
