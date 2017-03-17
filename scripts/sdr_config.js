@@ -24,6 +24,7 @@
 #require "generic_config.js"
 #require "lib_sdr_api.js"
 
+debug = false;
 //  Satsite file configuration object
 function SatSiteConfig()
 {
@@ -250,9 +251,10 @@ function onReload(msg)
 
 function loadCfg(first)
 {
-    config.load(true);
-    if (first) {
-	var tmp = config.getValue("debug");
+   var config = new ConfigFile(Engine.configFile("sdr"));
+
+   if (first) {
+	var tmp = config.getBoolValue("general","debug");
 	if ("" != tmp)
 	    Engine.setDebug(tmp);
 	debug = Engine.debugEnabled();
