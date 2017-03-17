@@ -17,7 +17,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-$proj_title = "YateSDR Local Management Interface";
+$proj_title = "YateLMI - Local Management Interface";
 
 $func_build_request_url = "build_request_url_for_api";
 # yate-sdr cdr logs file
