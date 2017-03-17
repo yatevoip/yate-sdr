@@ -57,7 +57,7 @@ function beautify_type_error($type)
 
 function build_request_url_for_api(&$out,&$request)
 {
-	global $server_name,$request_protocol,$node;
+	global $server_name,$request_protocol;
 
 	if (!isset($request_protocol))
 		$request_protocol = "http";

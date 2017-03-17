@@ -20,9 +20,6 @@
 require_once("ansql/sdr_config/enb_tabbed_settings.php");
 require_once("lib/lib_requests.php");
 
-global $node;
-
-$node = "satsite";
 
 function enb_configuration()
 {
