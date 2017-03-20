@@ -171,6 +171,8 @@ API.on_set_sdr_mode = function(params,msg)
     if (!saveConf(error,gtp_conf))
 	return error;
 
+    Engine.output("Restart on node config: " + msg.received);
+    Engine.restart();
     return {};
 };
 
