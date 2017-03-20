@@ -24,9 +24,9 @@ td.topvalign
 
 input, textarea, select,  input.checkbox
 {
-	/*border:1px solid #aaa;*/
-	border: expression(this.type!="radio"? '1px solid #aaa' : 'none');
+	border: 1px solid #aaa;
 }
+input[type=file], input[type=radio] {border: none;}
 
 select{width:48%;}
 td.holdlogo
@@ -38,7 +38,7 @@ td.holdlogo
 
 body.mainbody
 {
-	margin: 6 6 4 6;
+	margin: 6px 6px 4px 6px;
 	margin-top:10px;
 	background-color:white;
 	font-size:13px;
@@ -928,7 +928,7 @@ td.error_field
 
 td.connection_select
 {
-	font-weight:12px;
+	font-size:12px;
 	vertical-align:middle;
 	color: #0189D7;
 }
@@ -957,7 +957,7 @@ td.section
 td.basic,div.basic
 {
 	width:157px;
-	max-width:expression(157 + "px");
+	max-width:157px;
 }
 
 div.section_selected
