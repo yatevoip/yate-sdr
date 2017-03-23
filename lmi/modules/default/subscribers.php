@@ -299,7 +299,7 @@ function edit_subscriber($error=null,$error_fields=array())
 	if (get_param($subscriber,"imsi_type"))
 		$imsi_type["selected"] = get_param($subscriber,"imsi_type");
 	$active = (in_array(get_param($subscriber,"active"), array("on","true","enabled","enable","1"))) ? true : false;
-	$op = get_param($subscriber,"op") ? get_param($subscriber,"op") : "00000000000000000000000000000000";
+	$op = get_param($subscriber,"op") ? get_param($subscriber,"op") : (getparam("imsi_type")=="3G") ? "00000000000000000000000000000000" : "";
 
 	$fields = array(
 		"imsi"   => array("value"=>$imsi, "required"=>true, "comment"=>"SIM card id", "column_name"=>"IMSI"),
@@ -340,19 +340,6 @@ function edit_subscriber_write_file()
 
 	if (!$imsi)
 		return edit_subscriber("Please set 'imsi'",array("imsi"));
-	if (strlen($imsi)!=14 && strlen($imsi)!=15)
-		return edit_subscriber("Invalid IMSI $imsi. IMSI length must be 14 or 15 digits long.",array("imsi"));
-	if (getparam("ki")!="*" && !preg_match('/^[0-9a-fA-F]{32}$/i', getparam("ki")))
-		return edit_subscriber("Invalid KI:".getparam("ki").". KI needs to be 128 bits, in hex format.");
-	if (getparam("msisdn")!="") {
-		$msisdn = getparam("msisdn");
-		if (strlen($msisdn)<7)
-			return edit_subscriber("The MSISDN value must have at least 7 digits.");
-		else if (!ctype_digit($msisdn))
-			return edit_subscriber("The MSISDN value must contain only digits.");
-		else if (preg_match("/^0/", $msisdn))
-			return edit_subscriber("The MSISDN can't start with 0.");
-	}
 
 	$subscriber = array("imsi"=>$imsi);
 
@@ -361,34 +348,37 @@ function edit_subscriber_write_file()
 		$val = getparam($name);
 		if ($required && !$val)
 			return edit_subscriber("Field $name is required");
-                if ($name != "active")
-                        $subscriber[$name] = $val;
-                else
-                        $subscriber[$name] = ($val=="on") ? "on" : "off";
+		if ($name != "active")
+			$subscriber[$name] = $val;
+		else
+			$subscriber[$name] = ($val=="on") ? "on" : "off";
 	}
-//	$subscriber["active"] = ($subscriber["active"]=="on") ? 1 : 0;
 	if ($subscriber["imsi_type"]=="2G")
 		$subscriber["op"] = "";
 	if (getparam("imsi_type")=="3G" && (getparam("op")==NULL || getparam("op")==""))
 		return edit_subscriber("OP can't be empty!", array("op"));
 
-	if (getparam("imsi_val") && isset($subscribers[$imsi])) {
+	$res = validate_subscribers($subscriber);
+	if (!$res[0])
+		return edit_subscriber($res[1],$res[2]);
+
+	if (getparam("imsi_val") && isset($subscribers["imsi"])) {
 		$modified = false;
 		//check if there are changes
-		$subs_file = $subscribers[$imsi];
 		foreach ($fields as $name=>$required) {
 			$val = getparam($name);
-		//	if ($name == "active")
-		//		$val = (getparam($name) == "on") ? 1 : 0;
-
-			if ($subs_file[$name] != $val) 
+			if ($name == "active")
+				$val = !$val ? "off" : "on";
+			elseif ($name == 'op' && getparam("imsi_type")=="2G")
+				continue;
+			if ($subscribers[$name] != $val) 
 				$modified = true;
 			if ($modified)
 				break;
 		}
 
 		if (!$modified) {
-			notice("Finished setting subscriber with IMSI $imsi.", "subscribers");
+			notice("Finished setting subscriber with IMSI $imsi. Nothing to update.", "subscribers");
 			return;
 		}
 	}
@@ -1056,7 +1046,7 @@ function import_subscribers_from_csv()
 			$new_subscribers[$imsi]["op"] = "";
 		if ($data["imsi_type"] == "3G" &&  $data["op"] == "")
 			$new_subscribers[$imsi]["op"] = "00000000000000000000000000000000";
-		if (!preg_match("/[0-9]{14,15}/", $imsi)) {
+		if (!preg_match("/^[0-9]{14,15}$/", $imsi)) {
 			print "Skipping IMSI: ".$imsi.". Error: The IMSI must contain only 14 or 15 digits.<br/>"; 
 			continue;
 		}
@@ -1081,19 +1071,33 @@ function import_subscribers_from_csv()
 
 function validate_subscribers($fields)
 {
+	if (isset($fields["imsi"])) {
+		$imsi = $fields["imsi"];
+		if (!preg_match("/^[0-9]{14,15}$/", $imsi))
+			return array(false, "The IMSI: ".$imsi." must contain only 14 or 15 digits.", array("imsi"));
+	}
+
 	if (strlen($fields["msisdn"])) {
 		if (strlen($fields["msisdn"])<7) 
-			return array(false, "The MSISDN value must have at least 7 digits.");
+			return array(false, "The MSISDN value must have at least 7 digits.", array("msisdn"));
 		else if (!ctype_digit($fields["msisdn"]))
-			return array(false, "The MSISDN value must contain only digits.");
+			return array(false, "The MSISDN value must contain only digits.", array("msisdn"));
 		else if (preg_match("/^0/", $fields["msisdn"]))
-			return array(false, "The MSISDN can't start with 0.");
+			return array(false, "The MSISDN can't start with 0.", array("msisdn"));
+	}
+
+	$short_number = $fields["short_number"];
+	if (strlen($short_number)) {
+		if (!ctype_digit($short_number))
+			return array(false, "The Short number must be numeric.", array("short_number"));
+		if (strlen($short_number)<3)
+			return array(false, "The Short number must have at least 3 digits.",array("short_number"));
 	}
 
 	if ($fields["ki"]!="*" && !preg_match('/^[0-9a-fA-F]{32}$/i', $fields["ki"]))
-		return array(false,"Invalid KI:".$fields["ki"].". KI needs to be 128 bits, in hex format.");
+		return array(false,"Invalid KI:".$fields["ki"].". KI needs to be 128 bits, in hex format.", array("ki"));
 	if (!isset($fields["imsi_type"]) || ($fields["imsi_type"]!="2G" && $fields["imsi_type"]!="3G"))
-		return array(false, "Imsi type invalid: ".$fields["imsi_type"]. ". Only 2G or 3G allowed.");
+		return array(false, "Imsi type invalid: ".$fields["imsi_type"]. ". Only 2G or 3G allowed.", array("imsi_type"));
 
 	return array(true);
 }
