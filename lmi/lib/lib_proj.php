@@ -411,4 +411,21 @@ function random_numbers($digits)
 	return mt_rand($min, $max);
 }
 
+/** 
+ * Test if the upload path set is valid,
+ * that means if is set, is readable and writable
+ */
+function is_valid_upload_path()
+{
+	global $yate_conf_dir;	
+
+	if (!isset($yate_conf_dir))
+		return array(false, "Please set variable '\$yate_conf_dir' into configuration file and set r/w permission to it.");
+
+	if (!is_readable($yate_conf_dir) || !is_writable($yate_conf_dir))
+		return array(false, "Don't have r/w permission on $yate_conf_dir. Please run this command as root: 'chmod -R a+rw $yate_conf_dir'");
+
+	return array(true);
+}
+
 ?>

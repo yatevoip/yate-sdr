@@ -1022,6 +1022,10 @@ function import_subscribers_from_csv()
 {
 	global $yate_conf_dir;
 
+	$res = is_valid_upload_path();
+	if (!$res[0])
+		return errormess($res[1]);
+
 	$filename = basename($_FILES["insert_file_location"]["name"]);
 	$ext = strtolower(substr($filename,-4));
 	if ($ext != ".csv")
@@ -1173,6 +1177,10 @@ function export_subscribers_in_csv()
 {
 	global $yate_conf_dir, $pysim_mode;
 
+	$res = is_valid_upload_path();
+	if (!$res[0])
+		return errormess($res[1]);
+
 	$subscribers = get_subscribers();
 	if (!$subscribers[0]) {
 		nib_note("No subscribers to export.");
@@ -1182,8 +1190,8 @@ function export_subscribers_in_csv()
 	$formats = array("IMSI", "Msisdn", "Short_number", "Active", "Ki", "OP", "IMSI_Type", "ICCID", "SMSC", "OPC");
 	if ($pysim_mode) {
 		$formats[] = "ICCID";
-	    $formats[] = "SMSC";
-	    $formats[] = "OPC";
+		$formats[] = "SMSC";
+		$formats[] = "OPC";
 	}
 	$i=0;
 	$arr = array();
