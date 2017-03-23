@@ -358,7 +358,7 @@ function edit_subscriber_write_file()
 	if (getparam("imsi_type")=="3G" && (getparam("op")==NULL || getparam("op")==""))
 		return edit_subscriber("OP can't be empty!", array("op"));
 
-	$res = validate_subscribers($subscriber);
+	$res = validate_subscriber($subscriber);
 	if (!$res[0])
 		return edit_subscriber($res[1],$res[2]);
 
@@ -1050,7 +1050,7 @@ function import_subscribers_from_csv()
 			print "Skipping IMSI: ".$imsi.". Error: The IMSI must contain only 14 or 15 digits.<br/>"; 
 			continue;
 		}
-		$res = validate_subscribers($data);
+		$res = validate_subscriber($data);
 		if (!$res[0]) {
 			print "Skipping IMSI: ".$imsi.". Error: ".$res[1];
 			continue;
@@ -1069,7 +1069,7 @@ function import_subscribers_from_csv()
 	notice("Finished importing subscribers. Imported ".$imported." subscribers.", "list_subscribers");
 }
 
-function validate_subscribers($fields)
+function validate_subscriber($fields)
 {
 	if (isset($fields["imsi"])) {
 		$imsi = $fields["imsi"];
@@ -1080,9 +1080,9 @@ function validate_subscribers($fields)
 	if (strlen($fields["msisdn"])) {
 		if (strlen($fields["msisdn"])<7) 
 			return array(false, "The MSISDN value must have at least 7 digits.", array("msisdn"));
-		else if (!ctype_digit($fields["msisdn"]))
+		if (!ctype_digit($fields["msisdn"]))
 			return array(false, "The MSISDN value must contain only digits.", array("msisdn"));
-		else if (preg_match("/^0/", $fields["msisdn"]))
+		if (preg_match("/^0/", $fields["msisdn"]))
 			return array(false, "The MSISDN can't start with 0.", array("msisdn"));
 	}
 
