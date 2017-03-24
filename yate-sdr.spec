@@ -45,6 +45,12 @@ Requires:	yate-scripts
 Requires:	yate-common
 Requires:	php-curl
 Recommends:	netkit-telnet
+Recommends:	tcpdump
+Recommends:	iptraf-ng
+Recommends:	conntrack-tools
+# These are for older packaging versions like Mandriva
+Suggests:	iptraf
+Suggests:	conntrack
 
 
 %description
