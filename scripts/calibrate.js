@@ -1009,7 +1009,7 @@ function initialize()
 	}
 	calibration_file = gen.getValue("calibration_file");
 	if (!calibration_file)
-	    calibration_file = "${sharedpath}/data/ybladerf_calibration.conf";
+	    calibration_file = "${configpath}/radio_calibration.conf";
 	calibration_file = Engine.replaceParams(calibration_file,Engine.runParams());
 	// Load last calibration
 	var cfgCal = new ConfigFile(calibration_file,false);

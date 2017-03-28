@@ -134,11 +134,13 @@ API.on_set_sdr_mode = function(params,msg)
     var ybts_conf   = prepareConf("ybts",msg.received,false);
     var enb_conf    = prepareConf("yateenb",msg.received,false);
     var gtp_conf    = prepareConf("gtp",msg.received,false);
+    var cal_conf    = prepareConf("calibrate",msg.received,false);
 
     if (params.sdr_mode == "enb") {
 	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
 	ybts_conf.setValue("ybts","autostart",false);
 	enb_conf.setValue("general","autostart",true);
+	cal_conf.setValue("general","mode","enb");
 	gtp_conf.setValue("ran_u","enabled",true);
 	gtp_conf.setValue("ran_c","enabled",false);
 
@@ -147,6 +149,7 @@ API.on_set_sdr_mode = function(params,msg)
 	ybts_conf.setValue("ybts","mode",params.sdr_mode);
 	ybts_conf.setValue("ybts","autostart",true);
 	enb_conf.setValue("general","autostart",false);
+	cal_conf.setValue("general","mode","bts");
 
 	if (params.sdr_mode == "nib" || params.sdr_mode == "roaming") {
 	    gtp_conf.setValue("ran_u","enabled",false);
@@ -158,8 +161,8 @@ API.on_set_sdr_mode = function(params,msg)
 	
     } else {
 	error.error = 201;
-    	error.reason = "Invalid sdr_mode '" + params.sdr_mode +  "'.";	
-    	return error;
+	error.reason = "Invalid sdr_mode '" + params.sdr_mode +  "'.";
+	return error;
     }
     
     if (!saveConf(error,sdr_jscript))
@@ -179,21 +182,19 @@ API.on_set_sdr_mode = function(params,msg)
 // Implement basic get request
 API.on_get_node = function(params,msg)
 {
-    var func;
     var have_settings;
-    var error;
 
     if (debug)
 	dumpObj("on_get_node, json",msg.json);
 
     json = {};
     for (var conf of confs) {
-    	func = API["on_get_"+conf+"_node"];
+	var func = API["on_get_"+conf+"_node"];
 	if ("function" != typeof func.apply) 
-    	    continue;
+	    continue;
 
-    	json[conf] = func(params);
-    	have_settings = true;
+	json[conf] = func(params);
+	have_settings = true;
     }
     return { name: "node", object: json };
 };
