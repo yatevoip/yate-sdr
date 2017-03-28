@@ -19,12 +19,17 @@
 
 function subscribers()
 {
+	global $method;
+
+	$method = "list_subscribers";
 	list_subscribers();
 }
 
 function list_subscribers()
 {
-	global $pysim_mode, $page;
+	global $pysim_mode, $page, $method;
+	
+	$method = "list_subscribers";
 	
 	nib_note("Subscribers are accepted based on two criteria: regular expression that matches the IMSI or they must be inserted individually.");
 
