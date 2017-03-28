@@ -171,6 +171,8 @@ API.on_set_sdr_mode = function(params,msg)
 	return error;
     if (!saveConf(error,enb_conf))
 	return error;
+    if (!saveConf(error,cal_conf))
+	return error;
     if (!saveConf(error,gtp_conf))
 	return error;
 

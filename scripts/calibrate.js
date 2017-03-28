@@ -1028,7 +1028,7 @@ function initialize()
 	if (tmp != "")
 	    Engine.setDebug(tmp);
 	debug = Engine.debugEnabled();
-	Message.install(onModuleUpdate,"module.update",120);
+	Message.install(onModuleUpdate,"module.update",90);
 	Message.install(onCommand,"engine.command",120);
 	Message.install(onHelp,"engine.help",150);
 	Message.install(onStatus,"engine.status",100,"module","calibrate");
