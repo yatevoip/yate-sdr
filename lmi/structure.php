@@ -33,6 +33,11 @@ if ($pysim_mode)
 
 // methods listed here won't be saved in saved_pages -> needed to know where to return for Cancel button or Return button
 // besides method listed here, all methods starting with add_,edit_,delete_ are not saved
-$exceptions_to_save = array("working_mode"=>"modify_working_mode");
+$exceptions_to_save = array(
+    "default" => array(
+        "subscribers"  => array("export_subscribers_in_csv"),
+        "working_mode" => array("modify_working_mode")
+    )
+);
 
 ?>
