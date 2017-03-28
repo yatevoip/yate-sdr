@@ -14,23 +14,19 @@ function working_mode($editable=false)
 
         $sdr_mode = get_working_mode();
 
-	if (!isset($_SESSION["node_types"]) || !isset($_SESSION["sdr_mode"])) {
-		errormess("Incomplete installation! Could not retrieve node types. Check equipment api_logs.php","no");
+	if (!isset($_SESSION["available_sdr_modes"]) || !isset($_SESSION["sdr_mode"])) {
+		errormess("Incomplete installation! Could not retrieve avaible sdr modes. Check equipment api_logs.php","no");
 		return;
 	} else {
-		$node_types = $_SESSION["node_types"];
+		$available_modes = $_SESSION["available_sdr_modes"];
 	}
-
-	$available_nodes = array();
-	foreach ($node_types as $node_type)
-		$available_nodes[] = $node_type["type"];
 
 	// working modes and their description
 	$working_modes = array(
-		"GSM nib"       => array("node_type"=>"bts", "description"=>"GSM Network in a box"),
-		"GSM roaming"   => array("node_type"=>"bts", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms services"),
-		"GSM dataroam"  => array("node_type"=>"bts", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms/data services"),
-		"LTE enb"       => array("node_type"=>"enb", "description"=>"LTE EnodeB connected to a MME/HostedCore")
+		"GSM nib"       => array("mode_type"=>"nib", "description"=>"GSM Network in a box"),
+		"GSM roaming"   => array("mode_type"=>"roaming", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms services"),
+		"GSM dataroam"  => array("mode_type"=>"dataroam", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms/data services"),
+		"LTE enb"       => array("mode_type"=>"enb", "description"=>"LTE EnodeB connected to a MME/HostedCore")
 	);
 
 	if (!$editable) {
@@ -51,7 +47,7 @@ function working_mode($editable=false)
 	print "</tr>";
 	foreach ($working_modes as $mode=>$mode_def) {
 		print "<tr>";
-		if (!in_array($mode_def["node_type"],$available_nodes))
+		if (!in_array($mode_def["mode_type"],$available_modes))
 			print "<td>unavailable</td>";
 		elseif (stripos($mode, $sdr_mode)!==false) {
 			if (!$editable)
