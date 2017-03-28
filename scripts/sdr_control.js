@@ -75,6 +75,25 @@ API.on_calibrate_poll = function(params,msg)
     return apiError(400,"Status parse failed");
 };
 
+// Find out what scripts are candidates for working mode
+API.on_get_available_modes = function(params,msg)
+{
+    var files = {"nib":"nib", "roaming":"roaming", "dataroam":"dataroam", "enb":"enb-main"};
+    var path = Engine.runParams().sharedpath;
+    if (path)
+	path += "/scripts";
+    var conf = new ConfigFile(Engine.configFile("javascript"));
+    path = conf.getValue("general","scripts_dir",path);
+    path = Engine.replaceParams(path,Engine.runParams());
+    var avail = [ ];
+    for (var m in files) {
+	var f = path + "/" + files[m];
+	if (File.exists(f + ".js") || File.exists(f + ".jsc"))
+	    avail.push(m);
+    }
+    return {name:"modes", object:avail};
+};
+
 // Handle reload operation
 function onReload(msg)
 {

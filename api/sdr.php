@@ -91,6 +91,7 @@ function sdrHandler($request,$json,$recv,$node)
 	    if ($res["code"] != 200)
 		return $res;
 	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
+	case "get_available_modes":
 	case "calibrate_start":
 	case "calibrate_poll":
 	    // No need to check node: calibration will be handled if loaded
