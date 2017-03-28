@@ -58,9 +58,11 @@ $page   = (!getparam("page")) ? 0 : getparam("page");
 $_SESSION["limit"] = (isset($_SESSION["limit"])) ? $_SESSION["limit"] : 20;
 $limit             = (getparam("limit")) ? getparam("limit") : $_SESSION["limit"];
 $_SESSION["limit"] = $limit;
+$_SESSION["level"] = $level;
 
 $_SESSION["main"] = "main.php";
 
+save_page_info();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
