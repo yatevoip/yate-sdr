@@ -45,28 +45,12 @@ cmds = [
     {
 	name: "start",
 	params: "[force={yes|NO}] [save={YES|no}] [frequency= samplerate= filter=]",
-	info: "Start calibration",
-	desc: "",
     },
     {
 	name: "stop",
 	params: "",
-	info: "Stop calibration",
-	desc: "",
     },
 ];
-
-// Retrieve command description string. Build it if not already done
-function cmdDesc(c)
-{
-    if (!c.desc) {
-	c.desc = "  calibrate " + c.name;
-	if (c.params)
-	    c.desc += " " + c.params;
-	c.desc += "\r\n" + c.info + "\r\n";
-    }
-    return c.desc;
-}
 
 // Build an object from line parameters (param=value ....)
 function parseParams(line)
@@ -841,7 +825,6 @@ function onCommand(msg)
 		oneCompletion(msg,"calibrate",part);
 		break;
 	    case "calibrate":
-	    case "help calibrate":
 		for (var c of cmds)
 		    oneCompletion(msg,c.name,part);
 		break;
@@ -902,37 +885,27 @@ function onStatus(msg)
 
 function onHelp(msg)
 {
-    var s = "";
-    var retOk = false;
     switch (msg.line) {
 	case null:
 	case undefined:
 	case "":
 	case "calibrate":
-	    for (var c of cmds)
-		s += cmdDesc(c);
-	    retOk = ("calibrate" === msg.line);
-	    break;
-	case /^calibrate .*/:
-	    var tmp = msg.line.substr(9);
-	    if (tmp) {
-		var idx = cmds.indexOf(tmp,0,"name");
-		if (idx >= 0) {
-		    s += cmdDesc(cmds[idx]);
-		    retOk = true;
+	    if (!cmdsAllDesc) {
+		for (var c of cmds) {
+		    cmdsAllDesc += "  calibrate " + c.name;
+		    if (c.params)
+			cmdsAllDesc += " " + c.params;
+		    cmdsAllDesc += "\r\n";
 		}
-		break;
 	    }
-	    for (var c of cmds)
-		s += cmdDesc(c);
-	    retOk = true;
+	    if ("calibrate" === msg.line) {
+		msg.retValue(cmdsAllDesc + "Start or stop calibration\r\n");
+		return true;
+	    }
+	    msg.retValue(msg.retValue() + cmdsAllDesc);
 	    break;
     }
-    if (s) {
-	var tmp = msg.retValue();
-	msg.retValue(tmp + s);
-    }
-    return retOk;
+    return false;
 }
 
 // Handle the reload command
