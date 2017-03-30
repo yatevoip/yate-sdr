@@ -44,7 +44,7 @@ $parse_errors = "/var/log/lmi/parse_errors.txt";
 $logs_in = array("/var/log/lmi/ansql_logs.txt");
 
 // where to upload files
-$upload_path = "/var/lib/lmi/upload";
+$upload_path = "/var/lib/lmi/upload/";
 
 #working mode is ignored if set to true
 $devel_mode = false;

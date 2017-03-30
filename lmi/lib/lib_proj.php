@@ -417,13 +417,13 @@ function random_numbers($digits)
  */
 function is_valid_upload_path()
 {
-	global $yate_conf_dir;	
+	global $upload_path;	
 
-	if (!isset($yate_conf_dir))
-		return array(false, "Please set variable '\$yate_conf_dir' into configuration file and set r/w permission to it.");
+	if (!isset($upload_path))
+		return array(false, "Please set variable '\$upload_path' into configuration file and set r/w permission to it.");
 
-	if (!is_readable($yate_conf_dir) || !is_writable($yate_conf_dir))
-		return array(false, "Don't have r/w permission on $yate_conf_dir. Please run this command as root: 'chmod -R a+rw $yate_conf_dir'");
+	if (!is_readable($upload_path) || !is_writable($upload_path))
+		return array(false, "Don't have r/w permission on $upload_path. Please run this command as root: 'chmod -R a+rw $upload_path'");
 
 	return array(true);
 }
