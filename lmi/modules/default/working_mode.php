@@ -6,16 +6,16 @@ function working_mode($editable=false)
 	global $module;
 	// retrieve working mode using API request
 
+	$sdr_mode = get_working_mode();
+	
 	if (!isset($_SESSION["sdr_mode"]) || !strlen($_SESSION["sdr_mode"]) ||  $_SESSION["sdr_mode"]=="not configured") {
 		br(2);
 		note("It is required to choose a working mode before doing any other configuration.");
 		br(2);
 	}
 
-        $sdr_mode = get_working_mode();
-
-	if (!isset($_SESSION["available_sdr_modes"]) || !isset($_SESSION["sdr_mode"])) {
-		errormess("Incomplete installation! Could not retrieve avaible sdr modes. Check equipment api_logs.php","no");
+	if (!isset($_SESSION["available_sdr_modes"])) {
+		errormess("Incomplete installation! Please install al least one of the packages for nib/roaming/dataroam/enb before trying to use the information. Check equipment api_logs.php to verify response.","no");
 		return;
 	} else {
 		$available_modes = $_SESSION["available_sdr_modes"];
