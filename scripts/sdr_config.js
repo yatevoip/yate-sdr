@@ -172,7 +172,8 @@ API.on_set_sdr_mode = function(params,msg)
 	    ysipchan_conf.setValue("general","body_encoding","hex");
 	    ysipchan_conf.setValue("general","async_generic",true);
 	    ysipchan_conf.setValue("general","sip_req_trans_count",5);
-	    ysipchan_conf.setValue("general","useragent","YateBTS/@PACKAGE_VERSION@");
+	    if (!ysipchan_conf.getValue("general","useragent"))
+		ysipchan_conf.setValue("general","useragent","YateBTS");
 
 	    ysipchan_conf.setValue("codecs","default","disable");
 	    ysipchan_conf.setValue("codecs","gsm","enable");
