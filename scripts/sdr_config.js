@@ -135,6 +135,7 @@ API.on_set_sdr_mode = function(params,msg)
     var enb_conf    = prepareConf("yateenb",msg.received,false);
     var gtp_conf    = prepareConf("gtp",msg.received,false);
     var cal_conf    = prepareConf("calibrate",msg.received,false);
+    var ysipchan_conf = prepareConf("ysipchan",msg.received,false);
 
     if (params.sdr_mode == "enb") {
 	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
@@ -158,6 +159,33 @@ API.on_set_sdr_mode = function(params,msg)
 	    gtp_conf.setValue("ran_u","enabled",true);
 	    gtp_conf.setValue("ran_c","enabled",true);
 	}
+
+	if (params.sdr_mode == "roaming" || params.sdr_mode == "dataroam") {
+	    ysipchan_conf.setValue("general","lazy100",true);
+	    ysipchan_conf.setValue("general","transfer",false);
+	    ysipchan_conf.setValue("general","privacy",true);
+	    ysipchan_conf.setValue("general","generate",true);
+	    ysipchan_conf.setValue("general","rtp_start",true);
+	    ysipchan_conf.setValue("general","auth_foreign",true);
+	    ysipchan_conf.setValue("general","autochangeparty",true);
+	    ysipchan_conf.setValue("general","update_target",true);
+	    ysipchan_conf.setValue("general","body_encoding","hex");
+	    ysipchan_conf.setValue("general","async_generic",true);
+	    ysipchan_conf.setValue("general","sip_req_trans_count",5);
+	    ysipchan_conf.setValue("general","useragent","YateBTS/@PACKAGE_VERSION@");
+
+	    ysipchan_conf.setValue("codecs","default","disable");
+	    ysipchan_conf.setValue("codecs","gsm","enable");
+
+	    ysipchan_conf.setValue("message","enable",true);
+	    ysipchan_conf.setValue("message","auth_required",false);
+
+	    ysipchan_conf.setValue("options","enable",false);
+
+	    ysipchan_conf.setValue("methods","options",false);
+	    ysipchan_conf.setValue("methods","info",false);
+	} else if (params.sdr_mode == "nib")
+	    ysipchan_conf.setValue("codecs","default","enable");
 	
     } else {
 	error.error = 201;
@@ -174,6 +202,8 @@ API.on_set_sdr_mode = function(params,msg)
     if (!saveConf(error,cal_conf))
 	return error;
     if (!saveConf(error,gtp_conf))
+	return error;
+    if (!saveConf(error,ysipchan_conf))
 	return error;
 
     Engine.output("Restart on node config: " + msg.received);
