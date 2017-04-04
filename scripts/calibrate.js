@@ -45,12 +45,29 @@ cmds = [
     {
 	name: "start",
 	params: "[force={yes|NO}] [save={YES|no}] [frequency= samplerate= filter=]",
+	info: "Start radio calibration",
     },
     {
 	name: "stop",
 	params: "",
+	info: "Stop radio calibration. Disable auto calibration",
+    },
+    {
+	name: "auto",
+	params: "",
+	info: "Enable auto calibration",
     },
 ];
+
+function setAutoCal(on)
+{
+    if (auto_calibration != on) {
+	auto_calibration = on;
+	Engine.debug(Engine.DebugNote,"Auto calibration is " + onOff(on));
+    }
+    else if (debug)
+	Engine.debug(Engine.DebugAll,"Auto calibration is " + onOff(on));
+}
 
 // Build an object from line parameters (param=value ....)
 function parseParams(line)
@@ -326,7 +343,11 @@ Calibration.prototype.ended = function(error)
 	}
     }
     else {
-	Engine.debug(Engine.DebugCall,"Calibration ended (duration=" + duration + ") error: " + error);
+	if (this.loop > 2)
+	    Engine.alarm("system",Engine.DebugWarn,"Calibration attempt #" + this.loop + " failed (duration=" +
+		duration + ") error: " + error);
+	else
+	    Engine.debug(Engine.DebugCall,"Calibration failed (duration=" + duration + ") error: " + error);
 	lastCalFailed = last;
 	saveCalConfig("last_failed_calibration",last,null,null,true);
 	// Disable auto calibration in some odd situations
@@ -795,6 +816,7 @@ function onCalibrateStart(msg,params)
 // Handle calibrate stop command
 function onCalibrateStop(msg)
 {
+    setAutoCal(false);
     var str;
     if (calibration) {
 	calibration.stop(true,"command received");
@@ -840,6 +862,9 @@ function onCommand(msg)
 		return onCalibrateStart(msg,parseParams(line.substr(6)));
 	    case "stop":
 		return onCalibrateStop(msg);
+	    case "auto":
+		setAutoCal(true);
+		return true;
 	}
 	return false;
     }
@@ -860,6 +885,7 @@ function onStatus(msg)
     if (!msg.json) {
 	str = "module=calibrate;";
 	str += props2str(status);
+	str += ",auto_calibration=" + onOff(auto_calibration);
     }
     if (parseBool(msg.details,true) && (lastCalOk || lastCalFailed)) {
 	if (msg.json) {
@@ -892,14 +918,16 @@ function onHelp(msg)
 	case "calibrate":
 	    if (!cmdsAllDesc) {
 		for (var c of cmds) {
-		    cmdsAllDesc += "  calibrate " + c.name;
+		    var s = "  calibrate " + c.name;
 		    if (c.params)
-			cmdsAllDesc += " " + c.params;
-		    cmdsAllDesc += "\r\n";
+			s += " " + c.params;
+		    s += "\r\n";
+		    cmdsAllDesc += s;
+		    cmdsAllDescInfo += s + c.info + "\r\n";
 		}
 	    }
 	    if ("calibrate" === msg.line) {
-		msg.retValue(cmdsAllDesc + "Start or stop calibration\r\n");
+		msg.retValue(cmdsAllDescInfo);
 		return true;
 	    }
 	    msg.retValue(msg.retValue() + cmdsAllDesc);
@@ -1011,8 +1039,8 @@ function initialize()
 	Engine.debug(level,"Starting in mode=" + mode + " (module=" + module + " product=" + product +
 	    ") calibration_file='" + calibration_file + "'");
 	updateProductRunning(true);
+	auto_calibration = gen.getBoolValue("auto_calibration",true);
     }
-    auto_calibration = gen.getBoolValue("auto_calibration",true);
     freqoffs_calibration = gen.getBoolValue("freqoffs_calibration",true);
 }
 
