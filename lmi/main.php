@@ -61,6 +61,11 @@ $_SESSION["limit"] = $limit;
 $_SESSION["level"] = $level;
 
 $_SESSION["main"] = "main.php";
+if ($module == "subscribers") {
+	save_page_info();
+} elseif (isset($_SESSION["previous_page"])) {
+	unset($_SESSION["previous_page"]);
+}
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
