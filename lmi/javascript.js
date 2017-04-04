@@ -193,8 +193,10 @@ function show_hide_cols()
 
 function show_hide_op()
 {
-	if (document.getElementById("imsi_type").value == "3G")
-		show_hide("tr_op");
+	if ("3G" == document.getElementById("imsi_type").value) {
+                show_hide("tr_op");
+                show_hide("tr_opc");
+        }
 	return;
 }
 

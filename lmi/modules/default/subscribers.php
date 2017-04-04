@@ -54,7 +54,7 @@ function list_subscribers()
 			$i++;
 		}
 
-		$formats = array("IMSI"=>"imsi","msisdn","short_number","ki","op","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
+		$formats = array("IMSI"=>"imsi","msisdn","short_number","ki","op","function_display_bit_field:opc"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
 		if ($pysim_mode)
 			$formats["function_write_subcriber_on_sim:"] = "imsi,ki";
 
@@ -303,29 +303,37 @@ function edit_subscriber($error=null,$error_fields=array())
 
 	if (get_param($subscriber,"imsi_type"))
 		$imsi_type["selected"] = get_param($subscriber,"imsi_type");
+	if (getparam("imsi_type"))
+		$imsi_type["selected"] = getparam("imsi_type");
+	
 	$active = (in_array(get_param($subscriber,"active"), array("on","true","enabled","enable","1"))) ? true : false;
-	$op = get_param($subscriber,"op") ? get_param($subscriber,"op") : (getparam("imsi_type")=="3G") ? "00000000000000000000000000000000" : "";
+	$opc = (in_array(get_param($subscriber,"opc"), array("on","true","enabled","enable","1"))) ? true : false;
+	
+	$op = (get_param($subscriber,"op")) ? get_param($subscriber,"op") : ((getparam("imsi_type")=="3G") ? "00000000000000000000000000000000" : "");
 
 	$fields = array(
 		"imsi"   => array("value"=>$imsi, "required"=>true, "comment"=>"SIM card id", "column_name"=>"IMSI"),
 		"msisdn" => array("value"=>get_param($subscriber,"msisdn"), "comment"=>"DID associated to this IMSI. When outside call is made, this number will be used as caller number.", "column_name"=>"MSISDN"),
 		"short_number" => array("value" => get_param($subscriber,"short_number"),"comment"=>"Short number that can be used to call this subscriber."),
-		"active" => array("value"=>$active, "display"=>"checkbox"),
-		"imsi_type" => array($imsi_type, "display"=>"select", "column_name"=>"IMSI Type", "required"=>true, "comment"=> "Type of SIM associated to the IMSI", "javascript" => 'onclick="show_hide_op()"'),
+		"active" => array("value"=>$active, "display"=>"checkbox", "comment"=>"Only active subscribers are allowed to register."),
+		"imsi_type" => array($imsi_type, "display"=>"select", "column_name"=>"IMSI Type", "required"=>true, "comment"=> "Type of SIM associated to the IMSI", "javascript" => 'onclick="show_hide_op();"'),
 		"ki" => array("value"=>get_param($subscriber,"ki"), "comment"=>"Card secret. You can use * to disable authentication for this subscriber.", "required"=>true),
-		"op" => array("value"=>$op, "triggered_by"=>"imsi_type", "comment"=>"Operator secret. Empty for 2G IMSIs.<br/>00000000000000000000000000000000 for 3G IMSIs.")
+		"op" => array("value"=>$op, "triggered_by"=>"imsi_type", "comment"=>"Operator secret. Empty for 2G IMSIs.<br/>00000000000000000000000000000000 for 3G IMSIs."),
+		"opc" => array("value"=>$opc, "display"=>"checkbox", "triggered_by"=>"imsy_type", "comment"=>"If OPC is set then authentication algorithm will use value set in OP as OPC.")
 	);
 	
 	if ($imsi && count($subscriber) && !in_array("imsi",$error_fields))
 		$fields["imsi"]["display"] = "fixed";
-	if ($imsi && $imsi_type["selected"] == "3G")
+	if ($imsi && $imsi_type["selected"] == "3G") {
 		unset($fields["op"]["triggered_by"]);
+		unset($fields["opc"]["triggered_by"]);
+	}
 	if (!count($subscriber))
 		$imsi = NULL;
 
 	error_handle($error,$fields,$error_fields);
 	start_form();
-	addHidden("write_file", array("imsi_val"=>$imsi));
+	addHidden("write_file", array("imsi_val"=>$imsi,"opc"=>"off"));
 	editObject(NULL,$fields,"Set subscriber","Save");
 	end_form();
 }
@@ -338,9 +346,9 @@ function edit_subscriber_write_file()
 
 	if (!$res[0]) {
 		//errormess($res[1], "no");
-		$subscribers = array();
+		$old_subscriber = array();
 	} else {
-		$subscribers = $res[1];
+		$old_subscriber = $res[1];
 	}
 
 	if (!$imsi)
@@ -348,18 +356,20 @@ function edit_subscriber_write_file()
 
 	$subscriber = array("imsi"=>$imsi);
 
-	$fields = array("msisdn"=>false, "short_number"=>false, "active"=>false, "ki"=>true, "op"=>false, "imsi_type"=>true);
+	$fields = array("msisdn"=>false, "short_number"=>false, "active"=>false, "ki"=>true, "op"=>false, "opc"=>false, "imsi_type"=>true);
 	foreach ($fields as $name=>$required) {
 		$val = getparam($name);
 		if ($required && !$val)
 			return edit_subscriber("Field $name is required");
-		if ($name != "active")
+		if ($name!="active" && $name!="opc")
 			$subscriber[$name] = $val;
 		else
 			$subscriber[$name] = ($val=="on") ? "on" : "off";
 	}
-	if ($subscriber["imsi_type"]=="2G")
-		$subscriber["op"] = "";
+	if ($subscriber["imsi_type"]=="2G") {
+		$subscriber["op"]  = "";
+		$subscriber["opc"] = false;
+	}
 	if (getparam("imsi_type")=="3G" && (getparam("op")==NULL || getparam("op")==""))
 		return edit_subscriber("OP can't be empty!", array("op"));
 
@@ -367,19 +377,24 @@ function edit_subscriber_write_file()
 	if (!$res[0])
 		return edit_subscriber($res[1],$res[2]);
 
-	if (getparam("imsi_val") && isset($subscribers["imsi"])) {
+	if (getparam("imsi_val") && isset($old_subscriber["imsi"])) {
 		$modified = false;
 		//check if there are changes
 		foreach ($fields as $name=>$required) {
 			$val = getparam($name);
-			if ($name == "active")
-				$val = !$val ? "off" : "on";
-			elseif ($name == 'op' && getparam("imsi_type")=="2G")
+			if ($name=="active" || $name=="opc") {
+				$val = ($val=="on") ? "on" : "off";
+			}
+			elseif ($name=='op' && getparam("imsi_type")=="2G") {
 				continue;
-			if ($subscribers[$name] != $val) 
+			}
+			
+			if ((!isset($old_subscriber[$name]) && $val) || (isset($old_subscriber[$name]) && $old_subscriber[$name]!=$val)) {
 				$modified = true;
-			if ($modified)
+			}
+			if ($modified) {
 				break;
+			}
 		}
 
 		if (!$modified) {
@@ -388,16 +403,19 @@ function edit_subscriber_write_file()
 		}
 	}
 
-	if (!getparam("imsi_val") && isset($subscribers[$imsi]))
+	if (!getparam("imsi_val") && isset($old_subscriber[$imsi])) {
 		return edit_subscriber("Subscriber with IMSI $imsi is already set.",array("imsi"));
+	}
 
-	$subscribers = array("subscribers"=> array($imsi =>$subscriber));
+	$subscribers = array("subscribers" => array($imsi=>$subscriber));
 
-	if (!getparam("imsi_val"))
+	if (!getparam("imsi_val")) {
 		unset($subscribers["subscribers"][$imsi]["imsi"]);
+	}
 	$res = set_subscribers($subscribers);
-	if (!$res[0])
+	if (!$res[0]) {
 		return edit_subscriber($res[1]);
+	}
 
 	notice("Finished setting subscriber with IMSI $imsi.", "subscribers");
 }
