@@ -115,9 +115,11 @@ function modify_working_mode_database()
 	if (!isset($res["code"]) || $res["code"]!=0) {
 		errormess("Could not update working mode: "."[API: ".$res["code"]."] ".$res["message"],"no");
 	} else {
+		notice("Working mode was updated. Please wait a few seconds for Yate to finish restarting.", "no");
 		$_SESSION["sdr_mode"] = $mode;
-		load_page($_SESSION["main"]);
+		print "<meta http-equiv=\"REFRESH\" content=\"5;url=".$_SESSION["main"]."\">";
 	}
+	
 	working_mode();
 }
 

@@ -681,7 +681,7 @@ div.notice
 	background-repeat:no-repeat;
 	padding:10px;
 	padding-left:40px;
-
+	text-align: left;
 }
 
 div.error
@@ -690,6 +690,7 @@ div.error
 	background-image:url("../images/error.png");
 	background-position:left center;
 	background-repeat:no-repeat;
+	text-align: left;
 }
 
 div.systemstatus

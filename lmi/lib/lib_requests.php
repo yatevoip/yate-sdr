@@ -71,7 +71,7 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"api request");
 
-	global $method, $action, $accept_loop, $parse_errors, $func_build_request_url;
+	global $method, $action, $accept_loop, $parse_errors, $func_build_request_url, $retry_after_restart;
 
 	$res = make_request($out,$request);
 	if ($res["code"]<0) {
@@ -84,6 +84,18 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 	$error = false;
 	if ($res["code"]!="0") {
                 write_error($request, $out, "", "", $url, $res);
+		
+		// This error happens if Yate was just restarted and user switched to a new tab
+		// If this happens wait 5 seconds then try again before returning error to use
+		$retriable = "Cannot connect to Yate on port";
+		if (!isset($retry_after_restart) && $res["code"]=="200" && substr($res["message"],0,strlen($retriable))==$retriable) {
+			sleep(5);
+			$retry_after_restart = true;
+			return request_api($out, $request, $response_field, $err_cb);
+		} elseif (isset($retry_after_restart)) {
+			unset($retry_after_restart);
+		}
+		
 		errormess("[API: ".$res["code"]."] ".$res["message"]. " Full response in $parse_errors.","no");
 		$error = true;
 	} elseif ($response_field && !isset($res[$response_field])) {
