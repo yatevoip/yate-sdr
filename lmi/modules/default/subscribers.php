@@ -319,7 +319,7 @@ function edit_subscriber($error=null,$error_fields=array())
 		"imsi_type" => array($imsi_type, "display"=>"select", "column_name"=>"IMSI Type", "required"=>true, "comment"=> "Type of SIM associated to the IMSI", "javascript" => 'onclick="show_hide_op();"'),
 		"ki" => array("value"=>get_param($subscriber,"ki"), "comment"=>"Card secret. You can use * to disable authentication for this subscriber.", "required"=>true),
 		"op" => array("value"=>$op, "triggered_by"=>"imsi_type", "comment"=>"Operator secret. Empty for 2G IMSIs.<br/>00000000000000000000000000000000 for 3G IMSIs."),
-		"opc" => array("value"=>$opc, "display"=>"checkbox", "triggered_by"=>"imsy_type", "comment"=>"If OPC is set then authentication algorithm will use value set in OP as OPC.")
+		"opc" => array("value"=>$opc, "display"=>"checkbox", "triggered_by"=>"imsi_type", "comment"=>"If OPC is set then authentication algorithm will use value set in OP as OPC.")
 	);
 	
 	if ($imsi && count($subscriber) && !in_array("imsi",$error_fields))
@@ -365,13 +365,14 @@ function edit_subscriber_write_file()
 			$subscriber[$name] = $val;
 		else
 			$subscriber[$name] = ($val=="on") ? "on" : "off";
+
 	}
 	if ($subscriber["imsi_type"]=="2G") {
 		$subscriber["op"]  = "";
 		$subscriber["opc"] = false;
 	}
 	if (getparam("imsi_type")=="3G" && (getparam("op")==NULL || getparam("op")==""))
-		return edit_subscriber("OP can't be empty!", array("op"));
+		$subscriber["op"] = "00000000000000000000000000000000";
 
 	$res = validate_subscriber($subscriber);
 	if (!$res[0])
@@ -446,7 +447,7 @@ function set_regexp($regexp)
 	return array(true);
 }
 
-function get_subscribers($imsi=false)
+function get_subscribers($imsi=false, $get_all=false)
 {
 	global $limit, $page;
 
@@ -459,6 +460,10 @@ function get_subscribers($imsi=false)
 		if (!$total)
 			$total = get_count_subscribers();
 		if ($total>0) {
+			if ($get_all) {
+				$limit = $total;
+				$page=0;
+			}
 			$res = request_api(array("limit"=>$limit, "offset"=>$page), "get_nib_subscribers", "subscribers");
 			return array(true, $res);
 		}
@@ -1029,6 +1034,9 @@ function get_smsc()
 
 function import_subscribers($error=null,$error_fields=array())
 {
+	global $method;
+
+	$method = "import_subscribers";
 	$fields = array(
 		"insert_file_location" => array("display"=>"file", "file_example"=>"import_example.csv"),
 		"note!" => array("value"=>"File type must be .csv.", "display"=>"fixed")
@@ -1064,36 +1072,16 @@ function import_subscribers_from_csv()
 	if (!$new_subscribers[0])
 		return import_subscribers($new_subscribers[1], array("insert_file_location"));
 
+	$res = analize_subscribers_data($new_subscribers[1], $new_subscribers[2]);
 	$new_subscribers = $new_subscribers[1];
 
-	//insert subscribers into subscribers.conf
-	$imported = 0;
-	foreach ($new_subscribers as $imsi => $data) {
-		if ($data["imsi_type"] == "2G")
-			$new_subscribers[$imsi]["op"] = "";
-		if ($data["imsi_type"] == "3G" &&  $data["op"] == "")
-			$new_subscribers[$imsi]["op"] = "00000000000000000000000000000000";
-		if (!preg_match("/^[0-9]{14,15}$/", $imsi)) {
-			print "Skipping IMSI: ".$imsi.". Error: The IMSI must contain only 14 or 15 digits.<br/>"; 
-			continue;
-		}
-		$res = validate_subscriber($data);
-		if (!$res[0]) {
-			print "Skipping IMSI: ".$imsi.". Error: ".$res[1];
-			continue;
-		} else {
-			$fields = array("subscribers"=>array($imsi=>$data));
-			$res = make_request($fields,"set_nib_subscribers");
-			if ($res["code"]!="0") {
-				errormess("Error when importing subscriber with IMSI ".$imsi.". Error [API: ".$res["code"]."] ". $res["message"] ,"no");
-				message("Fix error and reupload file.","no");
-				break;
-			}
-			else
-				$imported += 1;
-		}
+	if (isset($res["override"]) || isset($res["skip"])) {
+		return display_intermediate_step($res);
 	}
-	notice("Finished importing subscribers. Imported ".$imported." subscribers.", "list_subscribers");
+
+	//if no errors found in the file 
+	//insert subscribers into subscribers.conf
+	finish_importing_subscribers($new_subscribers);
 }
 
 function validate_subscriber($fields)
@@ -1101,30 +1089,33 @@ function validate_subscriber($fields)
 	if (isset($fields["imsi"])) {
 		$imsi = $fields["imsi"];
 		if (!preg_match("/^[0-9]{14,15}$/", $imsi))
-			return array(false, "The IMSI: ".$imsi." must contain only 14 or 15 digits.", array("imsi"));
+			return array(false, "The IMSI: '".$imsi."' must contain only 14 or 15 digits.", array("imsi"));
 	}
 
 	if (strlen($fields["msisdn"])) {
 		if (strlen($fields["msisdn"])<7) 
-			return array(false, "The MSISDN value must have at least 7 digits.", array("msisdn"));
+			return array(false, "The MSISDN: '".$fields["msisdn"]."' must have at least 7 digits.", array("msisdn"));
 		if (!ctype_digit($fields["msisdn"]))
-			return array(false, "The MSISDN value must contain only digits.", array("msisdn"));
+			return array(false, "The MSISDN: '".$fields["msisdn"]."' must contain only digits.", array("msisdn"));
 		if (preg_match("/^0/", $fields["msisdn"]))
-			return array(false, "The MSISDN can't start with 0.", array("msisdn"));
+			return array(false, "The MSISDN: '".$fields["msisdn"]."' can't start with 0.", array("msisdn"));
 	}
 
 	$short_number = $fields["short_number"];
 	if (strlen($short_number)) {
 		if (!ctype_digit($short_number))
-			return array(false, "The Short number must be numeric.", array("short_number"));
+			return array(false, "The Short number: '".$short_number."' must be numeric.", array("short_number"));
 		if (strlen($short_number)<3)
-			return array(false, "The Short number must have at least 3 digits.",array("short_number"));
+			return array(false, "The Short number: '".$short_number."' must have at least 3 digits.",array("short_number"));
 	}
 
+	$active_allowed = array("on","off","true","false","enabled","disabled","enable","disable","1","0");
 	if ($fields["ki"]!="*" && !preg_match('/^[0-9a-fA-F]{32}$/i', $fields["ki"]))
-		return array(false,"Invalid KI:".$fields["ki"].". KI needs to be 128 bits, in hex format.", array("ki"));
+		return array(false,"Invalid KI:'".$fields["ki"]."'. KI needs to be 128 bits, in hex format.", array("ki"));
 	if (!isset($fields["imsi_type"]) || ($fields["imsi_type"]!="2G" && $fields["imsi_type"]!="3G"))
-		return array(false, "Imsi type invalid: ".$fields["imsi_type"]. ". Only 2G or 3G allowed.", array("imsi_type"));
+		return array(false, "Imsi type invalid: '".$fields["imsi_type"]."'. Only 2G or 3G allowed.", array("imsi_type"));
+	if (!isset($fields["active"]) || !in_array($fields["active"],$active_allowed))
+		return array(false, "Active field invalid: '". $fields["active"]."'. Only bool value allowed.", array("active"));
 
 	return array(true);
 }
@@ -1132,21 +1123,35 @@ function validate_subscriber($fields)
 function get_subscribers_from_uploaded_csv($file)
 {
 	$new_subscribers = array();
-	$formats = array("imsi","msisdn","short_number","active","ki","op","imsi_type");
+	$res = array();
+	$formats = array("imsi","msisdn", "iccid", "algorithm", "imsi_type", "active", "cs_active", "ps_active", "lte_active", "ims_active", "short_number", "op", "opc", "ki", "pin", "puk", "pin2", "puk2", "adm1", "ota");
+
 	$csv = new CsvFile($file,$formats);
 
 	if (!count($csv->file_content) && $csv->getError())
 		return array(false, $csv->getError());
 
+	$skip_params = array("iccid","algorithm","cs_active", "ps_active", "lte_active", "ims_active", "pin", "puk", "pin2", "puk2", "adm1", "ota");
+	$imsis = array();
 	foreach ($csv->file_content as $key=>$subs_data) {
-		if (isset($subs_data["imsi"])){
+		if (isset($subs_data["imsi"]) && strlen($subs_data["imsi"])) {
 			$new_subscribers[$subs_data["imsi"]] = $csv->file_content[$key];
 			unset($new_subscribers[$subs_data["imsi"]]["imsi"]);
-		}	
+			
+			foreach ($skip_params as $k=>$skip_param) { 
+				unset($new_subscribers[$subs_data["imsi"]][$skip_param]);
+			}
+			$imsis[] = $subs_data["imsi"];
+		} else {
+			$res["skip"][] = "Skipped line: ".make_readable_line($subs_data). ". Error: IMSI is required.";
+		}
 	}
+	$imsis = array_count_values($imsis);
+	find_duplicate($new_subscribers, $imsis, "imsi", $res);
 
-	return array(true,$new_subscribers);
+	return array(true,$new_subscribers,$res);
 }
+
 // Old implementation to overwrite the imsis when importing a csv file
 function overwrite_imsi_form($error=null, $error_fields=array())
 {
@@ -1210,11 +1215,12 @@ function export_subscribers_in_csv()
 		return;
 	}
 	$smsc = get_smsc();
-	$formats = array("IMSI", "Msisdn", "Short_number", "Active", "Ki", "OP", "IMSI_Type", "ICCID", "SMSC", "OPC");
+//	$formats = array("IMSI", "Msisdn", "Short_number", "Active", "Ki", "OP", "IMSI_Type", "ICCID", "SMSC", "OPC");
+	$formats = array("imsi","msisdn", "iccid", "algorithm", "imsi_type", "active", "cs_active", "ps_active", "lte_active", "ims_active", "short_number", "op", "opc", "ki", "pin", "puk", "pin2", "puk2", "adm1", "ota");
 	if ($pysim_mode) {
-		$formats[] = "ICCID";
-		$formats[] = "SMSC";
-		$formats[] = "OPC";
+		$formats[] = "iccid";
+		$formats[] = "smsc";
+		$formats[] = "opc";
 	}
 	$i=0;
 	$arr = array();
@@ -1223,27 +1229,40 @@ function export_subscribers_in_csv()
 		if ($pysim_mode) {	
 			$params_pysim = get_params_subscriber_from_pysim_csv($imsi);
 			if (count($params_pysim)) {
-				$params["ICCID"] = $params_pysim["iccid"];
-				$params["OPC"] = trim($params_pysim["opc"]);
-				$params["OP"] = trim($params_pysim["op"]);
+				$params["iccid"] = $params_pysim["iccid"];
+				$params["opc"] = trim($params_pysim["opc"]);
+				$params["op"] = trim($params_pysim["op"]);
 			}
 		}
-		$params["IMSI"] = $imsi;
-		$params["SMSC"] = $smsc; 
+		$params["imsi"] = $imsi;
 		if (!isset($params["op"]))
 			$params["op"] = "";
-		if ($params["active"] === "null")
-			$params["active"] = "off";
+		if (!isset($params["algorithm"]))
+			$params["algorithm"] = ($params["imsi_type"] == "3G") ? "milenage" : "comp128-1";
+		if (!isset($params["ps_active"]))
+			$params["ps_active"] = "1";
+		if (!isset($params["cs_active"]))
+			$params["ps_active"] = "1";
+		if (!isset($params["lte_active"]))
+			$params["lte_active"] = "1";
+		if (!isset($params["ims_active"]))
+			$params["ims_active"] = "1";
+		if (in_array($params["active"],array("on","true","enabled","enable","1")))
+			$params["active"] = "1";
+		else
+			$params["active"] = "0";
+		if (!isset($params["opc"]))
+			$params["opc"] = "0";
+		elseif (in_array($params["opc"],array("on","true","enabled","enable","1")))
+			$params["opc"] = "1";
+		else
+			$params["opc"] = "0";
 		$arr[] = $params;
 	}
 
-	foreach ($arr as $key=>$val) {
-
-		$new[] = change_key_name($val, array("msisdn"=>"Msisdn","short_number"=>"Short_number", "active"=>"Active", "ki"=>"Ki", "op"=>"OP", "imsi_type"=>"IMSI_Type"));
-	}
 	$filename = "list_subscribers.csv";
 
-	$csv = new CsvFile($upload_path.$filename, $formats, $new, false, false);
+	$csv = new CsvFile($upload_path.$filename, $formats, $arr, false, false, ",", false);
 
 	if (!$csv->status())
 		return notice($csv->getError(),"list_subscribers");
@@ -1253,4 +1272,180 @@ function export_subscribers_in_csv()
 	notice("Content was exported. <a href=\"download.php?file=$filename\">Download</a>", "list_subscribers");
 }
 
+function analize_subscribers_data($new_subscribers, &$res)
+{
+	$subs = get_subscribers(false,true);
+	if ($subs[0])
+		$old_subscribers = $subs[1];
+
+	$msisdns = $short_numbers = array();
+	foreach ($new_subscribers as $imsi=>$subs) {
+		if (strlen($subs['msisdn']))
+			$msisdns[] = $subs['msisdn'];
+		if (strlen($subs['short_number']))
+			$short_numbers[] = $subs['short_number'];
+		$valid_subs = validate_subscriber($subs);
+		if (!$valid_subs[0]) {
+			$res["skip"][] = " Skipped IMSI: ".$imsi.". Error: ".$valid_subs[1];
+			unset($new_subscribers[$imsi]);
+		}
+
+		if (!preg_match("/^[0-9]{14,15}$/", $imsi)) {
+			$res["skip"][] = "Skipped IMSI: ".$imsi.". Error: The IMSI must contain only 14 or 15 digits.";
+			unset($new_subscribers[$imsi]);
+		}
+	}
+
+	if (count($msisdns)) {
+		$duplicate = array_count_values($msisdns);
+		find_duplicate($new_subscribers,$duplicate,'msisdn',$res);
+	}
+
+	if (count($short_numbers)) {
+		$duplicate = array_count_values($short_numbers);
+		find_duplicate($new_subscribers,$duplicate,'short_number',$res);
+	}
+
+	if (!count($old_subscribers)) {
+		return array( "skip"            => (isset($res["skip"])) ? $res["skip"] : array(), 
+					  "override"        => (isset($res["override"])) ? $res["override"] : array(),
+					  "new_subscribers" => $new_subscribers);
+	}
+
+	$old_imsis = array();
+	foreach ($old_subscribers as $imsi=>$old_subs) {
+		$old_imsis[] = $imsi;
+	}
+
+	foreach ($new_subscribers as $imsi=>$subs) {
+
+		if (in_array($imsi,$old_imsis)) {
+			$old_msisdn = isset($old_subscribers[$imsi]["msisdn"]) ? $old_subscribers[$imsi]["msisdn"] : "";
+			$old_sn = isset($old_subscribers[$imsi]["short_number"]) ? $old_subscribers[$imsi]["short_number"] : "";
+			$old_op = isset($old_subscribers[$imsi]["op"]) ? $old_subscribers[$imsi]["op"] : "";
+			$old_opc = isset($old_subscribers[$imsi]["opc"]) ? $old_subscribers[$imsi]["opc"] : "0";
+			if ($subs["msisdn"] != $old_msisdn) {
+				$res["override"][] = "Found existing IMSI: ".$imsi." but with a different MSISDN. This will be overridden." ;
+			} elseif ($subs["short_number"] != $old_sn) {
+				$res["override"][] = "Found existing IMSI: ".$imsi." but with a different Short number. This will be overridden.";
+			} elseif ($subs["imsi_type"] != $old_subscribers[$imsi]["imsi_type"]) {
+				$res["override"][] = "Found existing IMSI: ".$imsi." but with a different Imsi_type. This will be overridden.";
+			} elseif ($subs["ki"] != $old_subscribers[$imsi]["ki"]) {
+				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different KI. This will be overriden.";
+			} elseif ($subs["op"] != $old_op) {
+				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different OP. This will be overridden.";
+			} elseif (exist_bool_difference($subs["opc"], $old_opc)) {
+				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different OPC. This will be overridden.";
+			} elseif (exist_bool_difference($subs["active"], $old_subscribers[$imsi]["active"])) {
+				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different Active. This will be overridden.";
+			} else {
+				$res["skip"][] = " Skipped IMSI: ".$imsi.". No change.";
+				unset($new_subscribers[$imsi]);
+				continue;
+			}
+			$new_subscribers[$imsi]["imsi"] = $imsi; // so that this imsi will be edited not added in API
+		}
+	}
+
+	return array (
+	   	"skip"            => (isset($res["skip"])) ? $res["skip"] : array(), 
+	    "override"        => (isset($res["override"])) ? $res["override"] : array(),
+		"new_subscribers" => $new_subscribers
+	);
+}
+
+function find_duplicate(&$new_subscribers, $dup_arr, $dup_type, &$res)
+{
+	$duplicates = array();
+	foreach ($dup_arr as $elem=>$dup_no) {
+		if ($dup_no>1) { //found duplicated element
+			$duplicates[] = $elem;
+		}
+	}
+
+	if (count($duplicates)) {
+		foreach($new_subscribers as $imsi=>$subs) {
+			foreach ($duplicates as $k=>$duplicate) {
+				if ((isset($subs[$dup_type]) && $subs[$dup_type] == $duplicate) || ($dup_type=="imsi" && $imsi == $duplicate)) {
+					$res["skip"][] = "Skipped IMSI: ".$imsi. ". Found ".$dup_type." duplicated.";
+					unset($new_subscribers[$imsi]);
+				} 
+			}
+		}
+	}
+}
+
+function display_intermediate_step($res,$error="",$error_fields=array())
+{
+	global $method;
+
+	$method = "display_intermediate_step";
+	$_SESSION["new_subscribers"] = $res["new_subscribers"];
+	$fields = array();
+	$i = 0;
+	if (isset($res["override"])) {
+		foreach ($res["override"] as $k=>$mess) {
+			$fields["imsi".($i+$k)] = array("display"=>"message", "value"=>$mess."<br/>", "column_name"=>"");
+		}
+		$i = count($res["override"])+1;
+	}
+
+	foreach ($res["skip"] as $k=>$mess) {
+		$fields["imsi".($i+$k)] = array("display"=>"message", "value"=>$mess."<br/>", "column_name"=>"");
+	}
+	$custom_submit = '<div class="custom_submit"><input type="submit" name="submit_action" value="Continue" /> <input type="submit" name="submit_action" value="Cancel" /> <input type="submit" name="submit_action" value="Re-upload" /></div>';
+	$fields["custom_submit"] = array("display"=>"custom_submit", "value"=>$custom_submit, "column_name"=>"");
+
+	error_handle($error,$fields,$error_fields);
+	start_form();
+	addHidden("actions");
+	editObject(NULL,$fields,"Analyze subscribers data from imported file","no",null,true);
+	end_form();
+}	
+
+function display_intermediate_step_actions()
+{
+	if (getparam("submit_action") == "Cancel")
+		return list_subscribers();
+	elseif (getparam("submit_action") == "Re-upload")
+		return import_subscribers();
+
+	finish_importing_subscribers($_SESSION["new_subscribers"]);
+}
+
+function finish_importing_subscribers($new_subscribers)
+{
+    //insert subscribers into subscribers.conf
+	$imported = 0;
+	foreach ($new_subscribers as $imsi => $data) {
+		if ($data["imsi_type"] == "2G") {
+			$new_subscribers[$imsi]["op"] = "";
+		} elseif ($data["imsi_type"] == "3G" &&  $data["op"] == "") {
+			$new_subscribers[$imsi]["op"] = "00000000000000000000000000000000";
+		}
+
+		if ($data["opc"] == "1") {
+			$data["opc"] = true;
+		} else {
+			$data["opc"] = false;
+		}
+
+		if ($data["active"] == "1") {
+			$data["active"] = true;
+		} else {
+			$data["active"] = false;
+		}
+
+		$fields = array("subscribers"=>array($imsi=>$data));
+		$res = make_request($fields,"set_nib_subscribers");
+		if ($res["code"]!="0") {
+			errormess("Error when importing subscriber with IMSI ".$imsi.". Error [API: ".$res["code"]."] ". $res["message"] ,"no");
+			message("Fix error and reupload file.","no");
+			break;
+		} else {
+			$imported += 1;
+		}
+	}
+	notice("Finished importing subscribers. Imported ".$imported." subscribers.", "list_subscribers");
+}
 ?>

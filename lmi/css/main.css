@@ -1329,3 +1329,4 @@ table.menu_bts td.menu_fill {width: /*255px*/ 323px; border-top:none; border-lef
 
 table.workingmode td, table.workingmode th {height: 30px; padding-left:10px; text-align:left;}
 div.objtitle { font-weight:bold; padding-top:8px; padding-bottom:3px; }
+div.custom_submit {text-align:right;}

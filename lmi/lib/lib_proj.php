@@ -427,5 +427,42 @@ function is_valid_upload_path()
 
 	return array(true);
 }
+/**
+ * Find if 2 given values are different 
+ * testing all the allowed bool that can be set in files
+ */ 
+function exist_bool_difference($new,$old)
+{
+	$bool_true_allowed = array("on","true","enabled","enable","1");
+	$bool_false_allowed = array("off","false","disabled","disable","0");
 
+	if (in_array($new,$bool_true_allowed)) {
+		if (!in_array($old,$bool_true_allowed)) {
+			return true;
+		}
+	} 
+
+	if (in_array($new,$bool_false_allowed)) {
+		if (!in_array($old,$bool_false_allowed)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Display a line from csv file in specific format
+ */ 
+function make_readable_line($line)
+{
+	$sign = $mess = "";
+	foreach ($line as $name=>$value) {
+		if (strlen($value)) {
+			$mess .= $sign.$name.":".$value;
+			$sign = ", ";
+		}
+	}
+	return $mess;
+}
 ?>
