@@ -18,7 +18,7 @@
  */
 
 if (is_file("defaults.php"))
-        require_once("defaults.php");
+	require_once("defaults.php");
 
 if (is_file("config.php"))
 	require_once("config.php");
