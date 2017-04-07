@@ -143,6 +143,7 @@ API.on_set_sdr_mode = function(params,msg)
 	enb_conf.setValue("general","autostart",true);
 	cal_conf.setValue("general","mode","enb");
 	gtp_conf.setValue("ran_u","enabled",true);
+	gtp_conf.setValue("ran_u","type","gtp-access");
 	gtp_conf.setValue("ran_c","enabled",false);
 
     } else if (bts_modes.indexOf(params.sdr_mode) >= 0) {
@@ -157,7 +158,9 @@ API.on_set_sdr_mode = function(params,msg)
 	    gtp_conf.setValue("ran_c","enabled",false);
 	} else {
 	    gtp_conf.setValue("ran_u","enabled",true);
+	    gtp_conf.setValue("ran_u","type","gtp-access");
 	    gtp_conf.setValue("ran_c","enabled",true);
+	    gtp_conf.setValue("ran_c","type","gtp-control");
 	}
 
 	if (params.sdr_mode == "roaming" || params.sdr_mode == "dataroam") {
