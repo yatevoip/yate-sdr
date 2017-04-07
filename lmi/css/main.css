@@ -22,12 +22,6 @@ td.topvalign
 	vertical-align:top;
 }
 
-input, textarea, select,  input.checkbox
-{
-	border: 1px solid #aaa;
-}
-input[type=file], input[type=radio] {border: none;}
-
 select{width:48%;}
 td.holdlogo
 {
@@ -533,8 +527,8 @@ td.edit, td.widder_edit, td.smaller_edit,td.smaller_edit2,td.smaller_edit3
 {
 	padding-left:15px;
 	padding-right:5px;
-	padding-top:3px;
-	padding-bottom:3px;
+	padding-top:4px;
+	padding-bottom:4px;
 	text-align:left;
 	border-bottom:1px solid #999;
 }
@@ -550,6 +544,7 @@ td.left_td
 	text-align:right;
 	width:30%;
 	vertical-align:top;
+	padding-top:6px;
 }
 
 td.right_td
