@@ -54,7 +54,7 @@ function list_subscribers()
 			$i++;
 		}
 
-		$formats = array("IMSI"=>"imsi","msisdn","short_number","ki","op","function_display_bit_field:opc"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
+		$formats = array("IMSI"=>"imsi","msisdn","short_number","ki","ICCID"=>"iccid","op","function_display_bit_field:opc"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
 		if ($pysim_mode)
 			$formats["function_write_subcriber_on_sim:"] = "imsi,ki";
 
@@ -315,6 +315,7 @@ function edit_subscriber($error=null,$error_fields=array())
 		"short_number" => array("value" => get_param($subscriber,"short_number"),"comment"=>"Short number that can be used to call this subscriber."),
 		"active" => array("value"=>$active, "display"=>"checkbox", "comment"=>"Only active subscribers are allowed to register."),
 		"imsi_type" => array($imsi_type, "display"=>"select", "column_name"=>"IMSI Type", "required"=>true, "comment"=> "Type of SIM associated to the IMSI", "javascript" => 'onclick="show_hide_op();"'),
+		"iccid" => array("value"=>get_param($subscriber,"iccid"),"column_name"=>"ICCID"),
 		"ki" => array("value"=>get_param($subscriber,"ki"), "comment"=>"Card secret. You can use * to disable authentication for this subscriber.", "required"=>true),
 		"op" => array("value"=>$op, "triggered_by"=>"imsi_type", "comment"=>"Operator secret. Empty for 2G IMSIs.<br/>00000000000000000000000000000000 for 3G IMSIs."),
 		"opc" => array("value"=>$opc, "display"=>"checkbox", "triggered_by"=>"imsi_type", "comment"=>"If OPC is set then authentication algorithm will use value set in OP as OPC.")
@@ -354,7 +355,7 @@ function edit_subscriber_write_file()
 
 	$subscriber = array("imsi"=>$imsi);
 
-	$fields = array("msisdn"=>false, "short_number"=>false, "active"=>false, "ki"=>true, "op"=>false, "opc"=>false, "imsi_type"=>true);
+	$fields = array("msisdn"=>false, "short_number"=>false, "active"=>false, "ki"=>true, "op"=>false, "opc"=>false, "imsi_type"=>true, "iccid"=>false);
 	foreach ($fields as $name=>$required) {
 		$val = getparam($name);
 		if ($required && !$val)
@@ -369,6 +370,8 @@ function edit_subscriber_write_file()
 		$subscriber["op"]  = "";
 		$subscriber["opc"] = false;
 	}
+	if (!strlen($subscriber["iccid"]))
+		unset($subscriber["iccid"]);
 	if (getparam("imsi_type")=="3G" && (getparam("op")==NULL || getparam("op")==""))
 		$subscriber["op"] = "00000000000000000000000000000000";
 
@@ -1114,6 +1117,10 @@ function validate_subscriber($fields)
 		return array(false, "Imsi type invalid: '".$fields["imsi_type"]."'. Only 2G or 3G allowed.", array("imsi_type"));
 	if (!isset($fields["active"]) || !in_array($fields["active"],$active_allowed))
 		return array(false, "Active field invalid: '". $fields["active"]."'. Only bool value allowed.", array("active"));
+	if (isset($fields["iccid"]) && strlen($fields["iccid"])) {
+		if (strlen($fields["iccid"]) > 20)
+			return array(false, "Invalid ICCID: '". $fields["iccid"] ."' can't have more than 20 characters.", array("iccid"));
+	}
 
 	return array(true);
 }
@@ -1415,7 +1422,7 @@ function finish_importing_subscribers($new_subscribers)
 {
     //insert subscribers into subscribers.conf
 	$imported = 0;
-	foreach ($new_subscribers as $imsi => $data) {
+	foreach ($new_subscribers as $imsi=>$data) {
 		if ($data["imsi_type"] == "2G") {
 			$new_subscribers[$imsi]["op"] = "";
 		} elseif ($data["imsi_type"] == "3G" &&  $data["op"] == "") {
@@ -1433,6 +1440,9 @@ function finish_importing_subscribers($new_subscribers)
 		} else {
 			$data["active"] = false;
 		}
+
+		if (!strlen($data["iccid"]))
+			unset($data["iccid"]);
 
 		$fields = array("subscribers"=>array($imsi=>$data));
 		$res = make_request($fields,"set_nib_subscribers");
