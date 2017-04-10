@@ -80,8 +80,7 @@ function online_subscribers()
 	pages($total);
 	$online_subscribers = array();
 	if ($total>0) {
-		$res = request_api(array("limit"=>$limit,"offset"=>$page), "get_online_nib_subscribers", null, $method);
-		$online_subscribers = $res[1];
+		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_online_nib_subscribers", "subscribers", $method);
 	}
 	
 	$formats = array("IMSI","MSISDN");
@@ -98,11 +97,10 @@ function rejected_imsis()
 	pages($total);
 	$rejected_subscribers = array();
 	if ($total>0) {
-		$res = request_api(array("limit"=>$limit, "offset"=>$page), "get_rejected_nib_subscribers", null, $method);
-		$rejected_subscribers = $res[1];
+		$rejected_subscribers = request_api(array("limit"=>$limit, "offset"=>$page), "get_rejected_nib_subscribers", "imsis", $method);
 	}
 
-	$formats = array("IMSI","NO"=>"No attempts register");
+	$formats = array("IMSI","No attempts register"=>"NO");
 	table($rejected_subscribers, $formats, "rejected IMSIs", "imsi");
 }
 
