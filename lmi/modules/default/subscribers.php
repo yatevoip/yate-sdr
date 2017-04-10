@@ -306,8 +306,8 @@ function edit_subscriber($error=null,$error_fields=array())
 	if (getparam("imsi_type"))
 		$imsi_type["selected"] = getparam("imsi_type");
 	
-	$active = (in_array(get_param($subscriber,"active"), array("on","true","enabled","enable","1"))) ? true : false;
-	$opc = (in_array(get_param($subscriber,"opc"), array("on","true","enabled","enable","1"))) ? true : false;
+	$active = (in_array(get_param($subscriber,"active"), array("on","true","enabled","enable","1","yes"))) ? true : false;
+	$opc = (in_array(get_param($subscriber,"opc"), array("on","true","enabled","enable","1","yes"))) ? true : false;
 	
 	$op = (get_param($subscriber,"op")) ? get_param($subscriber,"op") : ((getparam("imsi_type")=="3G") ? "00000000000000000000000000000000" : "");
 
@@ -1109,7 +1109,7 @@ function validate_subscriber($fields)
 			return array(false, "The Short number: '".$short_number."' must have at least 3 digits.",array("short_number"));
 	}
 
-	$active_allowed = array("on","off","true","false","enabled","disabled","enable","disable","1","0");
+	$active_allowed = array("on","off","true","false","enabled","disabled","enable","disable","1","0","yes","no");
 	if ($fields["ki"]!="*" && !preg_match('/^[0-9a-fA-F]{32}$/i', $fields["ki"]))
 		return array(false,"Invalid KI:'".$fields["ki"]."'. KI needs to be 128 bits, in hex format.", array("ki"));
 	if (!isset($fields["imsi_type"]) || ($fields["imsi_type"]!="2G" && $fields["imsi_type"]!="3G"))
@@ -1247,13 +1247,13 @@ function export_subscribers_in_csv()
 			$params["lte_active"] = "1";
 		if (!isset($params["ims_active"]))
 			$params["ims_active"] = "1";
-		if (in_array($params["active"],array("on","true","enabled","enable","1")))
+		if (in_array($params["active"],array("on","true","enabled","enable","1","yes")))
 			$params["active"] = "1";
 		else
 			$params["active"] = "0";
 		if (!isset($params["opc"]))
 			$params["opc"] = "0";
-		elseif (in_array($params["opc"],array("on","true","enabled","enable","1")))
+		elseif (in_array($params["opc"],array("on","true","enabled","enable","1","yes")))
 			$params["opc"] = "1";
 		else
 			$params["opc"] = "0";
