@@ -1136,7 +1136,7 @@ function get_subscribers_from_uploaded_csv($file)
 	if (!count($csv->file_content) && $csv->getError())
 		return array(false, $csv->getError());
 
-	$skip_params = array("iccid","algorithm","cs_active", "ps_active", "lte_active", "ims_active", "pin", "puk", "pin2", "puk2", "adm1", "ota");
+	$skip_params = array("algorithm","cs_active", "ps_active", "lte_active", "ims_active", "pin", "puk", "pin2", "puk2", "adm1", "ota");
 	$imsis = array();
 	foreach ($csv->file_content as $key=>$subs_data) {
 		if (isset($subs_data["imsi"]) && strlen($subs_data["imsi"])) {
@@ -1283,12 +1283,14 @@ function analize_subscribers_data($new_subscribers, &$res)
 	if ($subs[0])
 		$old_subscribers = $subs[1];
 
-	$msisdns = $short_numbers = array();
+	$msisdns = $short_numbers = $iccids = array();
 	foreach ($new_subscribers as $imsi=>$subs) {
 		if (strlen($subs['msisdn']))
 			$msisdns[] = $subs['msisdn'];
 		if (strlen($subs['short_number']))
 			$short_numbers[] = $subs['short_number'];
+		if (isset($subs["iccid"]) && strlen($subs["iccid"]))
+			$iccids[] = $subs["iccid"];
 		$valid_subs = validate_subscriber($subs);
 		if (!$valid_subs[0]) {
 			$res["skip"][] = " Skipped IMSI: ".$imsi.". Error: ".$valid_subs[1];
@@ -1311,6 +1313,11 @@ function analize_subscribers_data($new_subscribers, &$res)
 		find_duplicate($new_subscribers,$duplicate,'short_number',$res);
 	}
 
+	if (count($iccids)) {
+		$duplicate = array_count_values($iccids);
+		find_duplicate($new_subscribers,$duplicate,'iccid',$res);
+	}
+
 	if (!count($old_subscribers)) {
 		return array( "skip"            => (isset($res["skip"])) ? $res["skip"] : array(), 
 					  "override"        => (isset($res["override"])) ? $res["override"] : array(),
@@ -1329,6 +1336,7 @@ function analize_subscribers_data($new_subscribers, &$res)
 			$old_sn = isset($old_subscribers[$imsi]["short_number"]) ? $old_subscribers[$imsi]["short_number"] : "";
 			$old_op = isset($old_subscribers[$imsi]["op"]) ? $old_subscribers[$imsi]["op"] : "";
 			$old_opc = isset($old_subscribers[$imsi]["opc"]) ? $old_subscribers[$imsi]["opc"] : "0";
+			$old_iccid = isset($old_subscribers[$imsi]["iccid"]) ? $old_subscribers[$imsi]["iccid"] : "";
 			if ($subs["msisdn"] != $old_msisdn) {
 				$res["override"][] = "Found existing IMSI: ".$imsi." but with a different MSISDN. This will be overridden." ;
 			} elseif ($subs["short_number"] != $old_sn) {
@@ -1343,6 +1351,8 @@ function analize_subscribers_data($new_subscribers, &$res)
 				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different OPC. This will be overridden.";
 			} elseif (exist_bool_difference($subs["active"], $old_subscribers[$imsi]["active"])) {
 				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different Active. This will be overridden.";
+			} elseif (isset($subs["iccid"]) && $old_iccid != $subs["iccid"]) {
+				 $res["override"][] = "Found existing IMSI: ".$imsi." but with a different ICCID. This will be overridden.";
 			} else {
 				$res["skip"][] = " Skipped IMSI: ".$imsi.". No change.";
 				unset($new_subscribers[$imsi]);
