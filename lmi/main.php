@@ -73,6 +73,7 @@ if ($module == "subscribers") {
 <head>
 <title><?php print $proj_title; ?></title>
 <link type="text/css" rel="stylesheet" href="css/main.css" />
+<link rel="icon" type="image/ico" href="images/favicon.ico">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 <script type="text/javascript" src="ansql/javascript.js"></script>
