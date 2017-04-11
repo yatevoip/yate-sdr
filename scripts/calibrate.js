@@ -200,9 +200,15 @@ function updateProductRunning(first)
 	setProductRunning();
 	return;
     }
-    var m = new Message("engine.command");
     m.module = Engine.debugName();
-    m.line = module + " status";
+    if ("enb" === module) {
+	var m = new Message("engine.status");
+	m.module = module;
+    }
+    else {
+	var m = new Message("engine.command");
+	m.line = module + " status";
+    }
     var state;
     if (m.dispatch()) {
 	var s = "" + m.retValue();
