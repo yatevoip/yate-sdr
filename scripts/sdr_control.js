@@ -24,11 +24,22 @@
 //#pragma trace "cachegrind.out.sdr_control"
 
 #require "lib_sdr_api.js"
+#require "lib_status.js"
 
 Engine.debugName("api_control");
 Message.trackName("api_control");
 
 debug = true;
+
+// Retrieve (sub)product stats
+API.on_query_stats = function(params,msg)
+{
+    var stats = retrieveStats(["bladerf","ybts","mbts","enb","ys1ap","gtp","sip","yrtp"]);
+    if (!stats)
+	return { error:200, reason:"Internal retrieval error." };
+    mergeStats(stats,["ybts conn","ybts ue","enb rrc","enb paging"]);
+    return { name:"stats", object:stats };
+};
 
 // Start radio board calibration
 API.on_calibrate_start = function(params,msg)
