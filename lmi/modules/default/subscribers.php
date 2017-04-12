@@ -54,7 +54,7 @@ function list_subscribers()
 			$i++;
 		}
 
-		$formats = array("IMSI"=>"imsi","msisdn","short_number","ki","ICCID"=>"iccid","op","function_display_bit_field:opc"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
+		$formats = array("IMSI"=>"imsi","msisdn","short_number","ICCID"=>"iccid","ki","OP/OPC"=>"op","function_display_bit_field:Use OPC"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
 		if ($pysim_mode)
 			$formats["function_write_subcriber_on_sim:"] = "imsi,ki";
 
@@ -317,8 +317,8 @@ function edit_subscriber($error=null,$error_fields=array())
 		"imsi_type" => array($imsi_type, "display"=>"select", "column_name"=>"IMSI Type", "required"=>true, "comment"=> "Type of SIM associated to the IMSI", "javascript" => 'onclick="show_hide_op();"'),
 		"iccid" => array("value"=>get_param($subscriber,"iccid"),"column_name"=>"ICCID"),
 		"ki" => array("value"=>get_param($subscriber,"ki"), "comment"=>"Card secret. You can use * to disable authentication for this subscriber.", "required"=>true),
-		"op" => array("value"=>$op, "triggered_by"=>"imsi_type", "comment"=>"Operator secret. Empty for 2G IMSIs.<br/>00000000000000000000000000000000 for 3G IMSIs."),
-		"opc" => array("value"=>$opc, "display"=>"checkbox", "triggered_by"=>"imsi_type", "comment"=>"If OPC is set then authentication algorithm will use value set in OP as OPC.")
+		"op" => array("value"=>$op, "column_name"=>"OP/OPC", "triggered_by"=>"imsi_type", "comment"=>"Operator secret. Empty for 2G IMSIs.<br/>00000000000000000000000000000000 for 3G IMSIs."),
+		"opc" => array("value"=>$opc, "column_name"=>"Use OPC", "display"=>"checkbox", "triggered_by"=>"imsi_type", "comment"=>"If checked then authentication algorithm will use value set in OP/OPC as OPC.")
 	);
 	
 	if ($imsi && count($subscriber) && !in_array("imsi",$error_fields))
