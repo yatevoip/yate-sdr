@@ -88,11 +88,6 @@ function parseParams(line)
     return p;
 }
 
-function durationSec(ms)
-{
-    return (ms / 1000) + "." + (ms % 1000) + "sec";
-}
-
 // Build calibration section name for board + application combination
 function appSectionName(serial,obj)
 {
@@ -337,7 +332,7 @@ Calibration.prototype.ended = function(error)
 	copyProps(last,this.calParams,"cal_");
     else
 	last.error = error;
-    var duration = durationSec(this.endTime - this.startTime);
+    var duration = fmtTime(this.endTime - this.startTime) + "sec";
     if (!error) {
 	Engine.debug(Engine.DebugCall,"Calibration ended duration=" + duration);
 	lastCalOk = last;
@@ -560,7 +555,7 @@ Calibration.productControl = function(on)
 	var oper = "stop";
     if (m.dispatch()) {
 	if (debug && notify)
-	    Engine.debug(Engine.DebugAll,"Calibration: " + product + " '" + oper + "' succeeded");
+	    Engine.debug(Engine.DebugAll,product + " '" + oper + "' succeeded");
 	updateProductRunning();
     }
     else if (notify) {
@@ -877,19 +872,28 @@ function onCommand(msg)
     return false;
 }
 
+function dumpCalParams(cal,name)
+{
+    return name + "=" + cal.frequency + "|" + cal.samplerate + "|" +
+	cal.filter + "|" + (cal.start_time / 1000) + "|" +
+	((cal.end_time - cal.start_time) / 1000) + "|" + cal.error;
+}
+
 // Handle calibrate status enquiry command
 function onStatus(msg)
 {
+    if (msg.module && (Engine.debugName() != msg.module))
+	return false;
     var status = {};
     if (calibration) {
 	status.state = Calibration.stateName[calibration.state];
-	status.age = durationSec(Date.now() - calibration.createTime);
+	status.age = fmtTime(Date.now() - calibration.createTime);
     }
     else
 	status.state = Calibration.stateName[Calibration.Idle];
     var str;
     if (!msg.json) {
-	str = "module=calibrate;";
+	str = "module=calibrate,type=misc,format=Frequency|Samplerate|Filter|StartTime|Duration|Error;";
 	str += props2str(status);
 	str += ",auto_calibration=" + onOff(auto_calibration);
     }
@@ -899,20 +903,24 @@ function onStatus(msg)
 	    status.last_calibration_failed = lastCalFailed;
 	}
 	else {
-	    var tmp = props2str(lastCalOk);
-	    if (tmp)
-		str += ";last_calibration_ok=," + tmp;
-	    var tmp = props2str(lastCalFailed);
-	    if (tmp)
-		str += ";last_failed_calibration=," + tmp;
+	    var s;
+	    if (isPresent(lastCalOk.start_time))
+		s = dumpCalParams(lastCalOk,"last_calibration_ok");
+	    if (isPresent(lastCalFailed.start_time)) {
+		if (s)
+		    s += ",";
+		s += dumpCalParams(lastCalFailed,"last_failed_calibration");
+	    }
+	    if (s)
+		str += ";" + s;
 	}
     }
     if (msg.json)
 	str = JSON.stringify(status);
     else
 	str += "\r\n";
-    msg.retValue(str);
-    return true;
+    msg.retValue(msg.retValue() + str);
+    return !!msg.module;
 }
 
 function onHelp(msg)
@@ -1038,7 +1046,7 @@ function initialize()
 	Message.install(onModuleUpdate,"module.update",90);
 	Message.install(onCommand,"engine.command",120);
 	Message.install(onHelp,"engine.help",150);
-	Message.install(onStatus,"engine.status",100,"module","calibrate");
+	Message.install(onStatus,"engine.status",100);
 	Message.install(onDebug,"engine.debug",150,"module","calibrate");
 	Message.install(onEngineStop,"engine.stop",10);
 	Message.install(onChanNotify,"chan.notify",120,"module","radiotest");
