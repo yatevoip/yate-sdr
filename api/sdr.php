@@ -92,6 +92,7 @@ function sdrHandler($request,$json,$recv,$node)
 		return $res;
 	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
 	case "query_stats":
+	case "get_node_status":
 	    if ("sdr" != $node)
 	        return null;
 	    // fall through

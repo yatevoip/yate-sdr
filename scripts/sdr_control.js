@@ -31,6 +31,58 @@ Message.trackName("api_control");
 
 debug = true;
 
+// Retrieve product status
+API.on_get_node_status = function(params,msg)
+{
+    var bts = false;
+    var enb = false;
+    var cal = false;
+    var m = new Message("engine.status");
+    m.module = "calibrate";
+    if (m.dispatch(true)) {
+	m = m.retValue();
+	cal = (0 > m.indexOf("state=Idle"));
+    }
+    m = new Message("engine.status");
+    m.module = "enb";
+    if (m.dispatch(true)) {
+	m = m.retValue();
+	enb = (0 <= m.indexOf("state=Started"));
+    }
+    m = new Message("engine.command");
+    m.line = "ybts status";
+    if (m.dispatch(true)) {
+	m = m.retValue();
+	bts = (0 <= m.indexOf("state=RadioUp"));
+    }
+    var obj = { operational:true, level:"NOTE" };
+    if (cal) {
+	obj.operational = false;
+	if (bts || enb) {
+	    obj.state = "Conflict";
+	    obj.level = "WARN";
+	}
+	else {
+	    obj.state = "Calibrating";
+	    obj.level = "MILD";
+	}
+    }
+    else if (bts) {
+	if (enb)
+	    obj.state = "Run BTS+ENB";
+	else
+	    obj.state = "Running BTS";
+    }
+    else if (enb)
+	obj.state = "Running ENB";
+    else {
+	obj.operational = false;
+	obj.state = "Stopped";
+	obj.level = "WARN";
+    }
+    return { name:"status", object:obj };
+};
+
 // Retrieve (sub)product stats
 API.on_query_stats = function(params,msg)
 {
