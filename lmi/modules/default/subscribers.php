@@ -27,47 +27,51 @@ function subscribers()
 
 function list_subscribers()
 {
-	global $pysim_mode, $page, $method;
+	global $pysim_mode, $page, $method, $module;
 	
 	$method = "list_subscribers";
-	
-	nib_note("Subscribers are accepted based on two criteria: regular expression that matches the IMSI or they must be inserted individually.");
+		
+	nib_note("Subscribers can be accepted based on two criteria: "."<a class='llink' href='".$_SESSION["main"]."?module=$module&method=regexp'>regular expression</a>"." that matches the IMSI or they must be inserted individually.");
 
-	$have_subscribers = true;
+	$subscribers = array();
+	$res = get_subscribers();
+	if ($res[0])
+		$subscribers = $res[1];
+
+	$all_subscribers = array();$i=0;
+	foreach ($subscribers as $imsi=>$subscr) {
+		$all_subscribers[$i] = $subscr;
+		$all_subscribers[$i]["imsi"] = $imsi;
+		$i++;
+	}
+
+	$formats = array("IMSI"=>"imsi","msisdn","short_number","ICCID"=>"iccid","ki","OP/OPC"=>"op","function_display_bit_field:Use OPC"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
+	if ($pysim_mode)
+		$formats["function_write_subcriber_on_sim:"] = "imsi,ki";
+
+	items_on_page();
+	pages(get_count_subscribers());
+	table($all_subscribers, $formats, "subscriber", "imsi", array("&method=edit_subscriber"=>"Edit","&method=delete_subscriber"=>"Delete"), array("&method=add_subscriber"=>"Add subscriber", "&method=edit_regexp"=>"Accept by REGEXP", "&method=export_subscribers_in_csv&page=$page"=>"Export subscribers", "&method=import_subscribers"=>"Import subscribers"));
+}
+
+function regexp()
+{
 	$regexp = get_regexp();
-
 	if (isset($regexp[1]["regexp"]) && strlen($regexp[1]["regexp"])) {
-		 $regexp = $regexp[1]["regexp"];
-		 $have_subscribers = false;
-	} else {
-		$subscribers = array();
-		$res = get_subscribers();
-		if ($res[0])
-			$subscribers = $res[1];
+		$regexp  = $regexp[1]["regexp"];
+		$buttons = array("Modify", "Return to setting subscribers individually");
+ 	} else {
+		$regexp  = " - ";
+		$buttons = array("Modify");
 	}
 
-	if ($have_subscribers) {
-		$all_subscribers = array();$i=0;
-		foreach ($subscribers as $imsi=>$subscr) {
-			$all_subscribers[$i] = $subscr;
-			$all_subscribers[$i]["imsi"] = $imsi;
-			$i++;
-		}
 
-		$formats = array("IMSI"=>"imsi","msisdn","short_number","ICCID"=>"iccid","ki","OP/OPC"=>"op","function_display_bit_field:Use OPC"=>"opc","IMSI Type"=>"imsi_type","function_display_bit_field:active"=>"active");
-		if ($pysim_mode)
-			$formats["function_write_subcriber_on_sim:"] = "imsi,ki";
-
-		items_on_page();
-		pages(get_count_subscribers());
-		table($all_subscribers, $formats, "subscriber", "imsi", array("&method=edit_subscriber"=>"Edit","&method=delete_subscriber"=>"Delete"), array("&method=add_subscriber"=>"Add subscriber", "&method=edit_regexp"=>"Accept by REGEXP", "&method=export_subscribers_in_csv&page=$page"=>"Export subscribers", "&method=import_subscribers"=>"Import subscribers"));
-	} else {
-		start_form();
-		addHidden(null, array("method"=>"edit_regexp", "regexp"=>$regexp));
-		$fields = array("regexp"=>array("value"=>$regexp, "display"=>"fixed"));
-		editObject(null,$fields,"Regular expression based on which subscriber IMSI are accepted for registration",array("Modify", /*"Set subscribers"*/ "Return to setting subscribers individually"),null,true);
-		end_form();
-	}
+	nib_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
+	start_form();
+	addHidden(null, array("method"=>"edit_regexp", "regexp"=>($regexp!=" - ") ? $regexp : null));
+	$fields = array("regexp"=>array("value"=>$regexp, "display"=>"fixed"));
+	editObject(null, $fields, "Regular expression based on which subscriber IMSI are accepted for registration", $buttons, null, true);
+	end_form();
 }
 
 function online_subscribers()
@@ -75,7 +79,9 @@ function online_subscribers()
 	global $method, $limit, $page;
 
 	$total = request_api(array(), "get_online_nib_subscribers", "count", $method);
-	
+
+	nib_note("This page displays the subscribers currently registered in the BTS.");
+
 	items_on_page();
 	pages($total);
 	$online_subscribers = array();
@@ -87,11 +93,32 @@ function online_subscribers()
 	table($online_subscribers, $formats, "online subscriber", "imsi");
 }
 
+function accepted_subscribers()
+{
+	global $method, $limit, $page;
+
+	$total = request_api(array(), "get_accepted_nib_subscribers", "count", $method);
+
+	nib_note("This page displays the subscribers seen and accepted by the BTS in the interval specified by TMSI expire(default 864000 seconds - 10 days) from BTS Configuration>System>YBTS.");
+
+	items_on_page();
+	pages($total);
+	$online_subscribers = array();
+	if ($total>0) {
+		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_accepted_nib_subscribers", "subscribers", $method);
+	}
+	
+	$formats = array("IMSI","MSISDN");
+	table($online_subscribers, $formats, "online subscriber", "imsi");
+}
+
 function rejected_imsis()
 {
 	global $method, $limit, $page;
 
 	$total = request_api(array(), "get_rejected_nib_subscribers", "count", $method);
+
+	nib_note("This page displays rejected IMSIs since the last Yate restart.");
 
 	items_on_page();
 	pages($total);
@@ -107,7 +134,7 @@ function rejected_imsis()
 function edit_regexp($error=null,$error_fields=array())
 {
 	if (getparam("Return_to_setting_subscribers_individually")=="Return to setting subscribers individually") {
-		$res = request_api(array(";regexp"=>getparam("regexp")), "set_nib_system");
+		$res = request_api(array(";regexp"=>""), "set_nib_system");
 		return list_subscribers();
 	}
 
@@ -123,7 +150,7 @@ function edit_regexp($error=null,$error_fields=array())
 		$warning_data[] = $response_fields["security"]["auth.ussd"];
 
 	if (in_array("yes", $warning_data) || in_array("on", $warning_data))
-        warning_note("You can't set mobile terminated authentication for calls, SMS, USSD when regular expression is used. Authentication requests will be ignored in this scenario.");
+		warning_note("You can't set mobile terminated authentication for calls, SMS, USSD when regular expression is used. Authentication requests will be ignored in this scenario.");
 	
 	nib_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
 	$fields = array(
@@ -153,8 +180,10 @@ function edit_regexp_write_file()
 	}
 	$regexp = getparam("regexp");
 
-	if (!$regexp)
-		return edit_regexp("Please set the regular expression!",array("regexp"));
+	if (!$regexp) {
+		$res = request_api(array(";regexp"=>""), "set_nib_system");
+		return notice("Cleared regular expression. All subscribers must be accepted individually.");
+	}
 
 	if (in_array($regexp, $expressions)) {
 		notice("Finished setting regular expression.", "subscribers");

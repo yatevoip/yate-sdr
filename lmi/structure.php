@@ -26,7 +26,7 @@ if (is_file("config.php"))
 require_once("lib/lib_proj.php");
 
 $struct = array();
-$struct["default_subscribers"] = array("list_subscribers", "country_code_and_smsc", "online_subscribers", "rejected_IMSIs");
+$struct["default_subscribers"] = array("list_subscribers", "regexp", "country_code_and_smsc", "online_subscribers", "accepted_subscribers", "rejected_IMSIs");
 
 if ($pysim_mode)
 	$struct["default_subscribers"][] = "manage_SIMs";

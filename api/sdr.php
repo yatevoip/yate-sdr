@@ -72,6 +72,7 @@ function sdrHandler($request,$json,$recv,$node)
 	case "set_nib_system":
 	case "get_nib_system":
 	case "get_online_nib_subscribers":
+	case "get_accepted_nib_subscribers":
 	case "get_rejected_nib_subscribers":
 	case "set_nib_outbound":
 	case "get_nib_outbound":
