@@ -128,7 +128,9 @@ GenericConfig.prototype.initConfig = function(params)
 // Validate new configurations
 GenericConfig.prototype.validateConfig = function(section_name,param_name,param_value,params)
 {
-    var validations = this.validations[section_name][param_name];
+    //accept validation for params with format 'name'+'=', so that the object will be read correctly
+    var modif_param_name = param_name+"=";
+    var validations = this.validations[section_name][modif_param_name];
 
     if (debug) {
 	Engine.output("Entered " + this.name +" validateConfig for " + param_name + "=" + param_value);
