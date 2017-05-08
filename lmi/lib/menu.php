@@ -67,6 +67,12 @@ function get_content()
 			<td class="holdlogo">
 				<div class="left_upperbanner"><img src="images/yatesdr_lmi_logo.png" title="NIB Logo" /></div>
 			</td>
+
+			<td class="holdstatus">
+<?php
+			display_node_status();
+?>
+			</td>
 			<td class="holdlinks">
 
 				<div class="right_upperbanner">Welcome</div>
@@ -117,7 +123,7 @@ function get_content()
         }
         ?>
 		<tr>
-			<td class="holdcontent">
+		<td class="holdcontent <?php print $method;?>">
 	<?php
 	if (in_array($method,array("form_bug_report","send_bug_report","clear_triggered_error"))) {
 		call_user_func('Debug::'.$method);
@@ -339,5 +345,39 @@ function force_calibration_database()
 {
 	$res = request_api(array(), "calibrate_start");
 	notice("Finished forcing calibration.", "working_mode");
+}
+
+function display_node_status()
+{
+	$res = node_status();
+	print "<table class='node_status' cellpadding='0' cellspacing='0'>";
+	print "<tr><td class='node_status_upper' colspan='3'></td><td></td></tr>";
+	print "<tr><td class='node_status_lower' colspan='3'></td><td></td></tr>";
+	print "<tr><td class='node_status'>";
+	print "Status";
+
+	print "</td>";
+	print "<td class='node_line'>";
+	print "<img id='sdr_line' alt='Status line' src='images/node_status_line.png' />";;
+	print "</td>";
+	print "<td class='node_state_".$res["color"]."' id='sdr_state'>";
+	print "<img id='sdr_bullet' alt='State bullet' src='images/node_state_".$res["color"].".png' />";
+	print $res["state"];
+	print "</td>";
+	print "<td class='node_ask' id='node_link'>";
+	if ($res["color"]=='green')
+		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
+	print "</td>";
+//	print "<td class='node_ask' onclick='show_hide(\"sdr_desc\");'>";
+//	print "<img alt='State description' src='images/state_question_mark.png' />";
+//	print "</td>";
+	print "</tr>";
+	print "</table>";
+	
+//	print "<div class='node_desc' id='sdr_desc' style='display:none;'> Node status.";
+	
+//	if ($res["details"])
+//		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
+//	print "</div>";
 }
 ?>

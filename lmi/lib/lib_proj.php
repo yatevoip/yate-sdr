@@ -465,4 +465,27 @@ function make_readable_line($line)
 	}
 	return $mess;
 }
+
+function show_node_details()
+{
+/*	$res = array("code"=>0,
+		   "stats"=> array(
+		          "engine"=>array("version"=>"5.5.1","revision"=>6202,"nodename"=>"ybtsUNCONFIG","runid"=>1491988359,"plugins"=>23,"inuse"=>1,"handlers"=>222,"hooks"=>4,"messages"=>0, "maxqueue"=>2,"messagerate"=>2,"maxmsgrate"=>14,"enqueued"=>745014,"dequeued"=>745014,"dispatched"=>745061,"supervised"=>true,"runattempt"=>9,"lastsignal"=>0,"threads"=>39,"workers"=>10,"mutexes"=>197,"semaphores"=>18,"acceptcalls"=>"accept","congestion"=>0),
+		   "uptime"=> array("wall"=>620866,"user"=>84312,"kernel"=>44640),
+		          "bladerf"=>array("ifaces"=>1),
+		          "yrtp"=>array("chans"=>0,"mirrors"=>0),
+		          "sip"=>array("routed"=>0,"routing"=>0,"total"=>0,"chans"=>0,"transactions"=>0),
+		          "mbts"=>array("state"=>"RadioUp"),
+		          "ybts"=>array("count"=>0)
+			  );
+ */		
+	$res = make_request(array(),"query_stats");
+
+	if ($res["code"]!="0") {
+		print "API:[". $res["code"]."] ".$res["message"];
+		return;
+	}
+ 
+	display_query_stats($res, "Yate-SDR");
+}
 ?>
