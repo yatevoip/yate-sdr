@@ -358,10 +358,10 @@ function display_node_status()
 
 	print "</td>";
 	print "<td class='node_line'>";
-	print "<img id='sdr_line' alt='Status line' src='images/node_status_line.png' />";;
+	print "<img id='sdr_line' alt='' src='images/node_status_line.png' />";;
 	print "</td>";
 	print "<td class='node_state_".$res["color"]."' id='sdr_state'>";
-	print "<img id='sdr_bullet' alt='State bullet' src='images/node_state_".$res["color"].".png' />";
+	print "<img id='sdr_bullet' alt='*' src='images/node_state_".$res["color"].".png' />";
 	print $res["state"];
 	print "</td>";
 	print "<td class='node_ask' id='node_link'>";
