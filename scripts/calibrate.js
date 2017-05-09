@@ -893,7 +893,7 @@ function onStatus(msg)
 	status.state = Calibration.stateName[Calibration.Idle];
     var str;
     if (!msg.json) {
-	str = "module=calibrate,type=misc,format=Frequency|Samplerate|Filter|StartTime|Duration|Error;";
+	str = "name=calibrate,type=misc,format=Frequency|Samplerate|Filter|StartTime|Duration|Error;";
 	str += props2str(status);
 	str += ",auto_calibration=" + onOff(auto_calibration);
     }
