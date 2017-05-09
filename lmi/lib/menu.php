@@ -185,10 +185,10 @@ function menu()
 	$modules_per_mode = array(
 		"" => array("working_mode"),
 		"not configured" => array("working_mode"),
-		"nib" => array("working_mode", "subscribers", "bts_configuration", "outbound", "call_logs"),
-		"roaming" => array("working_mode", "bts_configuration"),
-		"dataroam" => array("working_mode", "bts_configuration"),
-		"enb" => array("working_mode", "enb_configuration"),
+		"nib" => array("working_mode", "status", "subscribers", "bts_configuration", "outbound", "call_logs"),
+		"roaming" => array("working_mode", "status", "bts_configuration"),
+		"dataroam" => array("working_mode", "status", "bts_configuration"),
+		"enb" => array("working_mode", "status", "enb_configuration"),
 	);
 
 	if (!$devel_mode) {
@@ -351,23 +351,24 @@ function display_node_status()
 {
 	$res = node_status();
 	print "<table class='node_status' cellpadding='0' cellspacing='0'>";
-	print "<tr><td class='node_status_upper' colspan='3'></td><td></td></tr>";
-	print "<tr><td class='node_status_lower' colspan='3'></td><td></td></tr>";
-	print "<tr><td class='node_status'>";
-	print "Status";
+	print "<tr><td class='node_status_upper'></td></tr>";
+	print "<tr><td class='node_status_lower'></td></tr>";
+//	print "<tr><td class='node_status'>";
+//	print "Status";
 
-	print "</td>";
-	print "<td class='node_line'>";
-	print "<img id='sdr_line' alt='' src='images/node_status_line.png' />";;
-	print "</td>";
+//	print "</td>";
+//	print "<td class='node_line'>";
+//	print "<img id='sdr_line' alt='' src='images/node_status_line.png' />";;
+//	print "</td>";
+	print "<tr>";
 	print "<td class='node_state_".$res["color"]."' id='sdr_state'>";
 	print "<img id='sdr_bullet' alt='*' src='images/node_state_".$res["color"].".png' />";
 	print $res["state"];
 	print "</td>";
-	print "<td class='node_ask' id='node_link'>";
-	if ($res["color"]=='green')
-		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
-	print "</td>";
+//	print "<td class='node_ask' id='node_link'>";
+//	if ($res["color"]=='green')
+//		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
+//	print "</td>";
 //	print "<td class='node_ask' onclick='show_hide(\"sdr_desc\");'>";
 //	print "<img alt='State description' src='images/state_question_mark.png' />";
 //	print "</td>";

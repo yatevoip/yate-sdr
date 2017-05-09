@@ -277,10 +277,10 @@ function finish_getting_status(response)
 	var node_status = JSON.parse(response);
 	document.getElementById("sdr_state").innerHTML = "<img id='sdr_bullet' alt='State bullet' src='images/node_state_"+node_status["color"]+".png' />"+node_status["state"];
 	document.getElementById("sdr_state").className = "node_state_"+node_status["color"];
-	if (node_status["color"] == "green")
+/*	if (node_status["color"] == "green")
 		document.getElementById("node_link").innerHTML = "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
 	else
-		document.getElementById("node_link").innerHTML = "";
+		document.getElementById("node_link").innerHTML = "";*/
 }
 setInterval(get_node_status, 10000);
 /*
