@@ -68,7 +68,7 @@ function regexp()
 
 	nib_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
 	start_form();
-	addHidden(null, array("method"=>"edit_regexp", "regexp"=>($regexp!=" - ") ? $regexp : null));
+	addHidden(null, array("method"=>"edit_regexp", "regexp"=>$regexp));
 	$fields = array("regexp"=>array("value"=>$regexp, "display"=>"fixed"));
 	editObject(null, $fields, "Regular expression based on which subscriber IMSI are accepted for registration", $buttons, null, true);
 	end_form();
@@ -139,6 +139,15 @@ function edit_regexp($error=null,$error_fields=array())
 	}
 
 	$regexp = getparam("regexp");
+	if (!$regexp) {
+		$regexp = get_regexp();
+		if (isset($regexp[1]["regexp"]) && strlen($regexp[1]["regexp"]))
+			$regexp = $regexp[1]["regexp"];
+		else
+			$regexp = null;
+	} elseif ($regexp == " - ")
+		$regexp = null;
+	
 	$response_fields = get_bts_node();
 
 	$warning_data = array();
