@@ -35,7 +35,7 @@ if ($pysim_mode)
 // besides method listed here, all methods starting with add_,edit_,delete_ are not saved
 $exceptions_to_save = array(
     "default" => array(
-        "subscribers"  => array("export_subscribers_in_csv"),
+        "subscribers"  => array("export_subscribers_in_csv", "import_subscribers", "display_intermediate_step"),
         "working_mode" => array("modify_working_mode")
     )
 );
