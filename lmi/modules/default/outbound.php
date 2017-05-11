@@ -20,12 +20,12 @@
 global  $sip_fields, $iax_fields;
 //var_dump($_REQUEST);
 $sip_fields = array(
-	"username"=>array("compulsory"=>true, "Username is normally used to authenticate to the other server. It is the user part of the SIP address of your server when talking to the gateway you are currently defining.", "autocomplete"=>"off"), 
-	"password"=>array("comment"=>"Insert only when you wish to change"/*,"display"=>"password", "autocomplete"=>"off"*/),
-	"server"=>array("compulsory"=>true, "comment"=>"Ex:10.5.5.5:5060, 10.5.5.5:5061 It is IP address of the gateway : port number used for sip on that machine. If transport is TLS then 5061 is the default port, otherwise 5060 is the default."),
-	"enabled"=>array("comment"=>"Check this field to mark that you wish to register to this server", "display"=>"checkbox"),
+	"username" =>array("compulsory"=>true, "Username is normally used to authenticate to the other server. It is the user part of the SIP address of your server when talking to the gateway you are currently defining.", "autocomplete"=>"off"), 
+	"password" =>array("comment"=>"Insert only when you wish to change"/*,"display"=>"password", "autocomplete"=>"off"*/),
+	"server"   =>array("compulsory"=>true, "comment"=>"Ex:10.5.5.5:5060, 10.5.5.5:5061 It is IP address of the gateway : port number used for sip on that machine. If transport is TLS then 5061 is the default port, otherwise 5060 is the default."),
+	"enabled"  =>array("comment"=>"Check this field to mark that you wish to register to this server", "display"=>"checkbox"),
+    
 	"description"=>array("advanced"=>true, "comment"=>"Caller name to set on outgoing calls on this account if none specified when routing.", "column_name"=>"CallerName"),
-	"ip_transport"=>array("display"=>"select","advanced"=>true, "column_name"=>"Transport", "comment"=>"Protocol used to register to gateway and sending calls. Default is UDP. If you use TLS keep in mind you might need to change the port value in 'Server' to 5061, as this is the default for TLS."),
 //	"rtp_localip"=>array("comment"=>"IP address to bind the RTP to. This overwrittes setting from yrtpchan.conf, if set.", "advanced"=>true, "column_name"=>"RTP local IP"),
 	"authname"=>array("advanced"=>true, "comment"=>"Authentication ID is an ID used strictly for authentication purpose when the phone attempts to contact the SIP server. This may or may not be the same as the above field username. Set only if it's different."), 
 	"outbound"=>array("advanced"=>true, "comment"=>"An Outbound proxy is mostly used in presence of a firewall/NAT to handle the signaling and media traffic across the firewall. Generally, if you have an outbound proxy and you are not using STUN or other firewall/NAT traversal mechanisms, you can use it. However, if you are using STUN or other firewall/NAT traversal tools, do not use an outbound proxy at the same time."),
@@ -35,10 +35,9 @@ $sip_fields = array(
 	"formats"=>array("advanced"=>true,"display"=>"include_formats", "comment"=>"Codecs to be used. If none of the formats is checked then server will try to negociate formats automatically"), 
 	"caller" => array(array("Use username", "Keep msisdn", "Custom", "selected"=>"Keep msisdn"), "advanced"=>true, "display"=>"select", "comment"=>"Caller parameter to be set when routing calls using this outbound connection.<br/>Use username - use same value as the account's username<br/>Keep msisdn - keep the msisdn of the user making the call<br/>Custom - insert custom caller to be used when routing call to this gateway"),
 //	"rtp_forward"=> array("advanced"=>true,"display"=>"checkbox", "comment"=>"Check this box so that the rtp won't pass  through yate(when possible)."),
-
-//	"callerid"=>array("advanced"=>true, "comment"=>"Use this to set the caller number when call is routed to this gateway. If none set then the System's CallerID will be used."),
-//	"callername"=>array("advanced"=>true, "comment"=>"Use this to set the callername when call is routed to this gateway. If none set then the System's Callername will be used."),
+	"ip_transport"=>array("display"=>"select_without_non_selected","advanced"=>true, "column_name"=>"Transport", "comment"=>"Protocol used to register to gateway and sending calls. Default is UDP. If you use TLS keep in mind you might need to change the port value in 'Server' to 5061, as this is the default for TLS."),
 	"ip_transport_remoteip"=>array("advanced"=>true,"comment"=>"IP address to connect to register the account. Defaults to outbound or registrar address."),
+	"ip_transport_remoteport" => array("advanced"=>true,"comment"=>"IP port to connect to register the account."),
 	"ip_transport_localip"=> array("advanced"=>true,"comment"=>"On UDP, this parameter is used in conjuction ip_transport_localport to identify the transport to use.On TCP/TLS, this is the local IP to use when connecting."),
 	"ip_transport_localport" => array("advanced"=>true,"comment"=>"The local port used to identify the transport to use. It is used only for UDP."),
 	"keepalive" => array("advanced"=>true,"comment"=> "Optional interval for NAT keep alive. Defaults to 0 if NAT detection is disabled"),
@@ -53,10 +52,9 @@ $iax_fields = array(
 	"port" => array("comment"=> "Registrar port, used if not specified in 'server' parameter. If is not set the default port is 4569."),			
 	"enabled"=>array("comment"=>"Check this field to mark that you wish to register to this server", "display"=>"checkbox"),
 
+	"description"=>array("advanced"=>true, "comment"=>"Caller name to set on outgoing calls on this account if none specified when routing.", "column_name"=>"CallerName"),
 	"interval"=>array("advanced"=>true, "comment"=>"Represents the interval in which the registration will expires. Default value is 600 seconds."), 
 //	"formats"=>array("advanced"=>true,"display"=>"include_formats", "comment"=>"Codecs to be used. If none of the formats is checked then server will try to negociate formats automatically"), 
-//	"callerid"=>array("advanced"=>true, "comment"=>"Use this to set the caller number when call is routed to this gateway. If none set then the System's CallerID will be used."),
-	//	"callername"=>array("advanced"=>true, "comment"=>"Use this to set the callername when call is routed to this gateway. If none set then the System's Callername will be used."),
 	"connection_id" => array("advanced"=>true, "comment"=>"The name of the iax listener to use for registration."),
 	"ip_transport_localip" => array("advanced"=>true, "comment"=>"This parameter is used in conjuction ip_transport_localport to identify the listener to use for registration and outgoing calls."),
 	"ip_transport_localport" => array("advanced"=>true, "comment"=>"Local port. This parameter is used to identify the listener"),
@@ -117,6 +115,13 @@ function display_outbound($account)
 		$switch = "Switch to SIP";
 		$prot = "SIP";
 	}
+	
+	if (isset($account["out:caller"])) {
+		unset($fields["caller"]["advanced"]);
+		$fields["caller"]["value"] = $account["out:caller"];
+		$fields["caller"]["display"] = "fixed";
+	}
+	
 	start_form(NULL,"post",false,"outbound");
 	addHidden(null, array("method"=>"edit_outbound", "switch_protocol"=> $prot));
 	editObject(null,$fields,"Outbound connection",array("Modify",$switch),NULL,true);
@@ -280,7 +285,7 @@ function edit_outbound_write_to_file($prefix='',$prefix_protocol='')
 	if (!valid_address(getparam($prefix."server")))
         return edit_outbound($read_account, "Invalid 'Server' value: ".getparam($prefix."server"));
 
-	$sip = array('authname','outbound', 'domain', 'localaddress', 'description', 'interval', 'rtp_localip', 'ip_transport', 'ip_transport_remoteip', 'ip_transport_localip', 'ip_transport_localport', 'keepalive');
+	$sip = array('authname','outbound', 'domain', 'localaddress', 'description', 'interval'/*, 'rtp_localip'*/, 'ip_transport', 'ip_transport_remoteip', 'ip_transport_remoteport','ip_transport_localip', 'ip_transport_localport', 'keepalive');
 	$iax = array('description', 'interval', 'connection_id', 'ip_transport_localip', 'ip_transport_localport', 'trunk_sendinterval', 'trunk_maxlen', 'trunk_nominits_ts_diff_restart', 'port');
 	
 	for ($i=0; $i<count(${$protocol}); $i++) {
@@ -326,6 +331,8 @@ function edit_outbound_write_to_file($prefix='',$prefix_protocol='')
 
 	if (isset($params["out:caller"]) && $params["out:caller"]=="")
 		unset($params["out:caller"]);
+	if (isset($params["formats"]) && $params["formats"]=="")
+		unset($params["formats"]);
 
 	$res = set_outbound($params);
 	if (!$res[0])
