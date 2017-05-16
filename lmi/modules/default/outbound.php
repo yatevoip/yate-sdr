@@ -26,7 +26,6 @@ $sip_fields = array(
 	"enabled"  =>array("comment"=>"Check this field to mark that you wish to register to this server", "display"=>"checkbox"),
     
 	"description"=>array("advanced"=>true, "comment"=>"Caller name to set on outgoing calls on this account if none specified when routing.", "column_name"=>"CallerName"),
-//	"rtp_localip"=>array("comment"=>"IP address to bind the RTP to. This overwrittes setting from yrtpchan.conf, if set.", "advanced"=>true, "column_name"=>"RTP local IP"),
 	"authname"=>array("advanced"=>true, "comment"=>"Authentication ID is an ID used strictly for authentication purpose when the phone attempts to contact the SIP server. This may or may not be the same as the above field username. Set only if it's different."), 
 	"outbound"=>array("advanced"=>true, "comment"=>"An Outbound proxy is mostly used in presence of a firewall/NAT to handle the signaling and media traffic across the firewall. Generally, if you have an outbound proxy and you are not using STUN or other firewall/NAT traversal mechanisms, you can use it. However, if you are using STUN or other firewall/NAT traversal tools, do not use an outbound proxy at the same time."),
 	"domain"=>array("advanced"=>true, "comment"=>"Domain in which the server is in."),
@@ -36,10 +35,10 @@ $sip_fields = array(
 	"caller" => array(array("Use username", "Keep msisdn", "Custom", "selected"=>"Keep msisdn"), "advanced"=>true, "display"=>"select", "comment"=>"Caller parameter to be set when routing calls using this outbound connection.<br/>Use username - use same value as the account's username<br/>Keep msisdn - keep the msisdn of the user making the call<br/>Custom - insert custom caller to be used when routing call to this gateway"),
 //	"rtp_forward"=> array("advanced"=>true,"display"=>"checkbox", "comment"=>"Check this box so that the rtp won't pass  through yate(when possible)."),
 	"ip_transport"=>array("display"=>"select_without_non_selected","advanced"=>true, "column_name"=>"Transport", "comment"=>"Protocol used to register to gateway and sending calls. Default is UDP. If you use TLS keep in mind you might need to change the port value in 'Server' to 5061, as this is the default for TLS."),
-	"ip_transport_remoteip"=>array("advanced"=>true,"comment"=>"IP address to connect to register the account. Defaults to outbound or registrar address."),
-	"ip_transport_remoteport" => array("advanced"=>true,"comment"=>"IP port to connect to register the account."),
-	"ip_transport_localip"=> array("advanced"=>true,"comment"=>"On UDP, this parameter is used in conjuction ip_transport_localport to identify the transport to use.On TCP/TLS, this is the local IP to use when connecting."),
-	"ip_transport_localport" => array("advanced"=>true,"comment"=>"The local port used to identify the transport to use. It is used only for UDP."),
+	"ip_transport_remoteip"=>array("advanced"=>true,"comment"=>"IP address to connect to register the account. Defaults to outbound or registrar address.", "column_name"=>"IP transport remoteIP"),
+	"ip_transport_remoteport" => array("advanced"=>true,"comment"=>"IP port to connect to register the account.", "column_name"=>"IP transport remotePort"),
+	"ip_transport_localip"=> array("advanced"=>true,"comment"=>"On UDP, this parameter is used in conjuction ip_transport_localport to identify the transport to use.On TCP/TLS, this is the local IP to use when connecting.", "column_name"=>"IP transport localIP"),
+	"ip_transport_localport" => array("advanced"=>true,"comment"=>"The local port used to identify the transport to use. It is used only for UDP.", "column_name"=>"IP transport localPort"),
 	"keepalive" => array("advanced"=>true,"comment"=> "Optional interval for NAT keep alive. Defaults to 0 if NAT detection is disabled"),
 	"match_port" => array("advanced"=>true,"comment"=>"Match the UDP port for inbound calls from a Registrar.", "display"=>"checkbox", "value" => true),
 	"match_user" => array("advanced"=>true,"comment"=>"Match the URI user for inbound calls from a Registrar.", "display"=>"checkbox", "value" => true)
@@ -56,8 +55,8 @@ $iax_fields = array(
 	"interval"=>array("advanced"=>true, "comment"=>"Represents the interval in which the registration will expires. Default value is 600 seconds."), 
 //	"formats"=>array("advanced"=>true,"display"=>"include_formats", "comment"=>"Codecs to be used. If none of the formats is checked then server will try to negociate formats automatically"), 
 	"connection_id" => array("advanced"=>true, "comment"=>"The name of the iax listener to use for registration."),
-	"ip_transport_localip" => array("advanced"=>true, "comment"=>"This parameter is used in conjuction ip_transport_localport to identify the listener to use for registration and outgoing calls."),
-	"ip_transport_localport" => array("advanced"=>true, "comment"=>"Local port. This parameter is used to identify the listener"),
+	"ip_transport_localip" => array("advanced"=>true, "comment"=>"This parameter is used in conjuction ip_transport_localport to identify the listener to use for registration and outgoing calls.","column_name"=>"IP transport localIP"),
+	"ip_transport_localport" => array("advanced"=>true, "comment"=>"Local port. This parameter is used to identify the listener", "column_name"=>"IP transport localPort"),
 	"trunking" => array("advanced"=>true,"comment"=>"Enable trunking for outgoing calls sent on this line", "display"=>"checkbox"),
 	"trunk_timestamps" => array("advanced"=>true,"comment"=>"Configure how trunked audio data is sent, enable it for trunked data with timestamps and disable it to send trunked data without timestamps", "display"=>"checkbox"),
 	"trunk_sendinterval" => array("advanced"=>true,"comment"=>"Interval, in milliseconds, to send trunked audio data. Minimum allowed value is 5. Defaults to 20."),
@@ -283,9 +282,9 @@ function edit_outbound_write_to_file($prefix='',$prefix_protocol='')
 	}
 
 	if (!valid_address(getparam($prefix."server")))
-        return edit_outbound($read_account, "Invalid 'Server' value: ".getparam($prefix."server"));
+		return edit_outbound($read_account, "Invalid 'Server' value: ".getparam($prefix."server"));
 
-	$sip = array('authname','outbound', 'domain', 'localaddress', 'description', 'interval'/*, 'rtp_localip'*/, 'ip_transport', 'ip_transport_remoteip', 'ip_transport_remoteport','ip_transport_localip', 'ip_transport_localport', 'keepalive');
+	$sip = array('authname','outbound', 'domain', 'localaddress', 'description', 'interval', 'ip_transport', 'ip_transport_remoteip', 'ip_transport_remoteport','ip_transport_localip', 'ip_transport_localport', 'keepalive');
 	$iax = array('description', 'interval', 'connection_id', 'ip_transport_localip', 'ip_transport_localport', 'trunk_sendinterval', 'trunk_maxlen', 'trunk_nominits_ts_diff_restart', 'port');
 	
 	for ($i=0; $i<count(${$protocol}); $i++) {
@@ -300,11 +299,11 @@ function edit_outbound_write_to_file($prefix='',$prefix_protocol='')
 		$params["match_port"] = (getparam($prefix."match_port")=="on") ? "yes" : "no"; 
 		$params["match_user"] = (getparam($prefix."match_user")=="on") ? "yes" : "no";
 		$params["formats"] = get_formats($prefix."formats");
-		$caller = getparam("caller");
+		$caller = getparam($prefix."caller");
 		if ($caller=="Use username")
 			$params["out:caller"] = $params["username"];
 		elseif ($caller=="Custom")
-			$params["out:caller"] = getparam("custom_caller");
+			$params["out:caller"] = (strlen($prefix)) ? getparam("custom_".$prefix."caller") : getparam("custom_caller");
 		else
 			$params["out:caller"] = "";
 	} else {
@@ -356,6 +355,13 @@ function verify_modification_params($edited_params, $file_params)
 			break;
 		}
 	}
+	
+	foreach ($file_params as $name=>$value) {
+		if (!isset($edited_params[$name])) {
+			$modified = true;
+			break;
+		}
+	}
 	return $modified;
 }
 
@@ -378,7 +384,7 @@ function validate_account($params)
 		if (!empty($params['trunk_nominits_ts_diff_restart']) && $params['trunk_nominits_ts_diff_restart'] < 1000)
 			return array(false, "For Trunk nominits ts diff restart minimum allowed is 1000", array('trunk_nominits_ts_diff_restart'));
 		if (!empty($params['trunk_nominits_ts_diff_restart']) &&  $params['trunk_nominits_ts_diff_restart'] && $params['trunk_nominits_sync_use_ts'] == 'no')
-			return array(false, "This parameter Trunk nominits ts diff restart is ignored because Trunk nominits sync use ts is disabled.", array('trunk_nominits_ts_diff_restart', 'trunk_nominits_sync_use_ts'));
+			return array(false, "Parameter Trunk nominits ts diff restart is ignored because Trunk nominits sync use ts is disabled.", array('trunk_nominits_ts_diff_restart', 'trunk_nominits_sync_use_ts'));
 	}
 
 	return array(true);
