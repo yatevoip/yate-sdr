@@ -91,6 +91,46 @@ API.on_set_ybladerf_node = function(params,msg,setNode)
     return API.on_set_generic_file(ybladerf,params,msg,setNode);
 };
 
+// Class and reimplemented methods to configure calibrate.conf 
+CalibrateConfig = function()
+{
+    GenericConfig.apply(this);
+    this.name = "calibrate";
+    this.file = "calibrate";
+    this.error = new Object();
+    this.skip_empty_params = new Object();
+    this.sections = ["general"];
+    this.params_allowed_empty = [];
+    this.params_required = {"general":["auto_calibration","freqoffs_calibration"]};
+};
+CalibrateConfig.prototype = new GenericConfig;
+CalibrateConfig.prototype.validations = {
+    "general": {
+            "auto_calibration": {"callback": checkOnOff},
+	    "freqoffs_calibration": {"callback": checkOnOff}
+    }
+};
+
+// Get calibrate.conf params
+API.on_get_calibrate_node = function(params,msg)
+{
+    var cal = new CalibrateConfig;
+    return API.on_get_generic_file(cal,msg);
+};
+
+// Configure calibrate.conf params
+API.on_set_calibrate_node = function(params,msg,setNode)
+{
+    var cal_conf = prepareConf("calibrate",msg.received,false);
+
+    for (var param_name in params["general"])
+        cal_conf.setValue("general",param_name, params["general"][param_name]);
+
+    if (!saveConf(error,cal_conf))
+        return error;
+                                                                                                                                                                                return {};
+};
+
 API.on_get_node_type = function(params,msg)
 {
     if (!confs)
