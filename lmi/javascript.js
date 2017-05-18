@@ -265,6 +265,15 @@ function srb_mode(srb_index)
 		show("tr_Srb" + srb_index + "." + show_fields[i]);
 }
 
+/**
+ * sets the response content in the container using function set_html_obj() 
+ * this function is used as the callback in make_request()
+ */
+function callback_request(response,container_id)
+{
+    set_html_obj(container_id, response);
+}
+
 function get_node_status()
 {
 	var new_url = "pages.php?method=node_status_json";
