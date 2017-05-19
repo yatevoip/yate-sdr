@@ -212,6 +212,7 @@ function country_code_and_smsc()
 	$country_code = "";
 	$smsc = "";
 	$gw_sos = "";
+	$sms_text = "";
 	if (is_array($res[1])) {
 		if (isset($res[1]["country_code"]))
 			$country_code = $res[1]["country_code"];
@@ -219,7 +220,11 @@ function country_code_and_smsc()
 			$smsc         = $res[1]["smsc"];
 		if (isset($res[1]["gw_sos"]))
 			$gw_sos       = $res[1]["gw_sos"];
+		if (isset($res[1]["sms_text"]))
+			$sms_text     = $res[1]["sms_text"];
 	}
+	if (!strlen($sms_text))
+		$sms_text = 'Your allocated phone no. is ${nr}. Thank you for installing YateBTS. Call David at david(${david_number})';
 
 	if (!strlen($country_code)) 
 		edit_country_code_and_smsc();
@@ -227,10 +232,11 @@ function country_code_and_smsc()
 		$fields = array(
 			"country_code"=>array("value"=>$country_code, "display"=>"fixed"),
 			"smsc" => array("value"=>$smsc, "display"=>"fixed", "column_name"=>"SMSC"),
+			"sms_text" => array("value"=>$sms_text, "display"=>"fixed", "column_name"=>"SMS text"),
 			"gw_sos" => array("value"=>$gw_sos, "display"=>"fixed", "column_name"=>"Gateway SOS")
 		);
 		start_form();
-		addHidden(null,array("method"=>"edit_country_code_and_smsc", "country_code"=>$country_code, "smsc"=>$smsc, "gw_sos"=>$gw_sos));
+		addHidden(null,array("method"=>"edit_country_code_and_smsc", "country_code"=>$country_code, "smsc"=>$smsc, "gw_sos"=>$gw_sos, "sms_text"=>$sms_text));
 		editObject(null,$fields,"Country code and SMSC for the majority of your subscribers.",array("Modify"),null,true);
 		end_form();
 	}
@@ -245,10 +251,16 @@ function edit_country_code_and_smsc($error=null,$error_fields=array())
 	$country_code = getparam("country_code");
 	$smsc = getparam("smsc");
 	$gw_sos = getparam("gw_sos");
+	$sms_text = getparam("sms_text");
 	
 	$fields = array(
 		"country_code"=>array("value"=>$country_code, "compulsory"=>true, "comment"=>" Your Country code (where YateBTS is installed). Ex: 1 for US, 44 for UK"),
 		"smsc"=>array("column_name"=>"SMSC", "value"=>$smsc, "compulsory"=>true, "comment"=>"A short message service center (SMSC) used to store, forward, convert and deliver SMS messages."),
+		"sms_text" => array("column_name"=>"SMS text", "value"=>$sms_text, "comment"=>'Content of SMS message sent to users when first registering. In message ${nr} will be replaced with the allocated/set MSISDN and ${david_number} with 32843.<br/><br/>
+You should have a maximum of 70 characters in the sms body after the numbers are replaced. Otherwise if UC2 is used, body of SMS will be truncated. <br/><br/>
+Original text is: Your allocated phone no. is ${nr}. Thank you for installing YateBTS. Call David at david(${david_number})
+		
+		'),
 		"gw_sos"=>array("column_name"=>"Gateway SOS", "value"=>$gw_sos, "comment"=>"Resource for the emergency calls gateway.<br/>
 If not set any emergency calls will be delivered to the outbound gateway<br/>
 It is also possible to specify a short or international number (possibly MSISDN)<br/>
@@ -274,9 +286,10 @@ function edit_country_code_and_smsc_write_file()
 	else
 		$cc_file = $res[1];
 
-	$cc_param = getparam("country_code");
-	$smsc_param = getparam("smsc");
-	$gw_sos_param = getparam("gw_sos");
+	$cc_param       = getparam("country_code");
+	$smsc_param     = getparam("smsc");
+	$gw_sos_param   = getparam("gw_sos");
+	$sms_text_param = getparam("sms_text");
 
 	if ($gw_sos_param) {
 		warning_note("In order to route emergency calls you also need to set RACH.AC to '0'(or another value as stated in GSM 04.08 10.5.2.29) in BTS Configuration>GSM>GSM advanced. <font class='error'>DON'T MODIFY \"Gateway SOS\" UNLESS YOU ARE A REAL OPERATOR</font>. You might catch real emergency calls than won't ever be answered.");
@@ -288,12 +301,22 @@ function edit_country_code_and_smsc_write_file()
 		return edit_country_code_and_smsc("Country Code invalid!", array("country_code"));
 	if (!$smsc_param)
 		return edit_country_code_and_smsc("Please set SMSC!", array("smsc"));
+	if (!$sms_text_param) 
+		return edit_country_code_and_smsc("Please set SMS text!", array("sms_text"));
+
 	if (is_array($cc_file) && in_array($cc_param, $cc_file) && in_array($smsc_param, $cc_file) && in_array($gw_sos_param, $cc_file)) {
 		notice("Finished setting Country Code and SMSC.", "country_code_and_smsc");
 		return;
 	}
 
-	$res = set_cc_smsc($cc_param,$smsc_param,$gw_sos_param);
+	$general_params = array(
+		"country_code" => $cc_param,
+		"smsc"         => $smsc_param,
+		"gw_sos"       => $gw_sos_param,	
+		"sms_text"     => $sms_text_param
+	);
+
+	$res = set_cc_smsc($general_params);
 	if (!$res[0])
 		return edit_country_code_and_smsc($res[1]);
 	notice("Finished writting Country Code and SMSC into subscribers.conf.", "country_code_and_smsc");
@@ -305,10 +328,9 @@ function get_cc_smsc()
 	return array(true, $content);
 }
 
-function set_cc_smsc($country_code, $smsc, $gw_sos)
+function set_cc_smsc($params)
 {
-	$content = array("country_code"=>$country_code, "smsc"=>$smsc, "gw_sos"=>$gw_sos);
-	$res = request_api($content, "set_nib_system"); 
+	$res = request_api($params, "set_nib_system"); 
 
 	return array(true);
 }
