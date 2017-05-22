@@ -175,7 +175,9 @@ API.on_set_sdr_mode = function(params,msg)
     var enb_conf    = prepareConf("yateenb",msg.received,false);
     var gtp_conf    = prepareConf("gtp",msg.received,false);
     var cal_conf    = prepareConf("calibrate",msg.received,false);
-    var ysipchan_conf = prepareConf("ysipchan",msg.received,false);
+    var ysipchan_conf   = prepareConf("ysipchan",msg.received,false);
+    var nibmod_conf     = prepareConf("nib-modules",msg.received,false);
+    var nibextmod_conf  = prepareConf("nib-extmod",msg.received,false);
 
     if (params.sdr_mode == "enb") {
 	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
@@ -185,6 +187,8 @@ API.on_set_sdr_mode = function(params,msg)
 	gtp_conf.setValue("ran_u","enabled",true);
 	gtp_conf.setValue("ran_u","type","gtp-access");
 	gtp_conf.setValue("ran_c","enabled",false);
+	nibmod_conf.clearSection("modules");
+	nibextmod_conf.clearSection("scripts");
 
     } else if (bts_modes.indexOf(params.sdr_mode) >= 0) {
 	sdr_jscript.setValue("general", "routing", "welcome.js");
@@ -228,8 +232,16 @@ API.on_set_sdr_mode = function(params,msg)
 
 	    ysipchan_conf.setValue("methods","options",false);
 	    ysipchan_conf.setValue("methods","info",false);
-	} else if (params.sdr_mode == "nib")
+	    nibmod_conf.clearSection("modules");
+	    nibextmod_conf.clearSection("scripts");
+
+	} else if (params.sdr_mode == "nib") {
 	    ysipchan_conf.setValue("codecs","default","enable");
+	    nibmod_conf.setValue("modules","yiaxchan.yate", true);
+	    nibmod_conf.setValue("modules","conference.yate", true);
+	    nibmod_conf.setValue("modules","accfile.yate", true);
+	    nibextmod_conf.setValue("scripts","nib_auth.sh","");
+	}
 	
     } else {
 	error.error = 201;
@@ -248,6 +260,10 @@ API.on_set_sdr_mode = function(params,msg)
     if (!saveConf(error,gtp_conf))
 	return error;
     if (!saveConf(error,ysipchan_conf))
+	return error;
+    if (!saveConf(error,nibmod_conf))
+	return error;
+    if (!saveConf(error,nibextmod_conf))
 	return error;
 
     Engine.output("Restart on node config: " + msg.received);
