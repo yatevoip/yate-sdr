@@ -40,6 +40,7 @@ function get_selected_band()
 	$radio_band = getparam("radio_band");
 	$_SESSION["Radio.Band"] = $radio_band;
 	$band_options = prepare_gsm_field_radio_c0();
+	print '<option value="">Not selected</option>';
 	foreach ($band_options as $k=>$option) {
 		$value = $option["Radio.C0_id"];
 		$style = "";
