@@ -78,7 +78,8 @@ function get_content()
 				<div class="right_upperbanner">Welcome</div>
 				<div class="download_config">
 					<a class="llink" href="download.php?method=config&module=<?php print $module;?>">Download configuration</a>
-					 <a class="llink" href="main.php?method=force_calibration">Force calibration</a>
+					<a class="llink" href="main.php?method=view_log">View logs</a>
+					<a class="llink" href="main.php?method=force_calibration">Force calibration</a>
 				</div>
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
@@ -380,5 +381,21 @@ function display_node_status()
 //	if ($res["details"])
 //		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
 //	print "</div>";
+}
+
+/**
+  * Form to create request to filter logs from equipment
+  */
+function view_log()
+{
+	$fields = array(
+		"level" => array(array("warn", "mild", "call", "note", "info", "all"), "display"=>"select", "comment"=>"Optional minimum log level: mild/call/note/info/all, defaults to 'warn'"),
+		"lines" => array("comment"=>"Optional maximum number of lines to retrieve, range 10 - 1000, default 50")
+	);
+
+	start_form("download.php", "get", false, "logs_form");
+	addHidden(null, array("method"=>"logs"));
+	editObject(null,$fields,"Filter logs","Submit");
+	end_form();
 }
 ?>

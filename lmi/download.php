@@ -1,4 +1,11 @@
 <?php
+/**
+ * download.php 
+ * Makes api request for configs/logs and allow user to download file
+ *
+ * Copyright (C) 2017 Null Team
+ */
+
 require_once("ansql/lib.php");
 require_once("defaults.php");
 require_once("lib/lib_requests.php");
@@ -11,11 +18,22 @@ if (getparam("file")) {
 } else {
 	$method = getparam("method");
 
-	if ($method == "config") {
-		$operation = "get_node_config";
-		$file = "yateSDR_config.tgz";
-		$content_type = "application/octet-stream";
-		$request_params = array();
+	if ($method == "config" || $method == "logs") {
+		if ($method == "config") {
+			$operation = "get_node_config";
+			$file = "yateSDR_config.tgz";
+			$content_type = "application/octet-stream";
+			$request_params = array();
+		} else {
+			$operation = "get_node_logs";
+			$file = "yateSDR_log.txt";
+			$content_type = "text/plain";
+			$request_params = array();
+			if (getparam("level"))
+				$request_params["level"] = getparam("level");
+			if (getparam("lines"))
+				$request_params["lines"] = getparam("lines");
+		}
 
 		$res = make_request($request_params, $operation);
 
