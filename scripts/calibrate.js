@@ -24,7 +24,7 @@
 Engine.debugName("calibrate");
 Message.trackName("calibrate");
 
-module = "";                             // Radio module name
+module = null;                           // Radio module name
 product = "";                            // Product name (used in debug)
 productRunning = undefined;              // Module (product) is not idle (not started)
 productStartLine = "";                   // Product start command line
@@ -993,7 +993,7 @@ function initialize()
     Engine.output("Initializing module Radio Calibration");
     var cfg = new ConfigFile(Engine.configFile("calibrate"));
     var gen = cfg.getSection("general",true);
-    if (!module) {
+    if (null === module) {
 	var level = Engine.DebugInfo;
 	var mode = gen.getValue("mode");
 	switch (mode) {
