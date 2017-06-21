@@ -256,7 +256,7 @@ function edit_country_code_and_smsc($error=null,$error_fields=array())
 	$fields = array(
 		"country_code"=>array("value"=>$country_code, "compulsory"=>true, "comment"=>" Your Country code (where YateBTS is installed). Ex: 1 for US, 44 for UK"),
 		"smsc"=>array("column_name"=>"SMSC", "value"=>$smsc, "compulsory"=>true, "comment"=>"A short message service center (SMSC) used to store, forward, convert and deliver SMS messages."),
-		"sms_text" => array("column_name"=>"SMS text", "value"=>$sms_text, "comment"=>'Content of SMS message sent to users when first registering. In message ${nr} will be replaced with the allocated/set MSISDN and ${david_number} with 32843.<br/><br/>
+		"sms_text" => array("column_name"=>"SMS text", "compulsory"=>true, "value"=>$sms_text, "comment"=>'Content of SMS message sent to users when first registering. In message ${nr} will be replaced with the allocated/set MSISDN and ${david_number} with 32843.<br/><br/>
 You should have a maximum of 70 characters in the sms body after the numbers are replaced. Otherwise if UC2 is used, body of SMS will be truncated. <br/><br/>
 Original text is: Your allocated phone no. is ${nr}. Thank you for installing YateBTS. Call David at david(${david_number})
 		
