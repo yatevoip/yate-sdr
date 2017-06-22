@@ -304,8 +304,8 @@ function edit_country_code_and_smsc_write_file()
 	if (!$sms_text_param) 
 		return edit_country_code_and_smsc("Please set SMS text!", array("sms_text"));
 
-	if (is_array($cc_file) && in_array($cc_param, $cc_file) && in_array($smsc_param, $cc_file) && in_array($gw_sos_param, $cc_file)) {
-		notice("Finished setting Country Code and SMSC.", "country_code_and_smsc");
+	if (is_array($cc_file) && @$cc_file["country_code"]==$cc_param && @$cc_file["smsc"]==$smsc_param && @$cc_file["gw_sos"]==$gw_sos_param && @$cc_file["sms_text"]==$sms_text_param) {
+		notice("Finished setting Country Code and SMSC. Nothing to update.", "country_code_and_smsc");
 		return;
 	}
 
