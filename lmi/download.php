@@ -51,7 +51,7 @@ if (getparam("file")) {
 		header("Content-Disposition:attachment;filename=$file");
 		header("Content-Description: PHP Generated Data");
 		header("Content-Transfer-Encoding: binary");
-		header('Content-Length' . filesize());
+		header('Content-Length' . strlen($res));
 		ob_clean();
 		print $res;
 		exit;
