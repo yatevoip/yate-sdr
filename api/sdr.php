@@ -35,6 +35,17 @@ if (!isset($bts_version))
 if (!isset($enb_version))
     $enb_version = $sdr_version;
 
+function getFreqError()
+{
+    $res = shell_exec("(LANG=C /usr/bin/chronyc -n tracking || LANG=C /usr/sbin/ntpdc -n -c sysinfo)"
+	. " 2>/dev/null | /usr/bin/sed -n 's/^\\(Residual\\|stability\\).*: *\\([^ ].\\+\\)/\\2/p'");
+    if (null !== $res)
+	$res = trim($res);
+    return ("" != $res && null !== $res)
+	? buildSuccess("freq_error",$res)
+	: buildError(501,"Cannot retrieve system frequency error.");
+}
+
 function sdrHandler($request,$json,$recv,$node)
 {
     global $sdr_version;
@@ -64,6 +75,8 @@ function sdrHandler($request,$json,$recv,$node)
 	    return $node_types;
 	case "get_version":
 	    return buildSuccess("version",$sdr_version);
+	case "get_freq_error":
+	    return getFreqError();
 	case "set_bts_node":
 	case "get_bts_node":
 	case "set_nib_subscribers":
