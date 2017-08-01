@@ -10,7 +10,7 @@ ExecReload=/bin/kill -HUP $MAINPID
 PIDFile=/var/run/yate-sdr.pid
 TimeoutSec=30
 # Default Yate command line options, do not edit them here
-Environment="OPTS=-F -s=5000 -r -l /var/log/yate-sdr -vvv -DF" "PWLIB_ASSERT_ACTION=C"
+Environment="OPTS=-F -s=5000 -r -l /var/log/yate-sdr -DF" "PWLIB_ASSERT_ACTION=C"
 # To override create file /etc/sysconfig/yate-sdr and put OPTS=... in it
 EnvironmentFile=-/etc/sysconfig/yate-sdr
 

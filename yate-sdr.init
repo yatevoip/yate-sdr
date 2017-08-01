@@ -10,7 +10,7 @@
 #
 
 # Extra Yate command line options, do not edit them here
-OPTS="-F -s=500 -r -l /var/log/yate-sdr -vvv -DF"
+OPTS="-F -s=500 -r -l /var/log/yate-sdr -DF"
 
 # To override create file /etc/sysconfig/yate-sdr and put OPTS=... in it
 [ -r /etc/sysconfig/yate-sdr ] && . /etc/sysconfig/yate-sdr
