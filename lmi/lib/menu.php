@@ -389,7 +389,7 @@ function display_node_status()
 function view_log()
 {
 	$fields = array(
-		"level" => array(array("warn", "mild", "call", "note", "info", "all"), "display"=>"select", "comment"=>"Optional minimum log level: mild/call/note/info/all, defaults to 'warn'"),
+		"level" => array(array("warn", "mild", "note", "call", "info", "all"), "display"=>"select", "comment"=>"Optional minimum log level: mild/note/call/info/all, defaults to 'warn'"),
 		"lines" => array("comment"=>"Optional maximum number of lines to retrieve, range 10 - 1000, default 50")
 	);
 
