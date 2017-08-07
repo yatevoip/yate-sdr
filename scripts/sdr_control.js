@@ -86,10 +86,10 @@ API.on_get_node_status = function(params,msg)
 // Retrieve (sub)product stats
 API.on_query_stats = function(params,msg)
 {
-    var stats = retrieveStats(["bladerf","ybts","mbts","gsmtrx","enb","ys1ap","gtp","sip","yrtp","cdrbuild"]);
+    var stats = retrieveStats(["bladerf","ybts","mbts","gsmtrx","ys1ap","gtp","sip","yrtp","cdrbuild"]);
     if (!stats)
 	return { error:200, reason:"Internal retrieval error." };
-    mergeStats(stats,["ybts conn","ybts ue","enb rrc","enb paging"]);
+    mergeStats(stats,["ybts conn","ybts ue","enb all"]);
     return { name:"stats", object:stats };
 };
 
