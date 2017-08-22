@@ -65,7 +65,7 @@ function get_content()
 	<table class="container" cellspacing="0" cellpadding="0">
 		<tr>
 			<td class="holdlogo">
-				<div class="left_upperbanner"><img src="images/yatesdr_lmi_logo.png" title="NIB Logo" /></div>
+				<div class="left_upperbanner"><img src="images/yatesdr_lmi_logo.png" title="LMI Logo" /></div>
 			</td>
 
 			<td class="holdstatus">
@@ -186,7 +186,7 @@ function menu()
 	$modules_per_mode = array(
 		"" => array("working_mode"),
 		"not configured" => array("working_mode"),
-		"nib" => array("working_mode", "status", "subscribers", "bts_configuration", "outbound", "call_logs"),
+		"nipc" => array("working_mode", "status", "subscribers", "bts_configuration", "outbound", "call_logs"),
 		"roaming" => array("working_mode", "status", "bts_configuration"),
 		"dataroam" => array("working_mode", "status", "bts_configuration"),
 		"enb" => array("working_mode", "status", "enb_configuration"),

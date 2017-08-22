@@ -31,7 +31,7 @@ function list_subscribers()
 	
 	$method = "list_subscribers";
 		
-	nib_note("Subscribers can be accepted based on two criteria: "."<a class='llink' href='".$_SESSION["main"]."?module=$module&method=regexp'>regular expression</a>"." that matches the IMSI or they must be inserted individually.");
+	box_note("Subscribers can be accepted based on two criteria: "."<a class='llink' href='".$_SESSION["main"]."?module=$module&method=regexp'>regular expression</a>"." that matches the IMSI or they must be inserted individually.");
 
 	$subscribers = array();
 	$res = get_subscribers();
@@ -66,7 +66,7 @@ function regexp()
 	}
 
 
-	nib_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
+	box_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
 	start_form();
 	addHidden(null, array("method"=>"edit_regexp", "regexp"=>$regexp));
 	$fields = array("regexp"=>array("value"=>$regexp, "display"=>"fixed"));
@@ -78,15 +78,15 @@ function online_subscribers()
 {
 	global $method, $limit, $page;
 
-	$total = request_api(array(), "get_online_nib_subscribers", "count", $method);
+	$total = request_api(array(), "get_online_nipc_subscribers", "count", $method);
 
-	nib_note("This page displays the subscribers currently registered in the BTS.");
+	box_note("This page displays the subscribers currently registered in the BTS.");
 
 	items_on_page();
 	pages($total);
 	$online_subscribers = array();
 	if ($total>0) {
-		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_online_nib_subscribers", "subscribers", $method);
+		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_online_nipc_subscribers", "subscribers", $method);
 	}
 	
 	$formats = array("IMSI","MSISDN");
@@ -97,15 +97,15 @@ function accepted_subscribers()
 {
 	global $method, $limit, $page;
 
-	$total = request_api(array(), "get_accepted_nib_subscribers", "count", $method);
+	$total = request_api(array(), "get_accepted_nipc_subscribers", "count", $method);
 
-	nib_note("This page displays the subscribers seen and accepted by the BTS in the interval specified by TMSI expire(default 864000 seconds - 10 days) from BTS Configuration>System>YBTS.");
+	box_note("This page displays the subscribers seen and accepted by the BTS in the interval specified by TMSI expire(default 864000 seconds - 10 days) from BTS Configuration>System>YBTS.");
 
 	items_on_page();
 	pages($total);
 	$online_subscribers = array();
 	if ($total>0) {
-		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_accepted_nib_subscribers", "subscribers", $method);
+		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_accepted_nipc_subscribers", "subscribers", $method);
 	}
 	
 	$formats = array("IMSI","MSISDN");
@@ -116,15 +116,15 @@ function rejected_imsis()
 {
 	global $method, $limit, $page;
 
-	$total = request_api(array(), "get_rejected_nib_subscribers", "count", $method);
+	$total = request_api(array(), "get_rejected_nipc_subscribers", "count", $method);
 
-	nib_note("This page displays rejected IMSIs since the last Yate restart.");
+	box_note("This page displays rejected IMSIs since the last Yate restart.");
 
 	items_on_page();
 	pages($total);
 	$rejected_subscribers = array();
 	if ($total>0) {
-		$rejected_subscribers = request_api(array("limit"=>$limit, "offset"=>$page), "get_rejected_nib_subscribers", "imsis", $method);
+		$rejected_subscribers = request_api(array("limit"=>$limit, "offset"=>$page), "get_rejected_nipc_subscribers", "imsis", $method);
 	}
 
 	$formats = array("IMSI","No attempts register"=>"NO");
@@ -134,7 +134,7 @@ function rejected_imsis()
 function edit_regexp($error=null,$error_fields=array())
 {
 	if (getparam("Return_to_setting_subscribers_individually")=="Return to setting subscribers individually") {
-		$res = request_api(array(";regexp"=>""), "set_nib_system");
+		$res = request_api(array(";regexp"=>""), "set_nipc_system");
 		return list_subscribers();
 	}
 
@@ -161,7 +161,7 @@ function edit_regexp($error=null,$error_fields=array())
 	if (in_array("yes", $warning_data) || in_array("on", $warning_data))
 		warning_note("You can't set mobile terminated authentication for calls, SMS, USSD when regular expression is used. Authentication requests will be ignored in this scenario.");
 	
-	nib_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
+	box_note("If a regular expression is used, 2G/3G authentication cannot be used. For 2G/3G authentication, please set subscribers individually.");
 	$fields = array(
 		"regexp" => array("value"=> $regexp, "required"=>true, "comment"=>"Ex: ^001")
 	);
@@ -190,7 +190,7 @@ function edit_regexp_write_file()
 	$regexp = getparam("regexp");
 
 	if (!$regexp) {
-		$res = request_api(array(";regexp"=>""), "set_nib_system");
+		$res = request_api(array(";regexp"=>""), "set_nipc_system");
 		return notice("Cleared regular expression. All subscribers must be accepted individually.");
 	}
 
@@ -324,13 +324,13 @@ function edit_country_code_and_smsc_write_file()
 
 function get_cc_smsc()
 {
-	$content = request_api(array(), "get_nib_system", "nib_system");
+	$content = request_api(array(), "get_nipc_system", "nipc_system");
 	return array(true, $content);
 }
 
 function set_cc_smsc($params)
 {
-	$res = request_api($params, "set_nib_system"); 
+	$res = request_api($params, "set_nipc_system"); 
 
 	return array(true);
 }
@@ -490,7 +490,7 @@ function delete_subscriber()
 function delete_subscriber_database()
 {
 	$imsi = getparam("imsi");
-	$res = request_api(array("imsi"=>$imsi), "delete_nib_subscriber", null, "subscribers");
+	$res = request_api(array("imsi"=>$imsi), "delete_nipc_subscriber", null, "subscribers");
 	notice("Finished removing subscriber with IMSI $imsi.", "subscribers");
 }
 
@@ -498,13 +498,13 @@ function set_subscribers($subscribers)
 {
 	global $method;
 
-	$res = request_api($subscribers, "set_nib_subscribers", null, $method);
+	$res = request_api($subscribers, "set_nipc_subscribers", null, $method);
 	return array(true);
 }
 
 function set_regexp($regexp)
 {
-	$res = request_api(array("regexp"=>$regexp), "set_nib_system");
+	$res = request_api(array("regexp"=>$regexp), "set_nipc_system");
 	return array(true);
 }
 
@@ -513,7 +513,7 @@ function get_subscribers($imsi=false, $get_all=false)
 	global $limit, $page;
 
 	if ($imsi) {
-		$res = request_api(array("imsi"=>$imsi), "get_nib_subscribers","subscribers");
+		$res = request_api(array("imsi"=>$imsi), "get_nipc_subscribers","subscribers");
 		return array(true, $res);
 	} else {
 
@@ -525,7 +525,7 @@ function get_subscribers($imsi=false, $get_all=false)
 				$limit = $total;
 				$page=0;
 			}
-			$res = request_api(array("limit"=>$limit, "offset"=>$page), "get_nib_subscribers", "subscribers");
+			$res = request_api(array("limit"=>$limit, "offset"=>$page), "get_nipc_subscribers", "subscribers");
 			return array(true, $res);
 		}
 
@@ -535,7 +535,7 @@ function get_subscribers($imsi=false, $get_all=false)
 
 function get_count_subscribers()
 {
-	$res = request_api(array(), "get_nib_subscribers", "count");
+	$res = request_api(array(), "get_nipc_subscribers", "count");
 	return $res;
 }
 
@@ -543,7 +543,7 @@ function get_regexp()
 {
 	global $method;
 
-	$res = request_api(array(), "get_nib_system", "nib_system", $method);
+	$res = request_api(array(), "get_nipc_system", "nipc_system", $method);
 	return array(true, $res);
 }
 
@@ -659,10 +659,10 @@ function write_sim_form($error=null, $error_fields=array(), $generate_random_ims
 		$advanced_smsc = true;
 
 	if (!$add_existing_subscriber) {
-		nib_note("There are two methods of writing the SIM cards, depending on the state of the \"Generate random IMSI\" field. If the field is selected, the SIM credentials are randomly generated. Otherwise, the data must be inserted manually. Please check that your SIM Card Reader is inserted into the USB port of your device. Before saving data, please insert a SIM card into the SIM Card Reader.");
+		box_note("There are two methods of writing the SIM cards, depending on the state of the \"Generate random IMSI\" field. If the field is selected, the SIM credentials are randomly generated. Otherwise, the data must be inserted manually. Please check that your SIM Card Reader is inserted into the USB port of your device. Before saving data, please insert a SIM card into the SIM Card Reader.");
 	} else {
 		if (test_existing_imsi_in_csv($params["imsi"]))
-			nib_note("This IMSI: ".$params["imsi"]." is already written on another SIM card.");
+			box_note("This IMSI: ".$params["imsi"]." is already written on another SIM card.");
 	}
 
 	$type_card = get_card_types();
@@ -991,7 +991,7 @@ function read_csv()
 	$formats = array("operator_name", "iccid", "mobile_country_code", "mobile_network_code", "imsi", "smsp", "ki", "opc");
 	$csv = new CsvFile($filename,$formats, array(), false);
 	if ($csv->getError()) {
-		nib_note($csv->getError());
+		box_note($csv->getError());
 		return $sim_data;
 	}
 
@@ -1261,7 +1261,7 @@ function overwrite_imsi_in_file()
 	if ($res[0] && isset($res[1])) //yate is not running
 		notice("Finished overwritting subscribers. " .$res[1], "list_subscribers");
 	elseif (!$res[0]) //errors on socket connection
-		notice("Finished overwritting subscribers. For changes to take effect please restart yate or reload just nib.js from telnet with command: \"javascript reload nib\".Please note that after this you will lose existing registrations.", "list_subscribers");
+		notice("Finished overwritting subscribers. For changes to take effect please restart yate or reload just nipc.js from telnet with command: \"javascript reload nipc\".Please note that after this you will lose existing registrations.", "list_subscribers");
 	else //yate was restarted
 		notice("Finished overwritting subscribers.", "list_subscribers");
 }
@@ -1276,7 +1276,7 @@ function export_subscribers_in_csv()
 
 	$subscribers = get_subscribers();
 	if (!$subscribers[0]) {
-		nib_note("No subscribers to export.");
+		box_note("No subscribers to export.");
 		return;
 	}
 	$smsc = get_smsc();
@@ -1515,7 +1515,7 @@ function finish_importing_subscribers($new_subscribers)
 			unset($data["iccid"]);
 
 		$fields = array("subscribers"=>array($imsi=>$data));
-		$res = make_request($fields,"set_nib_subscribers");
+		$res = make_request($fields,"set_nipc_subscribers");
 		if ($res["code"]!="0") {
 			errormess("Error when importing subscriber with IMSI ".$imsi.". Error [API: ".$res["code"]."] ". $res["message"] ,"no");
 			message("Fix error and reupload file.","no");

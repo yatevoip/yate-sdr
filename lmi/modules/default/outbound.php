@@ -409,7 +409,7 @@ function delete_and_switch_outbound_database()
 
 function get_outbound()
 {
-	$res = request_api(array(), "get_nib_outbound", "outbound");
+	$res = request_api(array(), "get_nipc_outbound", "outbound");
 	if (!count($res)) {
 		Debug::xdebug("outbound", "Could not retrieve outbound from api.");
 		return null;
@@ -419,7 +419,7 @@ function get_outbound()
 
 function set_outbound($account_info)
 {
-    $res = request_api($account_info, "set_nib_outbound");
+    $res = request_api($account_info, "set_nipc_outbound");
 	return array(true);
 }
 ?>

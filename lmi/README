@@ -7,12 +7,12 @@ It is required to choose a working mode before doing any other configuration.
 
 The working modes are:
 
- 1. GSM nib       - GSM Network in a box
+ 1. GSM nipc      - GSM Network in a PC
  2. GSM roaming   - GSM BTS connected to YateUCN/HostedCore for voice/sms services
  3. GSM dataroam  - GSM BTS connected to YateUCN/HostedCore for voice/sms/data services
  4. LTE enb	  - LTE EnodeB connected to a MME/HostedCore
 
-If 'GSM nib' mode is set, there are three parts:
+If 'GSM nipc' mode is set, there are three parts:
 
 1. Subscribers contains: List Subscribers, Online Subscribers, Rejected IMSIs
 List Subscribers - each IMSI can be inserted individually or
@@ -53,10 +53,10 @@ Depending on your operating system the main web directory will be /var/www (debi
 or /var/www/html otherwise. If you don't have this path, then you need to install Apache server.
 
 Assuming you install YateBTS package or installed by hand(make install), the UI source code is 
-located in /usr/local/share/yate/nib_web.
+located in /usr/local/share/yate/lmi.
 
  > cd /var/www/html   (or cd /var/www on debian based OS)
- > ln -s /usr/local/share/yate/nib_web yatebts_nib
+ > ln -s /usr/local/share/yate/lmi lmi
 
 
 Configuration

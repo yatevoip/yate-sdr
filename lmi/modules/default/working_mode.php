@@ -15,7 +15,7 @@ function working_mode($editable=false)
 	}
 
 	if (!isset($_SESSION["available_sdr_modes"])) {
-		errormess("Incomplete installation! Please install al least one of the packages for nib/roaming/dataroam/enb before trying to use the information. Check equipment api_logs.php to verify response.","no");
+		errormess("Incomplete installation! Please install al least one of the packages for nipc/roaming/dataroam/enb before trying to use the information. Check equipment api_logs.php to verify response.","no");
 		return;
 	} else {
 		$available_modes = $_SESSION["available_sdr_modes"];
@@ -23,7 +23,7 @@ function working_mode($editable=false)
 
 	// working modes and their description
 	$working_modes = array(
-		"GSM nib"       => array("mode_type"=>"nib", "description"=>"GSM Network in a box"),
+		"GSM nipc"      => array("mode_type"=>"nipc", "description"=>"GSM Network in a PC"),
 		"GSM roaming"   => array("mode_type"=>"roaming", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms services"),
 		"GSM dataroam"  => array("mode_type"=>"dataroam", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms/data services"),
 		"LTE enb"       => array("mode_type"=>"enb", "description"=>"LTE EnodeB connected to a MME/HostedCore")
@@ -89,7 +89,7 @@ function modify_working_mode_database()
 
 	$working_mode = getparam("working_mode");
 	$working_modes = array(
-		"GSM nib"       => "bts",
+		"GSM nipc"      => "bts",
 		"GSM roaming"   => "bts",
 		"GSM dataroam"  => "bts",
 		"LTE enb"       => "enb"

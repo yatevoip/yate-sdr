@@ -24,9 +24,9 @@ function have_pysim_package()
 	return shell_exec("rpm -qa 'pysim*'");
 }
 
-function have_nib_package()
+function have_nipc_package()
 {
-	return shell_exec("rpm -qa 'yate-bts-nib*'");
+	return shell_exec("rpm -qa 'yate-bts-nipc*'");
 }
 
 function have_pysim_prog()
@@ -278,7 +278,7 @@ function set_timezone()
         error_reporting($level);
 }
 
-function nib_note($text)
+function box_note($text)
 {
         notice($text, "no");
 }
