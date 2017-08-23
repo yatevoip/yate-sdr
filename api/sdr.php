@@ -79,18 +79,18 @@ function sdrHandler($request,$json,$recv,$node)
 	    return getFreqError();
 	case "set_bts_node":
 	case "get_bts_node":
-	case "set_nib_subscribers":
-	case "get_nib_subscribers":
-	case "delete_nib_subscriber":
-	case "set_nib_system":
-	case "get_nib_system":
-	case "get_online_nib_subscribers":
-	case "get_accepted_nib_subscribers":
-	case "get_rejected_nib_subscribers":
-	case "set_nib_outbound":
-	case "get_nib_outbound":
-	case "set_nib_cdrfile":
-	case "get_nib_cdrfile":
+	case "set_nipc_subscribers":
+	case "get_nipc_subscribers":
+	case "delete_nipc_subscriber":
+	case "set_nipc_system":
+	case "get_nipc_system":
+	case "get_online_nipc_subscribers":
+	case "get_accepted_nipc_subscribers":
+	case "get_rejected_nipc_subscribers":
+	case "set_nipc_outbound":
+	case "get_nipc_outbound":
+	case "set_nipc_cdrfile":
+	case "get_nipc_cdrfile":
 	    if ("sdr" != $node)
 		return null;
 	    return yateRequest(1049,"config_bts",$request,getParam($json,"params"),$recv);

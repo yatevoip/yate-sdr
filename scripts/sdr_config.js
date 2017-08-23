@@ -168,7 +168,7 @@ API.on_set_sdr_mode = function(params,msg)
 	return { error: 402, reason: "Missing sdr_mode in request" };
 
     var error = new Object;
-    var bts_modes = ["nib", "roaming", "dataroam"];
+    var bts_modes = ["nipc", "roaming", "dataroam"];
 
     var sdr_jscript = prepareConf("sdr-jscript",msg.received,false);
     var ybts_conf   = prepareConf("ybts",msg.received,false);
@@ -176,8 +176,8 @@ API.on_set_sdr_mode = function(params,msg)
     var gtp_conf    = prepareConf("gtp",msg.received,false);
     var cal_conf    = prepareConf("calibrate",msg.received,false);
     var ysipchan_conf   = prepareConf("ysipchan",msg.received,false);
-    var nibmod_conf     = prepareConf("nib-modules",msg.received,false);
-    var nibextmod_conf  = prepareConf("nib-extmod",msg.received,false);
+    var nipcmod_conf     = prepareConf("nipc-modules",msg.received,false);
+    var nipcextmod_conf  = prepareConf("nipc-extmod",msg.received,false);
 
     if (params.sdr_mode == "enb") {
 	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
@@ -187,8 +187,8 @@ API.on_set_sdr_mode = function(params,msg)
 	gtp_conf.setValue("ran_u","enabled",true);
 	gtp_conf.setValue("ran_u","type","gtp-access");
 	gtp_conf.setValue("ran_c","enabled",false);
-	nibmod_conf.clearSection("modules");
-	nibextmod_conf.clearSection("scripts");
+	nipcmod_conf.clearSection("modules");
+	nipcextmod_conf.clearSection("scripts");
 
     } else if (bts_modes.indexOf(params.sdr_mode) >= 0) {
 	sdr_jscript.setValue("general", "routing", "welcome.js");
@@ -197,7 +197,7 @@ API.on_set_sdr_mode = function(params,msg)
 	enb_conf.setValue("general","autostart",false);
 	cal_conf.setValue("general","mode","bts");
 
-	if (params.sdr_mode == "nib" || params.sdr_mode == "roaming") {
+	if (params.sdr_mode == "nipc" || params.sdr_mode == "roaming") {
 	    gtp_conf.setValue("ran_u","enabled",false);
 	    gtp_conf.setValue("ran_c","enabled",false);
 	} else {
@@ -232,15 +232,15 @@ API.on_set_sdr_mode = function(params,msg)
 
 	    ysipchan_conf.setValue("methods","options",false);
 	    ysipchan_conf.setValue("methods","info",false);
-	    nibmod_conf.clearSection("modules");
-	    nibextmod_conf.clearSection("scripts");
+	    nipcmod_conf.clearSection("modules");
+	    nipcextmod_conf.clearSection("scripts");
 
-	} else if (params.sdr_mode == "nib") {
+	} else if (params.sdr_mode == "nipc") {
 	    ysipchan_conf.setValue("codecs","default","enable");
-	    nibmod_conf.setValue("modules","yiaxchan.yate", true);
-	    nibmod_conf.setValue("modules","conference.yate", true);
-	    nibmod_conf.setValue("modules","accfile.yate", true);
-	    nibextmod_conf.setValue("scripts","nib_auth.sh","");
+	    nipcmod_conf.setValue("modules","yiaxchan.yate", true);
+	    nipcmod_conf.setValue("modules","conference.yate", true);
+	    nipcmod_conf.setValue("modules","accfile.yate", true);
+	    nipcextmod_conf.setValue("scripts","nipc_auth.sh","");
 	}
 	
     } else {
@@ -261,9 +261,9 @@ API.on_set_sdr_mode = function(params,msg)
 	return error;
     if (!saveConf(error,ysipchan_conf))
 	return error;
-    if (!saveConf(error,nibmod_conf))
+    if (!saveConf(error,nipcmod_conf))
 	return error;
-    if (!saveConf(error,nibextmod_conf))
+    if (!saveConf(error,nipcextmod_conf))
 	return error;
 
     Engine.output("Restart on node config: " + msg.received);

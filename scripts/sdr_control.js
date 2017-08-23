@@ -141,7 +141,7 @@ API.on_calibrate_poll = function(params,msg)
 // Find out what scripts are candidates for working mode
 API.on_get_available_modes = function(params,msg)
 {
-    var files = {"nib":"nib", "roaming":"roaming", "dataroam":"dataroam", "enb":"enb-main"};
+    var files = {"nipc":"nipc", "roaming":"roaming", "dataroam":"dataroam", "enb":"enb-main"};
     var path = Engine.runParams().sharedpath;
     if (path)
 	path += "/scripts";
