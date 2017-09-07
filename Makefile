@@ -51,6 +51,7 @@ build-srpm:
 tarball: clean
 	@wd=`pwd|sed 's,^.*/,,'`; \
 	mkdir -p tarballs; cd ..; \
+	find $$wd -name '*~' >>$$wd/tarballs/tar-exclude; \
 	find $$wd -name .svn >>$$wd/tarballs/tar-exclude; \
 	tar czf $$wd/tarballs/$(TARNAME).tar.gz --exclude $$wd/Makefile.local --exclude $$wd/tarballs -X $$wd/tarballs/tar-exclude $$wd; \
 	rm $$wd/tarballs/tar-exclude
