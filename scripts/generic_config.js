@@ -46,7 +46,7 @@ GenericConfig.prototype.prepareConfig = function(params)
     if (debug)
 	 Engine.output("Entered prepareConfig for object name " + this.name);
 	     
-    this.conf = prepareConf(this.file,this.change_date,this.overwrite);
+    this.conf = prepareConf(this.file,this.change_date,this.overwrite,this.custom);
 
     // retrieve current configuration and merge settings if file is not to be overwritten
     if (!this.overwrite)
@@ -271,7 +271,7 @@ API.on_set_generic_file = function(configObj,params,msg,setNode)
 
 // Prepare a config file:
 // Load, clear, set updated info
-function prepareConf(name,update_date,clear)
+function prepareConf(name,update_date,clear,custom)
 {
     if (!name)
 	return false;
@@ -279,6 +279,8 @@ function prepareConf(name,update_date,clear)
     var l = c.getBoolValue("general","locked");
     if (false !== clear)
 	c.clearSection();
+    if (isFilled(custom))
+	c.getSection("$include " + custom + ".conf",true);
     c.setValue("general","updated",update_date);
     c.setValue("general","locked",l);
     return c;

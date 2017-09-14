@@ -74,6 +74,7 @@ function YBladeRfConfig()
     this.file = "ybladerf";
     this.sections = ["general", "libusb", "filedump"];
     this.overwrite = false;
+    this.custom = "brf-custom";
 }
 YBladeRfConfig.prototype = new GenericConfig;
 
@@ -97,6 +98,7 @@ CalibrateConfig = function()
     GenericConfig.apply(this);
     this.name = "calibrate";
     this.file = "calibrate";
+    this.custom = "cal-custom";
     this.error = new Object();
     this.skip_empty_params = new Object();
     this.sections = ["general"];
@@ -171,11 +173,11 @@ API.on_set_sdr_mode = function(params,msg)
     var bts_modes = ["nipc", "roaming", "dataroam"];
 
     var sdr_jscript = prepareConf("sdr-jscript",msg.received,false);
-    var ybts_conf   = prepareConf("ybts",msg.received,false);
-    var enb_conf    = prepareConf("yateenb",msg.received,false);
-    var gtp_conf    = prepareConf("gtp",msg.received,false);
-    var cal_conf    = prepareConf("calibrate",msg.received,false);
-    var ysipchan_conf   = prepareConf("ysipchan",msg.received,false);
+    var ybts_conf   = prepareConf("ybts",msg.received,false,"bts-custom");
+    var enb_conf    = prepareConf("yateenb",msg.received,false,"enb-custom");
+    var gtp_conf    = prepareConf("gtp",msg.received,false,"gtp-custom");
+    var cal_conf    = prepareConf("calibrate",msg.received,false,"cal-custom");
+    var ysipchan_conf   = prepareConf("ysipchan",msg.received,false,"sip-custom");
     var nipcmod_conf     = prepareConf("nipc-modules",msg.received,false);
     var nipcextmod_conf  = prepareConf("nipc-extmod",msg.received,false);
 
