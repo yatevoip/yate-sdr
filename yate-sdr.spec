@@ -113,6 +113,16 @@ fi
 %endif
 
 
+%triggerin -- yate
+if [ "X$2" = "X2" ]; then
+%if "%{systemd}" != "0"
+    /usr/bin/systemctl condrestart %{name}.service
+%else
+    /sbin/service %{name} condrestart
+%endif
+fi
+
+
 %prep
 %setup -q -n %{name}
 
