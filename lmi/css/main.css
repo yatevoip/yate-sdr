@@ -75,7 +75,7 @@ div.right_upperbanner, div.version
 div.error_reporting, div.download_config, div.right_upperbanner, div.version {text-align:right; padding-bottom:5px;}
 div.right_upperbanner { border-bottom: 1px solid #ccc;padding-bottom:2px;}
 div.download_config {padding-top:5px;}
-div.left_upperbanner {text-align:left; }
+div.left_upperbanner {text-align:left;cursor:pointer;}
 
 a.uplink
 {

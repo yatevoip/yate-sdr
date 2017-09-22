@@ -65,7 +65,7 @@ function get_content()
 	<table class="container" cellspacing="0" cellpadding="0">
 		<tr>
 			<td class="holdlogo">
-				<div class="left_upperbanner"><img src="images/yatesdr_lmi_logo.png" title="LMI Logo" /></div>
+				<div class="left_upperbanner"><img src="images/yatesdr_lmi_logo.png" onclick="location.href='index.php'" title="LMI Logo" /></div>
 			</td>
 
 			<td class="holdstatus">

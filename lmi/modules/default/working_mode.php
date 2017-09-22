@@ -26,7 +26,7 @@ function working_mode($editable=false)
 		"GSM nipc"      => array("mode_type"=>"nipc", "description"=>"GSM Network in a PC"),
 		"GSM roaming"   => array("mode_type"=>"roaming", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms services"),
 		"GSM dataroam"  => array("mode_type"=>"dataroam", "description"=>"GSM BTS connected to YateUCN/HostedCore for voice/sms/data services"),
-		"LTE enb"       => array("mode_type"=>"enb", "description"=>"LTE EnodeB connected to a MME/HostedCore")
+		"LTE enb"       => array("mode_type"=>"enb", "description"=>"LTE eNodeB connected to a MME/HostedCore")
 	);
 
 	if (!$editable) {

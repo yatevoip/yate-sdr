@@ -44,7 +44,7 @@ if ($module == "bts_configuration") {
 if ($module == "enb_configuration") {
 	// Parameters used in MODULE: ENB Configuration 
 	$section = (isset($_SESSION["ENB"]["section"])) ? $_SESSION["ENB"]["section"] : 'Radio';
-	$subsection = (isset($_SESSION["ENB"]["subsection"])) ? $_SESSION["ENB"]["subsection"]  :'EnodeB';
+	$subsection = (isset($_SESSION["ENB"]["subsection"])) ? $_SESSION["ENB"]["subsection"]  :'eNodeB';
 } else
 	unset($_SESSION["ENB"]);
 
