@@ -33,7 +33,7 @@ check-svn:
 build-svn: check-svn
 	@for f in "$(SRPMDIR)/$(TARNAME)_r$(SVNREV)_r$(ANSQLREV)$(SUFFIX)."*.src.rpm ; do \
 	    if [ -s "$$f" ]; then \
-		echo "Alredy having $$f"; \
+		echo "Already having $$f"; \
 		exit; \
 	    fi \
 	done ; \
@@ -42,7 +42,7 @@ build-svn: check-svn
 build-srpm:
 	@for f in "$(SRPMDIR)/$(TARNAME)$(SUFFIX)."*.src.rpm ; do \
 	    if [ -s "$$f" ]; then \
-		echo "Alredy having $$f"; \
+		echo "Already having $$f"; \
 		exit; \
 	    fi \
 	done ; \
