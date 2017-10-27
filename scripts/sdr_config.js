@@ -207,6 +207,8 @@ API.on_set_sdr_mode = function(params,msg)
 	    gtp_conf.setValue("ran_u","type","gtp-access");
 	    gtp_conf.setValue("ran_c","enabled",true);
 	    gtp_conf.setValue("ran_c","type","gtp-control");
+    	    gtp_conf.clearKey("ran_u","addr4");
+	    gtp_conf.clearKey("ran_u","addr6");
 	}
 
 	if (params.sdr_mode == "roaming" || params.sdr_mode == "dataroam") {
