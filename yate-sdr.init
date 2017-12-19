@@ -40,7 +40,7 @@ start() {
 	    force="--force"
 	    ;;
     esac
-    export PWLIB_ASSERT_ACTION=C
+    export LANG=C LANGUAGE=C PWLIB_ASSERT_ACTION=C
     daemon $force yate-sdr -c /etc/yate/sdr -d -p /var/run/yate-sdr.pid $OPTS
     RETVAL=$?
     echo
