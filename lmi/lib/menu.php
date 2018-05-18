@@ -79,7 +79,10 @@ function get_content()
 				<div class="download_config">
 					<a class="llink" href="download.php?method=config&module=<?php print $module;?>">Download configuration</a>
 					<a class="llink" href="main.php?method=view_log">View logs</a>
+				</div>
+				<div class="error_reporting">
 					<a class="llink" href="main.php?method=force_calibration">Force calibration</a>
+					<a class="llink" href="main.php?method=restart_node">Restart</a>
 				</div>
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
@@ -326,6 +329,7 @@ function get_version()
 
 function force_calibration()
 {
+	print "<div class=\"notice\">";
 	print "Are you sure you want to force calibration? Yate will be automatically restarted after calibration is finished.";
 	print "<br/><br/>";
 
@@ -340,6 +344,7 @@ function force_calibration()
 			$link .= "$param=$value&";
 	}
 	print '<a class="llink" href="'.htmlentities($link).'">No</a>';
+	print '</div>';
 }
 
 function force_calibration_database()
@@ -398,4 +403,22 @@ function view_log()
 	editObject(null,$fields,"Filter logs","Submit");
 	end_form();
 }
+
+/**
+ * Acknowledge sending restart command to node
+ */
+function restart_node()
+{
+	ack_delete("node", null, null, null, null, null, null, "restart");
+}
+
+/**
+ * Send restart command to node
+ */
+function restart_node_database()
+{
+	$res = request_api(array(), "node_restart", "restarted");
+	notice("Finished restarting node.", "working_mode");
+}
+
 ?>
