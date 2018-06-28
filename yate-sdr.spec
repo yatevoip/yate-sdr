@@ -81,7 +81,7 @@ chown -R apache.apache /var/log/lmi /var/lib/lmi
 /usr/bin/systemctl daemon-reload
 %endif
 if [ "X$1" = "X1" ]; then
-%{_datadir}/yate/scripts/rpm_restore.sh %{name}
+    %{_datadir}/yate/scripts/rpm_restore.sh %{name}
 %if "%{systemd}" != "0"
     /usr/bin/systemctl enable %{name}.service
     /usr/bin/systemctl restart %{name}.service
