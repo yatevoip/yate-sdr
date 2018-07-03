@@ -24,7 +24,7 @@
 
 Summary:	Yate Software Defined Radio
 Name:		yate-sdr
-Version:	1.0
+Version:	1.1
 Release:	%{buildnum}%{?revision}%{?dist}
 License:	GPL
 Vendor:		Null Team Impex SRL
@@ -40,9 +40,9 @@ Requires:	/sbin/chkconfig
 Requires:	/sbin/service
 %endif
 Requires:	logrotate
-Requires:	yate >= 6.0.0
+Requires:	yate >= 6.1.0
 Requires:	yate-scripts
-Requires:	yate-common >= 1.6
+Requires:	yate-common >= 1.7
 Requires:	php-curl
 Recommends:	netkit-telnet
 Recommends:	tcpdump
