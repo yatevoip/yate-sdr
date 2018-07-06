@@ -37,6 +37,9 @@ $server_name = $yate_ip;
 $default_ip = "tcp://".$yate_ip;
 $default_port = '5037';
 
+// openvpn interface name
+$openvpn_interface = "tun0";
+
 # log dirs
 $parse_errors = "/var/log/lmi/parse_errors.txt";
 $logs_in = array("/var/log/lmi/ansql_logs.txt");
