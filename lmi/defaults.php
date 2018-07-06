@@ -30,9 +30,7 @@ foreach ($dirs as $pos_dir) {
 	if (is_readable($pos_dir) && is_writable($pos_dir))
 		break;
 }
-if (!isset($yate_conf_dir)) 
-	print ("Couldn't detect installed yate. Please install yate first before trying to use the YateSDR Local Management Interface.");
- 
+
 $yate_ip = "127.0.0.1";
 $server_name = $yate_ip;
 
