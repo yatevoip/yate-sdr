@@ -297,7 +297,7 @@ function edit_country_code_and_smsc_write_file()
 
 	if (!$cc_param)
 		return edit_country_code_and_smsc("Please set the country code!", array("country_code"));
-	if (!ctype_digit($cc_param))
+	if (!ctype_digit(strval($cc_param)))
 		return edit_country_code_and_smsc("Country Code invalid!", array("country_code"));
 	if (!$smsc_param)
 		return edit_country_code_and_smsc("Please set SMSC!", array("smsc"));
@@ -754,7 +754,7 @@ function write_sim_form_to_pysim()
 		if (!getparam($param)) {
 			$error .= "This parameter '". ucfirst(str_replace("_"," ",$param)). "' cannot be empty!<br/>\n";
 			$error_fields[] = $param;
-		} elseif ($param != "operator_name" && $param != "card_type" && !ctype_digit(getparam($param))) {
+		} elseif ($param != "operator_name" && $param != "card_type" && !ctype_digit(strval(getparam($param)))) {
 			$error .= "Invalid integer value for parameter '". ucfirst(str_replace("_"," ",$param)). "': ". getparam($param). ".<br/> \n";
 			$error_fields[] = $param;
 		} elseif ($param == "mobile_country_code" && (strlen(getparam($param))>4 || getparam($param) <= 0 || getparam($param) >= 999)) {
@@ -776,7 +776,7 @@ function write_sim_form_to_pysim()
 		//validation on fields
 
 		$data["smsc"] = getparam("smsc")!=NULL ? getparam("smsc") : getparam("smsc_adv");
-		if ($data["smsc"] == "" && !ctype_digit($data["smsc"])) {
+		if ($data["smsc"] == "" && !ctype_digit(strval($data["smsc"]))) {
 		         $error .= "SMSC must be digits only!<br/>\n";
 			 $error_fields[] = $param;
 		}
@@ -793,7 +793,7 @@ function write_sim_form_to_pysim()
 				$error_fields[] = $param;
 			} elseif ($param == "imsi") {
 				$imsi = getparam($param);
-			        if (!ctype_digit($imsi) || ( strlen($imsi) != 15 && strlen($imsi) != 14))
+			        if (!ctype_digit(strval($imsi)) || ( strlen($imsi) != 15 && strlen($imsi) != 14))
 					$error .= "IMSI: $imsi is not valid, must contain 14 or 15 digits. <br/>\n";
 				if (test_existing_imsi_in_csv($imsi))
 					$error .= "This IMSI: $imsi is already written on another SIM card.<br/>\n";
@@ -802,7 +802,7 @@ function write_sim_form_to_pysim()
 				$name = $param == "opc" ? "OPC" : "Ki";
 				 $error .= $name . ": ".getparam($param)." needs to be 128 bits, in hex format.<br/>\n";
 				 $error_fields[] = $param;
-			} elseif ($param == "iccid" && !ctype_digit(getparam($param)) && strlen(getparam($param)) != 19) {
+			} elseif ($param == "iccid" && !ctype_digit(strval(getparam($param))) && strlen(getparam($param)) != 19) {
 				$error .= "ICCID: ". getparam($param) ." must contain 19 digits!<br/>\n";
 				$error_fields[] = $param;
 			}	
@@ -1156,7 +1156,7 @@ function validate_subscriber($fields)
 	if (strlen($fields["msisdn"])) {
 		if (strlen($fields["msisdn"])<7) 
 			return array(false, "The MSISDN: '".$fields["msisdn"]."' must have at least 7 digits.", array("msisdn"));
-		if (!ctype_digit($fields["msisdn"]))
+		if (!ctype_digit(strval($fields["msisdn"])))
 			return array(false, "The MSISDN: '".$fields["msisdn"]."' must contain only digits.", array("msisdn"));
 		if (preg_match("/^0/", $fields["msisdn"]))
 			return array(false, "The MSISDN: '".$fields["msisdn"]."' can't start with 0.", array("msisdn"));
@@ -1164,7 +1164,7 @@ function validate_subscriber($fields)
 
 	$short_number = $fields["short_number"];
 	if (strlen($short_number)) {
-		if (!ctype_digit($short_number))
+		if (!ctype_digit(strval($short_number)))
 			return array(false, "The Short number: '".$short_number."' must be numeric.", array("short_number"));
 		if (strlen($short_number)<3)
 			return array(false, "The Short number: '".$short_number."' must have at least 3 digits.",array("short_number"));
