@@ -61,4 +61,7 @@ if (isset($yate_conf_dir))
 $sim_type = "sysmoSIM-GR2";
 
 $debug_notify = array("mail" => array("supportmmi@null.ro"));
+
+// don't run htmlentites on all fields set in $_POST,$_GET,$_REQUEST. If missing or true, htmlentites will be run on all fields when lib.php is included
+$htmlentities_onall = false;
 ?>
