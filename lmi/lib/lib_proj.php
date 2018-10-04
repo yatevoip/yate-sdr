@@ -19,6 +19,8 @@
 
 require_once "ansql/socketconn.php";
 
+$do_not_apply_htmlentities = array("write_subcriber_on_sim");
+
 function have_pysim_package()
 {
 	return shell_exec("rpm -qa 'pysim*'");
@@ -278,14 +280,14 @@ function set_timezone()
         error_reporting($level);
 }
 
-function box_note($text)
+function box_note($text, $encode = true)
 {
-        notice($text, "no");
+        notice($text, "no", true, $encode);
 }
 
-function warning_note($text)
+function warning_note($text, $encode = true)
 {
-        notice($text, "no", false);
+        notice($text, "no", false, $encode);
 }
 
 function parse_socket_response($socket_response)

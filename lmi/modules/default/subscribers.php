@@ -31,7 +31,7 @@ function list_subscribers()
 	
 	$method = "list_subscribers";
 		
-	box_note("Subscribers can be accepted based on two criteria: "."<a class='llink' href='".$_SESSION["main"]."?module=$module&method=regexp'>regular expression</a>"." that matches the IMSI or they must be inserted individually.");
+	box_note("Subscribers can be accepted based on two criteria: "."<a class='llink' href='".$_SESSION["main"]."?module=$module&method=regexp'>regular expression</a>"." that matches the IMSI or they must be inserted individually.", false);
 
 	$subscribers = array();
 	$res = get_subscribers();
@@ -292,7 +292,7 @@ function edit_country_code_and_smsc_write_file()
 	$sms_text_param = getparam("sms_text");
 
 	if ($gw_sos_param) {
-		warning_note("In order to route emergency calls you also need to set RACH.AC to '0'(or another value as stated in GSM 04.08 10.5.2.29) in BTS Configuration>GSM>GSM advanced. <font class='error'>DON'T MODIFY \"Gateway SOS\" UNLESS YOU ARE A REAL OPERATOR</font>. You might catch real emergency calls than won't ever be answered.");
+		warning_note("In order to route emergency calls you also need to set RACH.AC to '0'(or another value as stated in GSM 04.08 10.5.2.29) in BTS Configuration>GSM>GSM advanced. <font class='error'>DON'T MODIFY \"Gateway SOS\" UNLESS YOU ARE A REAL OPERATOR</font>. You might catch real emergency calls than won't ever be answered.", false);
 	}
 
 	if (!$cc_param)
