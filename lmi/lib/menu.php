@@ -452,12 +452,12 @@ function license_request()
 
 function download_license_request_link()
 {
-	return '<a class="llink" href="main.php?method=license_request">Download requested license</a>';
+	print '<a class="llink" href="main.php?method=license_request">Download requested license</a>';
 }
 
 function download_license_receipt_link()
 {
-	return '<a class="llink" href="main.php?method=license_receipt">Download license receipt</a>';
+	print '<a class="llink" href="main.php?method=license_receipt">Download license receipt</a>';
 }
 
 function license_update($error=null,$error_fields=array())
