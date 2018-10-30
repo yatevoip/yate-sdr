@@ -20,6 +20,7 @@
 $proj_title = "YateLMI - Local Management Interface";
 
 $func_build_request_url = "build_request_url_for_api";
+$func_handle_headers = "handle_api_header";
 # yate-sdr cdr logs file
 $yate_cdr = "/var/log/yate-sdr-cdr.csv";
 
@@ -64,4 +65,7 @@ $debug_notify = array("mail" => array("supportmmi@null.ro"));
 
 // don't run htmlentites on all fields set in $_POST,$_GET,$_REQUEST. If missing or true, htmlentites will be run on all fields when lib.php is included
 $htmlentities_onall = false;
+
+// list of methods that should work even when Yate is stopped
+$management_requests = array("manage_license", "form_bug_report", "view_log", "config", "restart_node", "license_update", "license_receipt" );
 ?>

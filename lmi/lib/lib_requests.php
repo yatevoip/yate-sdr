@@ -62,18 +62,40 @@ function build_request_url_for_api(&$out,&$request)
 	if (!isset($request_protocol))
 		$request_protocol = "http";
 
-	$out = array("request"=>$request,"node"=>"sdr","params"=>$out);
+	$node = "sdr";
+	if (isset($out["node"])) {
+		$node = $out["node"];
+		unset($out["node"]);
+	}
+	$out = array("request"=>$request,"node"=>$node,"params"=>$out);
 	$url = "$request_protocol://$server_name/api.php";
 	return $url;
 }
 
-function request_api($out, $request=null, $response_field=null, $err_cb=null)
+function handle_api_header($curl_resource,$header_line)
+{
+	global $transfered_filename;
+
+	if (substr($header_line,0,19)=="Content-Disposition") {
+		$exp = explode('filename="',$header_line);
+		$pos = strpos($exp[1],'"');
+		$transfered_filename = substr($exp[1],0,$pos);
+		Debug::Output("In ".__FUNCTION__.": transfered_filename=$transfered_filename");
+	}
+	// return number of handled bytes
+	return strlen($header_line);
+}
+
+function request_api($out, $request=null, $response_field=null, $err_cb=null, $file=false)
 {
 	Debug::func_start(__FUNCTION__,func_get_args(),"api request");
 
-	global $method, $action, $accept_loop, $parse_errors, $func_build_request_url, $retry_after_restart;
+	global $method, $action, $accept_loop, $parse_errors, $func_build_request_url, $retry_after_restart, $management_requests;
 
 	$res = make_request($out,$request);
+	if ($file && is_string($res))
+		return $res;
+	
 	if ($res["code"]<0) {
 		// library generated error. Port this to project error standard
 		$res["code"] = $res["code"] * -300;
@@ -105,16 +127,20 @@ function request_api($out, $request=null, $response_field=null, $err_cb=null)
 		$error = true;
 	}
 	if ($error) {
-		if ($err_cb) {
-			if ($err_cb==$method && !$action && !isset($accept_loop))
-				print errormess("Loop prevention: didn't make callback to $err_cb.","no");
-			else
-				$err_cb(false);
+		if (!$method || !in_array($method, $management_requests)) {
+			if ($err_cb) {
+				if ($err_cb==$method && !$action && !isset($accept_loop))
+					print errormess("Loop prevention: didn't make callback to $err_cb.","no");
+				else
+					$err_cb(false);
+			}
+			if ($res["code"] && get_type_error($res["code"]) == "fatal") 
+				Debug::trigger_report('api_usage', "Could not retrieve $response_field from api response. res=".print_r($res,true));
+			print "</td></tr></table></body></html>";
+			exit();
+		} else {
+			return true;
 		}
-		if ($res["code"] && get_type_error($res["code"]) == "fatal") 
-			Debug::trigger_report('api_usage', "Could not retrieve $response_field from api response. res=".print_r($res,true));
-		print "</td></tr></table></body></html>";
-		exit();
 	}
 
 	unset($res["code"]);

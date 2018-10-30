@@ -79,6 +79,7 @@ function get_content()
 				<div class="download_config">
 					<a class="llink" href="download.php?method=config&module=<?php print $module;?>">Download configuration</a>
 					<a class="llink" href="main.php?method=view_log">View logs</a>
+					<a class="llink" href="main.php?method=manage_license">Manage license</a>
 				</div>
 				<div class="error_reporting">
 					<a class="llink" href="main.php?method=force_calibration">Force calibration</a>
@@ -402,6 +403,122 @@ function view_log()
 	addHidden(null, array("method"=>"logs"));
 	editObject(null,$fields,"Filter logs","Submit");
 	end_form();
+}
+
+function manage_license()
+{
+	$out = array("node"=>"mgmt");
+
+//	Output examples
+//	{"code":0,"licenses":[]}  -> when no license is installed
+//      {"code":0,"licenses":[{"serial":"130-1115734799","firm":6000010,"product":0}]}  -> when license was requested
+//      {"code":0,"licenses":[{"serial":"130-1115734799","firm":6000010,"product":1,"feature_map":"0x80000001","name":"Test product"}]} -> after license update
+
+	$res = request_api($out,"license_list", "licenses");
+//	$res = array(array("serial"=>"128-9876543","firm"=>5000676,"product"=>100,"quantity"=>1,"feature_map"=>"0x8000000f","name"=>"Yate based core network products"));
+	$formats = array("serial", "firm", "product"/*, "quantity"*/, "feature_map", "name");
+	if (!count($res)) {
+		$link = array("&method=license_request"=>"License request");
+	} elseif (!isset($res[0]["product"]) || !$res[0]["product"]) {
+		$link = array("&method=license_update"=>"License update");
+		$formats["function_download_license_request_link:Download"] = "";
+	} else {
+		$link = array(); // array("&method=license_receipt"=>"License receipt");
+		$formats["function_download_license_receipt_link:Download"] = "";
+	}
+	table($res, $formats, "license", "license", array(), $link);
+
+	br(2);
+}
+
+function license_request()
+{
+	global $upload_path;
+
+	$file = request_api(array("node"=>"mgmt"),"license_request", null, null, true);
+
+	if ($file) {
+		$wib = date('Y-m-d').'_'.uniqid().'.WibuCmRaC';
+		$wib = get_license_filename($file, $wib);
+		file_put_contents($upload_path .$wib, $file);
+
+		// Download button
+		print '<div class="notice"><a class="llink" href="download.php?file='.$wib.'">Download</a> the file and upload it into CodeMeter.</div>'; 
+		manage_license();
+	} else {
+		errormess("The license doesn't exist!","no");
+	}
+}
+
+function download_license_request_link()
+{
+	return '<a class="llink" href="main.php?method=license_request">Download requested license</a>';
+}
+
+function download_license_receipt_link()
+{
+	return '<a class="llink" href="main.php?method=license_receipt">Download license receipt</a>';
+}
+
+function license_update($error=null,$error_fields=array())
+{
+	$fields = array(
+		"insert_file_location" => array("display"=>"file", "file_example" => "__no_example"),
+		"note!" => array("value"=>"File type must be .WibuCmRaU.", "display"=>"fixed"),
+	);
+
+	start_form(null,null,true);
+	addHidden(null, array("method"=>"license_update_db"));
+	editObject(null,$fields,"License update","Upload");
+	end_form();
+}
+
+function license_update_db()
+{
+	global $upload_path;
+
+	$filename = basename($_FILES["insert_file_location"]["name"]);
+	$ext = strtolower(substr($filename,-9));
+	if ($ext != "wibucmrau")
+		return license_update("File format must be .WibuCmRaU");
+	if (!is_dir($upload_path))
+		mkdir($upload_path);
+
+	$real_name = time().".WibuCmRaU";
+	$file = $upload_path . $real_name;
+	if (!move_uploaded_file($_FILES["insert_file_location"]['tmp_name'],$file))
+		return license_update("Could not upload file.");
+
+	request_api(array("node"=>"mgmt","license"=>file_get_contents($file)),"license_update");
+	notice("Finished updating license.", "manage_license");
+}
+
+function license_receipt()
+{
+	global $upload_path;
+
+	$file = request_api(array("node"=>"mgmt"),"license_receipt",null,null,true);
+	if ($file) {
+		$WibuCmRaC = "backup_".date('Y-m-d').'_'.uniqid().'-receipt.WibuCmRaU';
+
+		$WibuCmRaC = get_license_filename($file, $WibuCmRaC);
+		file_put_contents($upload_path . $WibuCmRaC, $file);
+
+		//Download and link to uploaded to CodeMeter to Vibu
+		print '<div class="notice"><a class="llink" href="download.php?file='.$WibuCmRaC.'">Download</a> the file and upload it into CodeMeter.</div>';
+	} else {
+		errormess("The license doesn't exist!","no");
+	}
+}
+
+function get_license_filename($file_content, $backup_name)
+{
+	global $transfered_filename;
+
+	if (isset($transfered_filename) && strlen($transfered_filename))
+		return $transfered_filename;
+
+	return $backup_name;
 }
 
 /**
