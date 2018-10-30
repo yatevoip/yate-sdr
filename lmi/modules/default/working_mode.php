@@ -51,7 +51,7 @@ function working_mode($editable=false)
 			print "<td>unavailable</td>";
 		elseif (stripos($mode, $sdr_mode)!==false) {
 			if (!$editable)
-				print "<td>enabled</td>";
+				print "<td class='enabled_working_mode'>enabled</td>";
 			else
 				print "<td><input type='radio' name='working_mode' value='$mode' CHECKED/>";
 		} else {
