@@ -147,8 +147,12 @@ function get_content()
 			include("modules/$dir/$load.php");
 
 		$call = get_default_function();
-		if (!isset($function_called) || !$function_called && function_exists($call) ) {
+		if ((!isset($function_called) || !$function_called) && function_exists($call) ) {
 			$call();
+		} else {
+			br();
+			print "Please select module to load.";
+			br();
 		}
 	}
 	}?>

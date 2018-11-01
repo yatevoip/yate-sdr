@@ -31,8 +31,15 @@ $method = NULL;
 $dir = $level = "default";
 
 $module = (!$module) ? getparam("module") : $module;
-if (!$module)
-        $module = "working_mode";
+$action = getparam("action");
+$method = getparam("method");
+
+if (!$module) {
+	if (!in_array($method, $management_requests))
+		$module = "working_mode";
+	else
+		$module = "general";
+}
 
 if ($module == "bts_configuration") {
 	// Parameters used in MODULE: BTS Configuration 
@@ -48,8 +55,6 @@ if ($module == "enb_configuration") {
 } else
 	unset($_SESSION["ENB"]);
 
-$action = getparam("action");
-$method = getparam("method");
 if ($method == "manage")
         $method = $module;
 
