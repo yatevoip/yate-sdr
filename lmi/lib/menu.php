@@ -19,7 +19,29 @@
 
 include ("structure.php");
 
-global $module, $method, $support, $level, $do_not_load, $iframe, $working_mode;
+global $module, $method, $support, $level, $do_not_load, $iframe, $working_mode, $sim_programmer_link;
+
+// by default sim programmer is located on the same server as the lmi interface in directory sim_prog
+// try to detect if it's set there
+// You can also set $sim_programmer_link in config.php in case SIM programmer interface is on a different server. 
+if (!isset($sim_programmer_link))
+	$sim_programmer_link = detect_sim_prog(); 
+
+function detect_sim_prog()
+{
+	$links = array(
+	    "http://".$_SERVER["SERVER_ADDR"].":".$_SERVER["SERVER_PORT"]."/sim_prog/index.php",
+	//    "http://192.168.168.196/sim_prog/index.php"
+	);
+	
+	foreach ($links as $link) {
+		$http_code = get_http_code($link);
+		if ($http_code && $http_code < 400) 
+			return $link;
+	}
+	
+	return null;
+}
 
 function get_login_form()
 {
@@ -61,6 +83,7 @@ function get_content()
 	global $method;
 	global $proj_title;
 	global $dump_request_params;
+	global $sim_programmer_link;
 ?>
 	<table class="container" cellspacing="0" cellpadding="0">
 		<tr>
@@ -84,6 +107,10 @@ function get_content()
 				<div class="error_reporting">
 					<a class="llink" href="main.php?method=force_calibration">Force calibration</a>
 					<a class="llink" href="main.php?method=restart_node">Restart</a>
+				<?php	if ($sim_programmer_link) {
+				?>		<a class="llink" target="_blank" href="<?php echo $sim_programmer_link; ?>">SIM Programmer</a> 
+				<?php	} 
+				?>
 				</div>
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
