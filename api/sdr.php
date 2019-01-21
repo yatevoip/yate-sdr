@@ -96,6 +96,7 @@ function sdrHandler($request,$json,$recv,$node)
 	    return yateRequest(1049,"config_bts",$request,getParam($json,"params"),$recv);
 	case "set_enb_node":
 	case "get_enb_node":
+	case "get_bands":
 	    if ("sdr" != $node)
 	        return null;
 	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
