@@ -72,7 +72,7 @@ The Software Defined Radio holds resources common to all Yate based radio produc
 %dir %{_sysconfdir}/yate/sdr
 %{_sysconfdir}/yate/sdr/*.conf.sample
 %config(noreplace) %{_sysconfdir}/yate/sdr/*.conf
-
+%{_sysconfdir}/yate/sdr/enb_bands.csv
 
 %post
 mkdir -p /var/log/lmi /var/lib/lmi/upload
@@ -160,6 +160,8 @@ cp -p api/* %{buildroot}%{_datadir}/yate/api/
 cp -rp lmi/* %{buildroot}/var/www/html/lmi/
 echo '<?php $version = "%{version}-%{release}" ?>' > %{buildroot}/var/www/html/lmi/version.php
 echo '<?php global $sdr_version; $sdr_version = "%{version}-%{release}"; ?>' > %{buildroot}%{_datadir}/yate/api/sdr_version.php
+mkdir -p %{buildroot}%{_sysconfdir}/yate/sdr
+ln -sf  /usr/share/yate/enb/enb_bands.csv %{buildroot}%{_sysconfdir}/yate/sdr/enb_bands.csv
 
 
 %clean
@@ -167,5 +169,7 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Apr 11 2019 Nour Shukri <nour.shukri@legba.ro>
+- Added enb_bands link
 * Sun Jan  8 2017 Paul Chitescu <paulc@null.ro>
 - Created specfile
