@@ -158,6 +158,10 @@ API.on_get_available_modes = function(params,msg)
     return {name:"modes", object:avail};
 };
 
+API.on_get_loggers = apiGetLoggers;
+API.on_get_logging = apiGetLogging;
+API.on_set_logging = apiSetLogging;
+
 // Handle reload operation
 function onReload(msg)
 {
