@@ -107,7 +107,6 @@ function sdrHandler($request,$json,$recv,$node)
 		return $res;
 	    return yateRequest(1049,"config_enb",$request,getParam($json,"params"),$recv);
 	case "query_stats":
-	case "get_node_status":
 	case "get_loggers":
 	case "get_logging":
 	case "set_logging":
@@ -119,6 +118,15 @@ function sdrHandler($request,$json,$recv,$node)
 	case "calibrate_poll":
 	    // No need to check node: calibration will be handled if loaded
 	    return yateRequest(1049,"control",$request,getParam($json,"params"),$recv);
+	case "get_node_status":
+	    if ("sdr" != $node)
+	        return null;
+	    $res = yateRequest(1049,"control",$request,getParam($json,"params"),$recv);
+	    if ("unknown" != $bts_version)
+		$res["bts_version"] = $bts_version;
+	    if ("unknown" != $enb_version)
+		$res["enb_version"] = $enb_version;
+	    return $res;
     }
     return null;
 }
