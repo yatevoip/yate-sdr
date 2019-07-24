@@ -343,6 +343,29 @@ function submenu()
 
 function get_version()
 {
+	if (isset($_SESSION["version"])) {
+		// return version of APIs instead of that of interface
+		
+		$sdr_mode = get_working_mode();
+		
+		if ($sdr_mode) {
+			if ($_SESSION["sdr_mode"]=="enb" && isset($_SESSION["version"]["enb"]))
+				return "ENB ".$_SESSION["version"]["enb"];
+			elseif (isset($_SESSION["version"]["bts"]))
+				return "BTS ".$_SESSION["version"]["bts"];
+		}
+		
+		else {
+			// display version of all installed components
+			$components = array("enb", "bts", "sdr");
+			$version = "";
+			foreach($components as $comp) {
+				$version .= strtoupper($comp)." ". $_SESSION["version"][$comp]."<br/>";
+			}
+			return $version;
+		}
+	}
+	
 	if (is_file("version.php")) {
 		include ("version.php");
 		return $version;
@@ -387,7 +410,16 @@ function force_calibration_database()
 
 function display_node_status()
 {
-	$res = node_status();
+	$res = node_status(null,null,array("bts_version", "enb_version"));
+	
+	$_SESSION["version"] = array();
+	if (isset($res["version"]))
+		$_SESSION["version"]["sdr"] = $res["version"];
+	if (isset($res["bts_version"]))
+		$_SESSION["version"]["bts"] = $res["bts_version"];
+	if (isset($res["enb_version"]))
+		$_SESSION["version"]["enb"] = $res["enb_version"];
+	
 	print "<table class='node_status' cellpadding='0' cellspacing='0'>";
 	print "<tr><td class='node_status_upper'></td></tr>";
 	print "<tr><td class='node_status_lower'></td></tr>";
