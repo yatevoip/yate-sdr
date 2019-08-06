@@ -60,7 +60,7 @@ if ($method == "manage")
 
 $page   = (!getparam("page")) ? 0 : getparam("page");
 
-$_SESSION["limit"] = (isset($_SESSION["limit"])) ? $_SESSION["limit"] : 20;
+$_SESSION["limit"] = (isset($_SESSION["limit"])) ? $_SESSION["limit"] : $limit;
 $limit             = (getparam("limit")) ? getparam("limit") : $_SESSION["limit"];
 $_SESSION["limit"] = $limit;
 $_SESSION["level"] = $level;
