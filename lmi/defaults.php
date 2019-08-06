@@ -19,6 +19,8 @@
 
 $proj_title = "YateLMI - Local Management Interface";
 
+$limit = 20;  //max number of objects to display on page
+
 $func_build_request_url = "build_request_url_for_api";
 $func_handle_headers = "handle_api_header";
 # yate-sdr cdr logs file
