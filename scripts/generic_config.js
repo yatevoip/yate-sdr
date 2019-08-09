@@ -18,6 +18,7 @@
  */
 
 //#pragma trace "cachegrind.out.generic_config"
+#require "lib_cfg_util.js"
 
 function GenericConfig(file, section_names, overwrite)
 {
@@ -269,53 +270,10 @@ API.on_set_generic_file = function(configObj,params,msg,setNode)
     return { name: configObj.name };
 };
 
-// Prepare a config file:
-// Load, clear, set updated info
-function prepareConf(name,update_date,clear,custom)
-{
-    if (!name)
-	return false;
-    var c = new ConfigFile(Engine.configFile(name));
-    var l = c.getBoolValue("general","locked");
-    if (false !== clear)
-	c.clearSection();
-    if (isFilled(custom))
-	c.getSection("$include " + custom + ".conf",true);
-    c.setValue("general","updated",update_date);
-    c.setValue("general","locked",l);
-    return c;
-};
-
-function saveConf(error,conf)
-{
-    if (conf.getBoolValue("general","locked"))
-	return setStorageError(error,"Locked config file '" + conf.name() + "'",false);
-    if (conf.save())
-	return true;
-    return setStorageError(error,"Failed to save config file '" + conf.name() + "'",false);
-}
-
-function checkUnlocked(error,confs)
-{
-    for (var c of confs) {
-	if (c.getBoolValue("general","locked"))
-	    return setStorageError(error,"One or more of the config files is locked",false);
-    }
-    return true;
-}
-
 function dumpObj(prefix,obj)
 {
     var dump = Engine.dump_r(obj);
     Engine.output(prefix + ":\r\n-----\r\n" + dump + "\r\n-----");
 }
 
-function setStorageError(error,reason,retVal)
-{
-    error.reason = reason + ".";
-    error.error = 501;
-    if (undefined === retVal)
-	return null;
-    return retVal;
-}
 /* vi: set ts=8 sw=4 sts=4 noet: */

@@ -23,8 +23,8 @@
 
 #require "generic_config.js"
 #require "lib_sdr_api.js"
+#require "lib_cfg_util.js"
 
-debug = false;
 //  Satsite file configuration object
 function SatSiteConfig()
 {
@@ -282,7 +282,10 @@ API.on_get_node = function(params,msg)
 
     if (debug)
 	dumpObj("on_get_node, json",msg.json);
-
+    
+    if(isPresent(additional_confs_get) && additional_confs_get.length>0)
+	confs = confs.concat(additional_confs_get);
+    
     json = {};
     for (var conf of confs) {
 	var func = API["on_get_"+conf+"_node"];
@@ -300,6 +303,9 @@ API.on_set_node = function(params,msg)
 {
     if (debug)
 	dumpObj("on_set_node, json",msg.json);
+
+    if(isPresent(additional_confs_set) && additional_confs_set.length>0)
+	confs = confs.concat(additional_confs_set);
 
     var error = new Object;
     if (!checkJson(error,params,msg.json))
@@ -359,4 +365,15 @@ function loadCfg(first)
 	debug = Engine.debugEnabled();
     }
 }
+
+API.on_set_regexroute_node = function(params,msg,setNode)
+{
+    return RegexConfig.set("sdr",params,msg,setNode); 	
+};
+
+API.on_set_javascript_node = function(params,msg,setNode)
+{
+    return ScriptConfig.set("sdr",params,msg,setNode);
+};
+
 /* vi: set ts=8 sw=4 sts=4 noet: */

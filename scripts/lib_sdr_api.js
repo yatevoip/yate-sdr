@@ -20,23 +20,7 @@
  */
 
 #require "lib_str_util.js"
-
-// Check JSON parse result
-// Return true on success, false otherwise (set error)
-function checkJson(error,params,json)
-{
-    if (params)
-	return true;
-    if (json) {
-	error.reason = "Invalid JSON content.";
-	error.error = 401;
-    }
-    else {
-	error.reason = "Missing all parameters.";
-	error.error = 402;
-    }
-    return false;
-}
+#require "lib_cfg_util.js"
 
 // Build and return API error
 function apiError(error,reason)
