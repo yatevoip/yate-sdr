@@ -89,7 +89,7 @@ function online_subscribers()
 		$online_subscribers = request_api(array("limit"=>$limit,"offset"=>$page), "get_online_nipc_subscribers", "subscribers", $method);
 	}
 	
-	$formats = array("IMSI","MSISDN");
+	$formats = array("IMSI","MSISDN","REGISTERED","EXPIRES");
 	table($online_subscribers, $formats, "online subscriber", "imsi");
 }
 
