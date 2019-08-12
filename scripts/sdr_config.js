@@ -320,7 +320,7 @@ API.on_set_node = function(params,msg)
 	if (debug)
 	    Engine.debug(Engine.DebugAll, "Searching config params for file " + conf);
 	confParams = params[conf];
-	if (!confParams)
+	if (undefined===confParams)
 	    continue;
 	func = API["on_set_"+conf+"_node"];
 	if ("function" != typeof func.apply) {
