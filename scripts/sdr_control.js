@@ -90,7 +90,7 @@ API.on_query_stats = function(params,msg)
     if (!stats)
 	return { error:200, reason:"Internal retrieval error." };
     mergeStats(stats,["gtp","sip accounts","sip listeners","calibrate"],msg.details || params.details);
-    mergeStats(stats,["ybts conn","ybts ue","enb all" "extstatus psu","extstatus chrony", "extstatus satsite-sw" ]);
+    mergeStats(stats,["ybts conn","ybts ue","enb all","extstatus psu","extstatus chrony","extstatus satsite-sw" ]);
     return { name:"stats", object:stats };
 };
 
