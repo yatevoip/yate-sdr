@@ -144,6 +144,11 @@ GenericConfig.prototype.validateConfig = function(section_name,param_name,param_
 	    var param_desc = required[i];
 	    if (isParamMissing(this.error,param_desc,params[section_name][required[i]],section_name)) 
 		return false;
+	    if (isEmpty(params[section_name][param_desc]) || params[section_name][param_desc]=="") {
+		this.error.reason = "Field '" + param_name + "' can't be empty in section '" + section_name + "'.";
+		this.error.error = 402;
+		return false;
+	    }
 	}
     }
 
