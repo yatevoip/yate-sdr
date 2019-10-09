@@ -15,6 +15,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+%define Suggests() %(LANG=C LC_MESSAGES=C rpm --help | fgrep -q ' --suggests ' && echo "Suggests:" || echo "##")
+%define Recommends() %(LANG=C LC_MESSAGES=C rpm --help | fgrep -q ' --recommends ' && echo "Recommends:" || echo "##")
 %{!?dist:%define dist %{?distsuffix:%distsuffix%{?product_version}}}
 %{!?systemd:%define systemd %(test -x /usr/bin/systemd && echo 1 || echo 0)}
 %{!?_unitdir:%define _unitdir /usr/lib/systemd/system}
@@ -44,13 +46,13 @@ Requires:	yate >= 6.1.0
 Requires:	yate-scripts
 Requires:	yate-common >= 1.7
 Requires:	php-curl
-Recommends:	netkit-telnet
-Recommends:	tcpdump
-Recommends:	iptraf-ng
-Recommends:	conntrack-tools
+%{Recommends}	netkit-telnet
+%{Recommends}	tcpdump
+%{Recommends}	iptraf-ng
+%{Recommends}	conntrack-tools
 # These are for older packaging versions like Mandriva
-Suggests:	iptraf
-Suggests:	conntrack
+%{Suggests}	iptraf
+%{Suggests}	conntrack
 
 
 %description
