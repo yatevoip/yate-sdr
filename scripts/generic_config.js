@@ -46,8 +46,9 @@ GenericConfig.prototype.prepareConfig = function(params)
 {
     if (debug)
 	 Engine.output("Entered prepareConfig for object name " + this.name);
-	     
-    this.conf = prepareConf(this.file,this.change_date,this.overwrite,this.custom);
+	    
+    var mess = {received: this.change_date}; 
+    this.conf = prepareConf(this.file,mess,this.overwrite,this.custom);
 
     // retrieve current configuration and merge settings if file is not to be overwritten
     if (!this.overwrite)

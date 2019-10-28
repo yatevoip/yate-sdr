@@ -123,7 +123,7 @@ API.on_get_calibrate_node = function(params,msg)
 // Configure calibrate.conf params
 API.on_set_calibrate_node = function(params,msg,setNode)
 {
-    var cal_conf = prepareConf("calibrate",msg.received,false);
+    var cal_conf = prepareConf("calibrate",msg,false);
 
     for (var param_name in params["general"])
         cal_conf.setValue("general",param_name, params["general"][param_name]);
@@ -172,14 +172,14 @@ API.on_set_sdr_mode = function(params,msg)
     var error = new Object;
     var bts_modes = ["nipc", "roaming", "dataroam"];
 
-    var sdr_jscript = prepareConf("sdr-jscript",msg.received,false);
-    var ybts_conf   = prepareConf("ybts",msg.received,false,"bts-custom");
-    var enb_conf    = prepareConf("yateenb",msg.received,false,"enb-custom");
-    var gtp_conf    = prepareConf("gtp",msg.received,false,"gtp-custom");
-    var cal_conf    = prepareConf("calibrate",msg.received,false,"cal-custom");
-    var ysipchan_conf   = prepareConf("ysipchan",msg.received,false,"sip-custom");
-    var nipcmod_conf     = prepareConf("nipc-modules",msg.received,false);
-    var nipcextmod_conf  = prepareConf("nipc-extmod",msg.received,false);
+    var sdr_jscript = prepareConf("sdr-jscript",msg,false);
+    var ybts_conf   = prepareConf("ybts",msg,false,"bts-custom");
+    var enb_conf    = prepareConf("yateenb",msg,false,"enb-custom");
+    var gtp_conf    = prepareConf("gtp",msg,false,"gtp-custom");
+    var cal_conf    = prepareConf("calibrate",msg,false,"cal-custom");
+    var ysipchan_conf   = prepareConf("ysipchan",msg,false,"sip-custom");
+    var nipcmod_conf     = prepareConf("nipc-modules",msg,false);
+    var nipcextmod_conf  = prepareConf("nipc-extmod",msg,false);
 
     if (params.sdr_mode == "enb") {
 	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
@@ -189,6 +189,8 @@ API.on_set_sdr_mode = function(params,msg)
 	gtp_conf.setValue("ran_u","enabled",true);
 	gtp_conf.setValue("ran_u","type","gtp-access");
 	gtp_conf.setValue("ran_c","enabled",false);
+	gtp_conf.setValue("ran_u_bts","enabled",false);
+	gtp_conf.setValue("ran_c_bts","enabled",false);
 	nipcmod_conf.clearSection("modules");
 	nipcextmod_conf.clearSection("scripts");
 
@@ -202,13 +204,15 @@ API.on_set_sdr_mode = function(params,msg)
 	if (params.sdr_mode == "nipc" || params.sdr_mode == "roaming") {
 	    gtp_conf.setValue("ran_u","enabled",false);
 	    gtp_conf.setValue("ran_c","enabled",false);
+	    gtp_conf.setValue("ran_u_bts","enabled",false);
+	    gtp_conf.setValue("ran_c_bts","enabled",false);
 	} else {
-	    gtp_conf.setValue("ran_u","enabled",true);
-	    gtp_conf.setValue("ran_u","type","gtp-access");
-	    gtp_conf.setValue("ran_c","enabled",true);
-	    gtp_conf.setValue("ran_c","type","gtp-control");
-    	    gtp_conf.clearKey("ran_u","addr4");
-	    gtp_conf.clearKey("ran_u","addr6");
+	    gtp_conf.setValue("ran_u_bts","enabled",true);
+	    gtp_conf.setValue("ran_u_bts","type","gtp-access");
+	    gtp_conf.setValue("ran_c_bts","enabled",true);
+	    gtp_conf.setValue("ran_c_bts","type","gtp-control");
+	    gtp_conf.setValue("ran_u","enabled",false);
+	    gtp_conf.setValue("ran_c","enabled",false);
 	}
 
 	if (params.sdr_mode == "roaming" || params.sdr_mode == "dataroam") {
