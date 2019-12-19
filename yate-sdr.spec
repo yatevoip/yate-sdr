@@ -198,7 +198,7 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Fri Dec 13 2019 Nour Shukri <nour.shukri@legba.ro>
+* Thu Dec 19 2019 Nour Shukri <nour.shukri@legba.ro>
 - Added the script pre-yate-sdr to run before the service starts and set Nice value to negative ten
 
 * Thu Oct 3 2019 Nour Shukri <nour.shukri@legba.ro>
