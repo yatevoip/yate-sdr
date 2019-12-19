@@ -1,0 +1,2 @@
+#!/bin/bash
+echo 1000000 > /proc/sys/kernel/sched_latency_ns

@@ -45,6 +45,7 @@ start() {
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && touch /var/lock/subsys/yate-sdr
+
 }
 
 stop() {

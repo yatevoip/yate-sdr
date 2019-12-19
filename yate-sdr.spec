@@ -21,12 +21,12 @@
 %{!?systemd:%define systemd %(test -x /usr/bin/systemd && echo 1 || echo 0)}
 %{!?_unitdir:%define _unitdir /usr/lib/systemd/system}
 %{!?tarname:%define tarname %{name}-%{version}-%{buildnum}}
-
+%define bin /usr/bin
 %define buildnum 1
 
 Summary:	Yate Software Defined Radio
 Name:		yate-sdr
-Version:	1.1
+Version:	1.2
 Release:	%{buildnum}%{?revision}%{?dist}
 License:	GPL
 Vendor:		Null Team Impex SRL
@@ -67,13 +67,16 @@ The Software Defined Radio holds resources common to all Yate based radio produc
 %else
 %{_initrddir}/%{name}
 %endif
+%{bin}/pre-yate-sdr
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_datadir}/yate/api/*
 %{_datadir}/yate/scripts/*
 /var/www/html/lmi
 %dir %{_sysconfdir}/yate/sdr
 %{_sysconfdir}/yate/sdr/*.conf.sample
-%config(noreplace) %{_sysconfdir}/yate/sdr/*.conf
+%{_sysconfdir}/yate/sdr/*.conf
+#%config(noreplace) %{_sysconfdir}/yate/sdr/*.conf
+%config(noreplace) %{_sysconfdir}/yate/sdr/enb_bands.csv
 %{_sysconfdir}/yate/sdr/enb_bands.csv
 
 %post
@@ -99,6 +102,25 @@ else
 %endif
 fi
 
+# Adding log entry when the rpm is installed
+date_v=$(date '+%Y-%m-%d-%H:%M')
+echo $date_v "  Installed Yate SDR" %{buildnum}%{?revision}_%(svnversion | cut -d ":" -f2 | cut -d "M" -f1)_svn%{?dist} >> /var/log/yate-rpms.log
+
+
+# Edit the enb_bands.csv file according to the hardware if SKU exist
+sku=$(grep -r "SKU" /etc/sysconfig/oem)
+if [[ ! -z $sku ]]
+then
+        model=$(grep -r "SKU" /etc/sysconfig/oem | cut -d "-" -f 2)
+        model=${model::-3}
+        if [ $model == 'SATSITE' ]; then
+                band=$(echo $sku | cut -d "-" -f 3 | cut -c2-)
+                only_band=$(awk '{if(NR=='"$band"') print $0}' %{_sysconfdir}/yate/sdr/enb_bands.csv)
+                echo $only_band > %{_sysconfdir}/yate/sdr/enb_bands.csv
+
+        fi
+fi
+
 
 %preun
 if [ "X$1" = "X0" ]; then
@@ -114,6 +136,8 @@ fi
 %if "%{systemd}" != "0"
 /usr/bin/systemctl daemon-reload
 %endif
+date_v=$(date '+%Y-%m-%d-%H:%M')
+echo $date_v "  Uninstalled Yate SDR" %{buildnum}%{?revision}_%(svnversion | cut -d ":" -f2 | cut -d "M" -f1)_svn%{?dist} >> /var/log/yate-rpms.log
 
 
 %triggerin -- yate
@@ -154,16 +178,19 @@ mkdir -p %{buildroot}%{_datadir}/yate/data
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sysconfdir}/yate/sdr
 mkdir -p %{buildroot}/var/www/html/lmi
+mkdir -p %{buildroot}%{bin}
 ln -sf yate %{buildroot}%{_bindir}/%{name}
 cp -p scripts/* %{buildroot}%{_datadir}/yate/scripts/
 cp -p logrotate %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 cp -p conf/* %{buildroot}%{_sysconfdir}/yate/sdr/
 cp -p api/* %{buildroot}%{_datadir}/yate/api/
 cp -rp lmi/* %{buildroot}/var/www/html/lmi/
+cp -p src/pre-yate-sdr %{buildroot}%{bin}/
 echo '<?php $version = "%{version}-%{release}" ?>' > %{buildroot}/var/www/html/lmi/version.php
 echo '<?php global $sdr_version; $sdr_version = "%{version}-%{release}"; ?>' > %{buildroot}%{_datadir}/yate/api/sdr_version.php
 mkdir -p %{buildroot}%{_sysconfdir}/yate/sdr
-ln -sf  /usr/share/yate/enb/enb_bands.csv %{buildroot}%{_sysconfdir}/yate/sdr/enb_bands.csv
+#ln -sf  /usr/share/yate/enb/enb_bands.csv %{buildroot}%{_sysconfdir}/yate/sdr/enb_bands.csv
+cp -p conf/enb_bands.csv %{_sysconfdir}/yate/sdr/enb_bands.csv
 
 
 %clean
@@ -171,7 +198,18 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Dec 13 2019 Nour Shukri <nour.shukri@legba.ro>
+- Added the script pre-yate-sdr to run before the service starts and set Nice value to negative ten
+
+* Thu Oct 3 2019 Nour Shukri <nour.shukri@legba.ro>
+- Added enb_bands file & the code to customize it for SS
+- Removed the noreplace for the config files with conf extension installed in sdr directory
+
+* Tue Sep 3 2019 Nour Shukri <nour.shukri@legba.ro>
+- Added Yate RPMs log file
+
 * Thu Apr 11 2019 Nour Shukri <nour.shukri@legba.ro>
 - Added enb_bands link
+
 * Sun Jan  8 2017 Paul Chitescu <paulc@null.ro>
 - Created specfile

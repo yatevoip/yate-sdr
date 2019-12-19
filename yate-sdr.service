@@ -5,6 +5,7 @@ After=network.target codemeter.service
 
 [Service]
 Type=forking
+ExecStartPre=/usr/bin/pre-yate-sdr
 ExecStart=/usr/bin/yate-sdr -c /etc/yate/sdr -d -p /var/run/yate-sdr.pid $OPTS
 ExecReload=/bin/kill -HUP $MAINPID
 PIDFile=/var/run/yate-sdr.pid
@@ -14,6 +15,7 @@ Environment="LANG=C" "LANGUAGE=C" "PWLIB_ASSERT_ACTION=C"
 Environment="OPTS=-F -s=5000 -r -l /var/log/yate-sdr -DF"
 # To override create file /etc/sysconfig/yate-sdr and put OPTS=... in it
 EnvironmentFile=-/etc/sysconfig/yate-sdr
+Nice=-10
 
 [Install]
 WantedBy=multi-user.target
