@@ -219,12 +219,12 @@ function menu()
         
 	// instead of loading all files from modules/default directory, define menu based on working_mode
 	$modules_per_mode = array(
-		"" => array("working_mode"),
-		"not configured" => array("working_mode"),
-		"nipc" => array("working_mode", "status", "subscribers", "bts_configuration", "outbound", "call_logs"),
-		"roaming" => array("working_mode", "status", "bts_configuration"),
-		"dataroam" => array("working_mode", "status", "bts_configuration"),
-		"enb" => array("working_mode", "status", "enb_configuration"),
+		"" => array("working_mode", "troubleshooting"),
+		"not configured" => array("working_mode", "troubleshooting"),
+		"nipc" => array("working_mode", "status", "subscribers", "bts_configuration", "outbound", "call_logs", "troubleshooting"),
+		"roaming" => array("working_mode", "status", "bts_configuration", "troubleshooting"),
+		"dataroam" => array("working_mode", "status", "bts_configuration", "troubleshooting"),
+		"enb" => array("working_mode", "status", "enb_configuration", "troubleshooting"),
 	);
 
 	if (!$devel_mode) {
