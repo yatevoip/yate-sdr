@@ -4,7 +4,9 @@ function troubleshooting()
 {
 	echo "<div class='hold_content_troubleshooting'>";
 	notice("Basic IP troubleshooting","no");
+	echo "<div class='troubleshooting_output'>";
 	exec_in_real_time();
+	echo "</div>";
 	echo "</div>";
 }
 

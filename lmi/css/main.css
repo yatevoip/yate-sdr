@@ -1371,3 +1371,4 @@ div.status_option { width: 500px; margin-left: 30px; padding:10px; padding-left:
 .troubleshooting_subtitle { font-weight:bold; padding-top:10px; padding-bottom:5px; display: inline-block; }
 .troubleshooting_title { font-weight:bold; padding-top:8px; padding-bottom:3px; font-size: 18px;}
 .hold_content_troubleshooting { margin-left: 20px;}
+.troubleshooting_output { margin-left: auto; margin-right: auto; position: relative; width: 84%; margin-bottom: 10px; border: 1px solid #cccccc; background-color: #f2f2f2; padding: 10px; padding-left: 10px; padding-left: 40px; text-align: left;}
