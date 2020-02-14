@@ -181,16 +181,22 @@ API.on_set_sdr_mode = function(params,msg)
     var nipcmod_conf     = prepareConf("nipc-modules",msg,false);
     var nipcextmod_conf  = prepareConf("nipc-extmod",msg,false);
 
+    // clear not-valid 'enabled' from any sections in gtp.conf
+    gtp_conf.clearKey("ran_u","enabled");
+    gtp_conf.clearKey("ran_c","enabled");
+    gtp_conf.clearKey("ran_u_bts","enabled");
+    gtp_conf.clearKey("ran_c_bts","enabled");
+
     if (params.sdr_mode == "enb") {
 	sdr_jscript.setValue("general", "routing", "enb-rrc.js");
 	ybts_conf.setValue("ybts","autostart",false);
 	enb_conf.setValue("general","autostart",true);
 	cal_conf.setValue("general","mode","enb");
-	gtp_conf.setValue("ran_u","enabled",true);
+	gtp_conf.setValue("ran_u","enable",true);
 	gtp_conf.setValue("ran_u","type","gtp-access");
-	gtp_conf.setValue("ran_c","enabled",false);
-	gtp_conf.setValue("ran_u_bts","enabled",false);
-	gtp_conf.setValue("ran_c_bts","enabled",false);
+	gtp_conf.setValue("ran_c","enable",false);
+	gtp_conf.setValue("ran_u_bts","enable",false);
+	gtp_conf.setValue("ran_c_bts","enable",false);
 	nipcmod_conf.clearSection("modules");
 	nipcextmod_conf.clearSection("scripts");
 
@@ -202,17 +208,19 @@ API.on_set_sdr_mode = function(params,msg)
 	cal_conf.setValue("general","mode","bts");
 
 	if (params.sdr_mode == "nipc" || params.sdr_mode == "roaming") {
-	    gtp_conf.setValue("ran_u","enabled",false);
-	    gtp_conf.setValue("ran_c","enabled",false);
-	    gtp_conf.setValue("ran_u_bts","enabled",false);
-	    gtp_conf.setValue("ran_c_bts","enabled",false);
+	    gtp_conf.setValue("ran_u","enable",false);
+	    gtp_conf.setValue("ran_c","enable",false);
+	    gtp_conf.setValue("ran_u_bts","enable",false);
+	    gtp_conf.setValue("ran_c_bts","enable",false);
 	} else {
-	    gtp_conf.setValue("ran_u_bts","enabled",true);
+	    gtp_conf.setValue("ran_u_bts","enable",true);
 	    gtp_conf.setValue("ran_u_bts","type","gtp-access");
-	    gtp_conf.setValue("ran_c_bts","enabled",true);
+	    gtp_conf.setValue("ran_u_bts","addr6",false);
+	    gtp_conf.setValue("ran_c_bts","enable",true);
 	    gtp_conf.setValue("ran_c_bts","type","gtp-control");
-	    gtp_conf.setValue("ran_u","enabled",false);
-	    gtp_conf.setValue("ran_c","enabled",false);
+	    gtp_conf.setValue("ran_c_bts","addr6",false);
+	    gtp_conf.setValue("ran_u","enable",false);
+	    gtp_conf.setValue("ran_c","enable",false);
 	}
 
 	if (params.sdr_mode == "roaming" || params.sdr_mode == "dataroam") {
