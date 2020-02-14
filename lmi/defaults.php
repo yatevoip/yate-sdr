@@ -72,6 +72,7 @@ $htmlentities_onall = false;
 $management_requests = array("manage_license", "form_bug_report", "view_log", "config", "restart_node", "license_update", "license_receipt" );
 
 // /path to troubleshooting script
-$tshoot_path = "/usr/src/tools/basic-tshoot.sh";
+//$tshoot_path = "/usr/src/tools/basic-tshoot.sh";
+$tshoot_path = "sudo /var/www/html/api_asroot.sh troubleshoot sdr";
 
 ?>
