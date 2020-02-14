@@ -86,10 +86,74 @@ API.on_get_node_status = function(params,msg)
 // Retrieve (sub)product stats
 API.on_query_stats = function(params,msg)
 {
+    var stats_with_details = ["gtp","sip accounts","sip listeners","calibrate"];
+    if (isPresent(params.filter))
+	var req_filter = params.filter;
+    if (isPresent(msg.filter))
+	var req_filter = msg.filter;
+
+    if (undefined != req_filter && Array.isArray(req_filter) && req_filter.length) {
+	var sections_with_details = [];
+	var sections = [];
+	var filters = {};
+	var pos;
+	for (var opt of req_filter) {
+	    var  opt = opt.split(":");
+	    if (-1 == sections.indexOf(opt[0])) {
+		if ( -1 != stats_with_details.indexOf(opt[0]) && (params.details || msg.details) ) {
+		    sections_with_details.push(opt[0]);
+		} else {
+		    sections.push(opt[0]);
+		}
+	    }
+	    if (opt.length>=2 && -1 == req_filter.indexOf(opt[0])) {
+	       	if (!filters[opt[0]]) {
+		    filters[opt[0]] = new Array(opt[1]);
+		} else {
+		    var filtersect = filters[opt[0]];
+		    filtersect.push(opt[1]);
+		}
+	    }
+	}
+
+	if (sections.length) {
+	    var stats = retrieveStats(sections);
+	    if (!stats)
+		return { error:200, reason:"Internal retrieval error when trying to retrieve section." };
+	}
+	if (sections_with_details.length) {
+	    if (sections.length)
+		mergeStats(stats,sections_with_details,msg.details || params.details);
+	    else
+		stats = retrieveStats(sections_with_details,null,true);
+	}
+	if (!stats)
+	    return { error:200, reason:"Internal retrieval error. No statistics retrieved." };
+
+	res = {};
+	for (var section in stats) {
+	    if ( ("uptime"==section && -1==sections.indexOf("uptime")) ||
+		 ("engine"==section && -1==sections.indexOf("engine"))
+	       )
+		// uptime is always returned, so if it was not requested, skip it
+		continue;
+
+	    if (!Array.isArray(filters[section])) { 
+		res[section] = stats[section];
+	    } else {
+		res[section] = {};
+		for (var filter_option of filters[section]) {
+		    res[section][filter_option] = stats[section][filter_option];
+		}
+	    }
+	}
+	return { name:"stats", object:res };
+    }
+
     var stats = retrieveStats(["bladerf","ybts","mbts","gsmtrx","ys1ap","sip","yrtp","cdrbuild"]);
     if (!stats)
 	return { error:200, reason:"Internal retrieval error." };
-    mergeStats(stats,["gtp","sip accounts","sip listeners","calibrate"],msg.details || params.details);
+    mergeStats(stats,stats_with_details,msg.details || params.details);
     mergeStats(stats,["ybts conn","ybts ue","enb all","wbenb0 all","extstatus psu","extstatus chrony","extstatus satsite-sw","extstatus rf-indicator","mbts monitor","mbts gprs monitor"]);
     return { name:"stats", object:stats };
 };
