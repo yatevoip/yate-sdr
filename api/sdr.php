@@ -127,6 +127,11 @@ function sdrHandler($request,$json,$recv,$node)
 	    if ("unknown" != $enb_version)
 		$res["enb_version"] = $enb_version;
 	    return $res;
+	case "troubleshoot":
+	    $out = shell_exec("sudo /var/www/html/api_asroot.sh troubleshoot sdr");
+	    if ($out === null)
+		    return buildError(501,"Could not troubleshoot node $node");
+	    return array("code"=>"0", "response"=>$out);
     }
     return null;
 }
