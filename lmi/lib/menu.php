@@ -410,46 +410,43 @@ function force_calibration_database()
 
 function display_node_status()
 {
-	$res = node_status(null,null,array("bts_version", "enb_version"));
+	$sdr_status = node_status(null,null,array("bts_version", "enb_version"));
+	$ntpd_status = node_status(null,"get_ntpd_status");
+	$openvpn_status = node_status(null,"get_openvpn_status");
+
+	$statuses = array ("sdr"=>$sdr_status, "ntpd"=>$ntpd_status, "openvpn"=>$openvpn_status);
 	
 	$_SESSION["version"] = array();
-	if (isset($res["version"]))
-		$_SESSION["version"]["sdr"] = $res["version"];
-	if (isset($res["bts_version"]))
-		$_SESSION["version"]["bts"] = $res["bts_version"];
-	if (isset($res["enb_version"]))
-		$_SESSION["version"]["enb"] = $res["enb_version"];
+	if (isset($sdr_status["version"]))
+		$_SESSION["version"]["sdr"] = $sdr_status["version"];
+	if (isset($sdr_status["bts_version"]))
+		$_SESSION["version"]["bts"] = $sdr_status["bts_version"];
+	if (isset($sdr_status["enb_version"]))
+		$_SESSION["version"]["enb"] = $sdr_status["enb_version"];
 	
 	print "<table class='node_status' cellpadding='0' cellspacing='0'>";
-	print "<tr><td class='node_status_upper'></td></tr>";
-	print "<tr><td class='node_status_lower'></td></tr>";
-//	print "<tr><td class='node_status'>";
-//	print "Status";
+	print "<tr><td class='node_status_upper' colspan='2'></td></tr>";
+	print "<tr><td class='node_status_lower' colspan='2'></td></tr>";
+	
+	foreach ($statuses as $key => $status) {
+		if ($key == "sdr") {
+			$label = "Yate-SDR ";
+		} else if ($key == "ntpd") {
+			$label = "NTPD ";
+		} else {
+			$label = "OpenVPN ";
+		}
+		
+		print "<tr>";
+		print "<td class='sdr_state_border_left sdr_state node_state_".$status["color"]."' id='{$key}_state_label'>$label</td>";
+		print "<td class='sdr_state_border_right sdr_state node_state_".$status["color"]."' id='{$key}_state'>";
+		print "<img class='sdr_bullet' alt='*' src='images/node_state_".$status["color"].".png'/>";
+		print $status["state"];
+		print "</td>";
+		print "</tr>";
+	}
 
-//	print "</td>";
-//	print "<td class='node_line'>";
-//	print "<img id='sdr_line' alt='' src='images/node_status_line.png' />";;
-//	print "</td>";
-	print "<tr>";
-	print "<td class='node_state_".$res["color"]."' id='sdr_state'>";
-	print "<img id='sdr_bullet' alt='*' src='images/node_state_".$res["color"].".png' />";
-	print $res["state"];
-	print "</td>";
-//	print "<td class='node_ask' id='node_link'>";
-//	if ($res["color"]=='green')
-//		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
-//	print "</td>";
-//	print "<td class='node_ask' onclick='show_hide(\"sdr_desc\");'>";
-//	print "<img alt='State description' src='images/state_question_mark.png' />";
-//	print "</td>";
-	print "</tr>";
 	print "</table>";
-	
-//	print "<div class='node_desc' id='sdr_desc' style='display:none;'> Node status.";
-	
-//	if ($res["details"])
-//		print "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
-//	print "</div>";
 }
 
 /**

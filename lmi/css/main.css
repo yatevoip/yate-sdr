@@ -918,11 +918,13 @@ td.node_state_green {color:#62ba00;}
 td.node_status_upper {border-bottom:1px solid #e6e6e6;}
 td.node_status_lower {border:1px solid #e6e6e6; border-top:1px solid #ccc;border-bottom:none;padding:1px;}
 td.node_status {width:43px;border-left:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6; padding:1px;padding-left:12px;font-weight:bold;}
-#sdr_state {border-bottom:1px solid #e6e6e6; padding:10px;border-left:1px solid #e6e6e6;}
+.sdr_state {border-bottom:1px solid #e6e6e6; padding:1px 5px 1px 5px; }
 td.node_line {color:#e6e6e6; border-bottom:1px solid #e6e6e6;height:10px;}
-#sdr_state {border-right:1px solid #e6e6e6;line-height:15px;}
+.sdr_state {line-height:15px;}
+.sdr_state_border_left {border-left:1px solid #e6e6e6; padding-top: 4px;}
+.sdr_state_border_right {border-right:1px solid #e6e6e6;}
 td.node_ask {padding-left:5px;}
-#sdr_bullet {padding-right:5px;padding-top:3px;}
+.sdr_bullet {padding-right:5px;}
 div.node_desc {padding-top:5px;display:none;}
 .node_ask {cursor:pointer;}
 td.holdstatus

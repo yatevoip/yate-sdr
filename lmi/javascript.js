@@ -274,24 +274,32 @@ function callback_request(response,container_id)
     set_html_obj(container_id, response);
 }
 
-function get_node_status()
+function get_node_status(method)
 {
-	var new_url = "pages.php?method=node_status_json";
+	var new_url = "pages.php?method=node_status_json&meth="+method;
 	url = encodeURI(new_url);
-	make_api_request(url, finish_getting_status, true);
+
+	if (method=="get_node_status")
+	    return make_api_request(url, function(response) {finish_getting_status(response, "sdr_state")}, true);
+	if (method=="get_ntpd_status")
+	    return make_api_request(url, function(response) {finish_getting_status(response, "ntpd_state")}, true);
+	if (method=="get_openvpn_status")
+	    return make_api_request(url, function(response) {finish_getting_status(response, "openvpn_state")}, true);
 }
 
-function finish_getting_status(response)
+function finish_getting_status(response, elem_id)
 {
 	var node_status = JSON.parse(response);
-	document.getElementById("sdr_state").innerHTML = "<img id='sdr_bullet' alt='State bullet' src='images/node_state_"+node_status["color"]+".png' />"+node_status["state"];
-	document.getElementById("sdr_state").className = "node_state_"+node_status["color"];
-/*	if (node_status["color"] == "green")
-		document.getElementById("node_link").innerHTML = "<a class='llink' href='main.php?method=show_node_details&module=none'>Details</a>";
-	else
-		document.getElementById("node_link").innerHTML = "";*/
+	
+	document.getElementById(elem_id).innerHTML = "<img class='sdr_bullet' alt='*' src='images/node_state_"+node_status["color"]+".png'/>"+node_status["state"];
+	document.getElementById(elem_id).className = "sdr_state_border_right sdr_state node_state_"+node_status["color"];
+	document.getElementById(elem_id+"_label").className = "sdr_state_border_left sdr_state node_state_"+node_status["color"];
 }
-setInterval(get_node_status, 10000);
+
+setInterval( function() { get_node_status("get_node_status"); }, 10000);
+setInterval( function() { get_node_status("get_ntpd_status"); }, 10000);
+setInterval( function() { get_node_status("get_openvpn_status"); }, 10000);
+
 /*
 function advanced(identifier)
 {

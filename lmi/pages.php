@@ -31,7 +31,9 @@ if (call_user_func($method) === FALSE)
 
 function node_status_json()
 {
-	$res = node_status();
+	$meth = getparam("meth");
+	
+	$res = node_status(null, $meth);
 	print json_encode($res);
 }
 
