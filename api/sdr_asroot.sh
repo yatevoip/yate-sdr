@@ -32,7 +32,53 @@ case "X$1" in
 	    exec "$tshoot"
 	    exit 0
 	else
-	    echo "Missing $tshoot"
+	    echo "Missing troubleshooting script $tshoot"
+	    exit 1
+	fi
+	;;
+    Xntpd_status)
+	check_status_lib="/usr/lib/yate-bash-ip.sh"
+	if [ -s "$check_status_lib" ]; then
+	    . "/usr/lib/yate-bash-ip.sh"
+	    check_ntp
+	    if [ $ntp_service_value -eq 1 ]
+	    then
+		echo "Chrony Service is running"
+		if (( $(echo "$avg_skew < 2" |bc -l) )); then
+		    echo "Skew is in the acceptable range"
+		else
+		    echo "Skew value is Not in the accepatable range"
+		fi
+		else
+		    echo "X Chrony Service is Not running"
+		fi
+		exit 0
+	else
+	    echo "Missing libraries that check ntpd status"
+	    exit 1
+	fi
+	;;
+
+    Xopenvpn_usage)
+	check_status_lib="/usr/lib/yate-bash-openvpn.sh"
+	if [ -s "$check_status_lib" ]; then
+	    . "/usr/lib/yate-bash-openvpn.sh"
+	    is_hc_in_use && echo "yes" || echo "no"
+	    exit 0
+	else
+	    echo "Missing libraries that check openvpn usage"
+	    exit 1
+	fi
+	;;
+
+    Xopenvpn_status)
+	check_status_lib="/usr/lib/yate-bash-openvpn.sh"
+	if [ -s "$check_status_lib" ]; then
+	    . "/usr/lib/yate-bash-openvpn.sh"
+	    check_openvpn_service_status && echo "Running" || echo "Stopped"
+	    exit 0
+	else
+	    echo "Missing libraries that check openvpn status"
 	    exit 1
 	fi
 	;;
