@@ -128,10 +128,64 @@ function sdrHandler($request,$json,$recv,$node)
 		$res["enb_version"] = $enb_version;
 	    return $res;
 	case "troubleshoot":
-	    $out = shell_exec("sudo /var/www/html/api_asroot.sh troubleshoot sdr");
-	    if ($out === null)
-		    return buildError(501,"Could not troubleshoot node $node");
-	    return array("code"=>"0", "response"=>$out);
+	    exec("sudo /var/www/html/api_asroot.sh troubleshoot sdr",$res,$out);
+	    $err_msg = implode("\n", $res);
+	    if ($out!==0) {
+		return buildError(501, $err_msg);
+	    }
+	    return array("code"=>"0", "response"=>$res);
+        case "get_ntpd_status":
+	    exec("sudo /var/www/html/api_asroot.sh ntpd_status sdr",$res,$out);
+	    if ($out!==0) {
+		$err_msg = implode("\n", $res);
+ 		return buildError(501,$err_msg);
+	    }
+	    $service = implode("\n",$res);
+	    if ($res[0] == "Chrony Service is running") {
+		$operational = true;
+		$state = "Running";
+		if ($res[1] == "Skew is in the acceptable range") {
+		    $level = "NOTE";
+		} else {
+		    $level = "MILD";
+ 		}
+	    } else {
+		$operational = false;
+		$level = "WARN";
+		$state = "Stopped";
+	    }
+	    return array("code"=>"0","status"=>array("operational"=>$operational,"level"=>$level,"state"=>$state,"service"=>$service));
+	case "get_openvpn_status":
+	    exec("sudo /var/www/html/api_asroot.sh openvpn_status sdr",$res,$out);
+	    if ($out!==0) {
+		$err_msg = implode("\n", $res) ;
+		return buildError(501,$err_msg);
+	    }
+	    if ($res[0] == "Running") {
+		$state = "Running";
+		$service = "Service is running";
+		$operational = true;
+		$level = "NOTE";
+	    } else {
+		$state = "Stopped";
+		$service = "Service is not running";
+		$operational = false;
+		$level = "WARN";
+	    }
+	    exec("sudo /var/www/html/api_asroot.sh openvpn_usage sdr",$res2,$out2);
+	    if ($out2!==0) {
+		$err_msg = implode("\n", $res2);
+		return buildError(501,$err_msg);
+	    }
+	    if ($state == "Stopped") {
+		if ($res2[0] == "no") {
+		    $service = "Service is not used";
+		    $state = "Not used";
+		    $operational = true;
+		    $level = "MILD";
+		}
+	    }
+	    return array("code"=>"0","status"=>array("operational"=>$operational,"level"=>$level,"state"=>$state,"service"=>$service));
     }
     return null;
 }
