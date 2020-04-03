@@ -1334,7 +1334,7 @@ function export_subscribers_in_csv()
 
 	$csv->write();
 
-	notice("Content was exported. <a href=\"download.php?file=$filename\">Download</a>", "list_subscribers");
+	notice("Content was exported. <a href=\"download.php?file=$filename\">Download</a>", "list_subscribers", true, false);
 }
 
 function analize_subscribers_data($new_subscribers, &$res)
