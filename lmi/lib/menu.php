@@ -115,7 +115,9 @@ function get_content()
 				<div class="error_reporting">
 				    <?php Debug::button_trigger_report(); ?>
 				</div>
-				<div class="version">Version: <?php print get_version();?></div>
+                                <div class="version" id="version">Version: 
+                                    <img class='sdr_spinner' src='images/spinner.gif'/>
+                                </div>
 		</td></tr>
 <!--		<tr>
 			<td class="upperbanner">
@@ -341,47 +343,6 @@ function submenu()
 	print "</tr></table>";
 }
 
-function get_version()
-{
-	if (isset($_SESSION["version"])) {
-		// return version of APIs instead of that of interface
-		
-		$sdr_mode = get_working_mode();
-		
-		if ($sdr_mode) {
-			if ($_SESSION["sdr_mode"]=="enb" && isset($_SESSION["version"]["enb"]))
-				return "ENB ".$_SESSION["version"]["enb"];
-			elseif (isset($_SESSION["version"]["bts"]))
-				return "BTS ".$_SESSION["version"]["bts"];
-		}
-		
-		else {
-			// display version of all installed components
-			$components = array("enb", "bts", "sdr");
-			$version = "";
-			foreach($components as $comp) {
-				$version .= strtoupper($comp)." ". $_SESSION["version"][$comp]."<br/>";
-			}
-			return $version;
-		}
-	}
-	
-	if (is_file("version.php")) {
-		include ("version.php");
-		return $version;
-	} elseif (is_file("../version.php")) {
-		include ("../version.php");
-		return $version;
-	} else {
-		$rev = "";
-		exec("svn info 2>/dev/null | sed -n 's,^Revision: *,,p'",$rev);
-		if (!is_array($rev) || !isset($rev[0]))
-			return "Could not detect version";
-		else
-			return "svn rev. ".$rev[0];
-	}
-}
-
 function force_calibration()
 {
 	print "<div class=\"notice\">";
@@ -410,43 +371,35 @@ function force_calibration_database()
 
 function display_node_status()
 {
-	$sdr_status = node_status(null,null,array("bts_version", "enb_version"));
-	$ntpd_status = node_status(null,"get_ntpd_status");
-	$openvpn_status = node_status(null,"get_openvpn_status");
+        $statuses = array("sdr"=>"get_node_status", "ntpd"=>"get_ntpd_status", "openvpn"=>"get_openvpn_status");
+    
+        print "<table class='node_status' cellpadding='0' cellspacing='0'>";
+        print "<tr><td class='node_status_upper' colspan='2'></td></tr>";
+        print "<tr><td class='node_status_lower' colspan='2'></td></tr>";
+	
+        foreach ($statuses as $key => $status) {
+                if ($key == "sdr") {
+                        $label = "Yate-SDR ";
+                } else if ($key == "ntpd") {
+                        $label = "NTPD ";
+                } else {
+                        $label = "OpenVPN ";
+                }
+   
+                print "<tr>";
+                print "<td class='sdr_state_border_left sdr_state node_state_black' id='{$key}_state_label'>$label</td>";
+                print "<td class='sdr_state_border_right sdr_state node_state_black' id='{$key}_state'>";
+                print "<img class='sdr_spinner' src='images/spinner.gif'/>"."&nbsp;"."Waiting for answer...";
+                print "</td>";
+                print "</tr>";
 
-	$statuses = array ("sdr"=>$sdr_status, "ntpd"=>$ntpd_status, "openvpn"=>$openvpn_status);
-	
-	$_SESSION["version"] = array();
-	if (isset($sdr_status["version"]))
-		$_SESSION["version"]["sdr"] = $sdr_status["version"];
-	if (isset($sdr_status["bts_version"]))
-		$_SESSION["version"]["bts"] = $sdr_status["bts_version"];
-	if (isset($sdr_status["enb_version"]))
-		$_SESSION["version"]["enb"] = $sdr_status["enb_version"];
-	
-	print "<table class='node_status' cellpadding='0' cellspacing='0'>";
-	print "<tr><td class='node_status_upper' colspan='2'></td></tr>";
-	print "<tr><td class='node_status_lower' colspan='2'></td></tr>";
-	
-	foreach ($statuses as $key => $status) {
-		if ($key == "sdr") {
-			$label = "Yate-SDR ";
-		} else if ($key == "ntpd") {
-			$label = "NTPD ";
-		} else {
-			$label = "OpenVPN ";
-		}
-		
-		print "<tr>";
-		print "<td class='sdr_state_border_left sdr_state node_state_".$status["color"]."' id='{$key}_state_label'>$label</td>";
-		print "<td class='sdr_state_border_right sdr_state node_state_".$status["color"]."' id='{$key}_state'>";
-		print "<img class='sdr_bullet' alt='*' src='images/node_state_".$status["color"].".png'/>";
-		print $status["state"];
-		print "</td>";
-		print "</tr>";
-	}
-
-	print "</table>";
+                if ($key == "sdr") {
+                        print "<script>get_node_status('{$status}', true);</script>";
+                } else {
+                        print "<script>get_node_status('{$status}');</script>";
+                }
+        }
+        print "</table>";
 }
 
 /**

@@ -915,6 +915,7 @@ table.node_status {vertical-align:top;text-align:left;}
 td.node_state_red { color:#ff4545;}
 td.node_state_yellow {color:#ffa00b;}
 td.node_state_green {color:#62ba00;}
+td.node_state_black {color:#000;}
 td.node_status_upper {border-bottom:1px solid #e6e6e6;}
 td.node_status_lower {border:1px solid #e6e6e6; border-top:1px solid #ccc;border-bottom:none;padding:1px;}
 td.node_status {width:43px;border-left:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6; padding:1px;padding-left:12px;font-weight:bold;}
@@ -925,6 +926,7 @@ td.node_line {color:#e6e6e6; border-bottom:1px solid #e6e6e6;height:10px;}
 .sdr_state_border_right {border-right:1px solid #e6e6e6;}
 td.node_ask {padding-left:5px;}
 .sdr_bullet {padding-right:5px;}
+.sdr_spinner {width: 15px;}
 div.node_desc {padding-top:5px;display:none;}
 .node_ask {cursor:pointer;}
 td.holdstatus

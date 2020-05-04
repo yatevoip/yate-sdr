@@ -274,26 +274,39 @@ function callback_request(response,container_id)
     set_html_obj(container_id, response);
 }
 
-function get_node_status(method)
-{
-	var new_url = "pages.php?method=node_status_json&meth="+method;
-	url = encodeURI(new_url);
-
-	if (method=="get_node_status")
-	    return make_api_request(url, function(response) {finish_getting_status(response, "sdr_state")}, true);
+function get_node_status(method, extra = false)
+{       
+        if (extra === true) {
+                var url = "pages.php?method=node_status_json&meth="+method+"&extra="+extra;
+                return make_request(url, function(response){finish_getting_status(response, "sdr_state", extra)});
+        }
+        
+        url = "pages.php?method=node_status_json&meth="+method;
+                      
+   	if (method=="get_node_status")
+                return make_request(url, {name:finish_getting_status, param:"sdr_state"});
 	if (method=="get_ntpd_status")
-	    return make_api_request(url, function(response) {finish_getting_status(response, "ntpd_state")}, true);
+                return make_request(url, {name:finish_getting_status, param:"ntpd_state"});
 	if (method=="get_openvpn_status")
-	    return make_api_request(url, function(response) {finish_getting_status(response, "openvpn_state")}, true);
+                return make_request(url, {name:finish_getting_status, param:"openvpn_state"});
 }
 
-function finish_getting_status(response, elem_id)
-{
+function finish_getting_status(response, elem_id, extra = false)
+{       
+        if(!response) {
+                console.log("Empty response. Exit from finish_getting_status().");
+                return;
+        }
+                
 	var node_status = JSON.parse(response);
-	
+        	
 	document.getElementById(elem_id).innerHTML = "<img class='sdr_bullet' alt='*' src='images/node_state_"+node_status["color"]+".png'/>"+node_status["state"];
 	document.getElementById(elem_id).className = "sdr_state_border_right sdr_state node_state_"+node_status["color"];
 	document.getElementById(elem_id+"_label").className = "sdr_state_border_left sdr_state node_state_"+node_status["color"];
+        
+        if (extra === true) {
+                get_version();
+        }
 }
 
 setInterval( function() { get_node_status("get_node_status"); }, 10000);
@@ -341,3 +354,15 @@ function advanced(identifier)
 
 	img.src = imgarray.join("/");
 }*/
+
+function get_version()
+{
+        var url = "pages.php?method=get_version";
+
+        return make_request(url, finish_getting_version);
+}
+
+function finish_getting_version(response)
+{
+        document.getElementById("version").innerHTML = "Version: " + response;
+}
