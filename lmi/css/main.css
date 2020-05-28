@@ -606,7 +606,7 @@ td.unread
 	font-size:14px;
 }
 
-font.notice, font.voicemail_notice
+font.notice, font.voicemail_notice, font.warning
 {
 	font-size:13px;
 	color:#404040;
@@ -1376,3 +1376,27 @@ div.status_option { width: 500px; margin-left: 30px; padding:10px; padding-left:
 .troubleshooting_title { font-weight:bold; padding-top:8px; padding-bottom:3px; font-size: 18px;}
 .hold_content_troubleshooting { margin-left: 20px;}
 .troubleshooting_output { margin-left: auto; margin-right: auto; position: relative; width: 84%; margin-bottom: 10px; border: 1px solid #cccccc; background-color: #f2f2f2; padding: 10px; padding-left: 10px; padding-left: 40px; text-align: left;}
+.troubleshooting_button { margin-right: 65px; margin-bottom: 10px; float: right;}
+.troubleshooting_start_button {margin-right: 50px; margin-left: 60%;}
+.finish_troubleshooting_message { margin-left: auto; margin-right: auto; position: relative; width: 84%; margin-bottom: 10px; border: 1px solid #47b34d; background-color: #bbffba; padding: 10px; padding-left: 10px; padding-left: 40px; text-align: left;}
+.temporary_mess {margin-left: auto; margin-right: auto; position: relative; text-align: center;}
+
+/*Warning message */
+div.warning
+{
+	font-size: 13px;
+	margin-left:auto;
+	margin-right:auto;
+	position:relative;
+	color:#085098/*#404040*/;
+	width:84%;
+	margin-bottom:10px;
+	font-weight:normal;
+	border:1px solid #ccc;
+	background-color:#f8e4b7;
+	background-image:url("../images/warning_sign.png");
+	background-position:left center;
+	background-repeat:no-repeat;
+	padding:10px;
+	padding-left:40px;
+}

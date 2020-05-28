@@ -366,3 +366,78 @@ function finish_getting_version(response)
 {
         document.getElementById("version").innerHTML = "Version: " + response;
 }
+
+/**
+ * Display troubleshoot info
+ * Function displays the troubleshoot iframe calling the trobleshooting exec_in_real_time function;
+ * @param restart Bool. Default value is 'false'. When 'true' the restart button is displayed instead of the start button;
+ */
+function display_troubleshoot(restart = false)
+{
+        if (restart === true) {
+                show_hide("troubleshooting_restart"); //hide restart button
+        } else if (restart === false) {
+                show_hide("troubleshooting_start"); //hide start button
+        }
+        
+        show_hide("troubleshooting_stop"); //show stop button
+        document.getElementById("troubleshoot_message").innerHTML = "";
+        document.getElementById("troubleshooting_output").className = "troubleshooting_output";
+        document.getElementById("troubleshooting_output").innerHTML = 
+                "<div id='temporary_mess' class='temporary_mess'>Please wait. Troubleshooting... <img src='images/spinner.gif' style='width:15px;'/></div>\n\
+                <iframe id='troubleshooting_iframe' src='troubleshoot.php?method=exec_in_real_time' width='100%' height='320' onload='troubleshoot_finish()'scrolling='no' style='border:none;'></iframe>";
+        resize_troubleshoot_iframe();
+}
+
+//adjust iframe height if it's less than the iframe content
+var start_troubleshooting_interval = false; //resize troubleshooting setInterval was not set
+var troubleshooting_interval = "";
+
+function resize_troubleshoot_iframe()
+{
+        var i_frame = document.getElementById('troubleshooting_iframe');
+
+        if(i_frame.contentWindow.document.body) {
+                var iframe_height = i_frame.height;
+                iframe_height = iframe_height.replace("px","");
+                iframe_height = Number(iframe_height);
+                if (iframe_height < i_frame.contentWindow.document.body.scrollHeight) {
+                        i_frame.height = i_frame.contentWindow.document.body.scrollHeight + "px";
+                }
+        }
+    
+        if (start_troubleshooting_interval === false) {
+                start_troubleshooting_interval = true; //setInterval was set
+                troubleshooting_interval = setInterval(resize_troubleshoot_iframe, 100);
+        }
+}
+
+/**
+ * Troubleshoot ends
+ * Function stops troubleshooting iframe from loading and/or displays statuses when iframes stops/ends loading.
+ * @param stop Bool. Default value is 'false'. If 'true' the iframe stops loading.
+ */
+function troubleshoot_finish(stop = false)
+{
+        if (stop === false) {
+                var iframe = document.getElementById('troubleshooting_iframe');
+                iframe.height = iframe.contentWindow.document.body.scrollHeight + "px";
+                document.getElementById("troubleshoot_message").innerHTML = "<div class='finish_troubleshooting_message'>Troubeshooting the device has finished. In order to restart troubleshooting, please press [Restart troubleshooting] button.</div>";
+        } else if (stop === true) {
+                if (navigator.appName === 'Microsoft Internet Explorer') {
+                        window.frames[0].document.execCommand('Stop');
+                } else {
+                        window.frames[0].stop();
+                }
+                document.getElementById("troubleshoot_message").innerHTML = "<div class='warning'>Troubleshooting the device has been stopped. In order to restart troubleshooting, please press [Restart troubleshooting] button.</div>";
+        }
+        
+        if (troubleshooting_interval) {
+                clearInterval(troubleshooting_interval);
+                start_troubleshooting_interval = false;
+        }
+        
+        document.getElementById("temporary_mess").innerHTML = "";
+        show_hide("troubleshooting_restart"); //show restart button
+        show_hide("troubleshooting_stop"); //hide stop button
+}
