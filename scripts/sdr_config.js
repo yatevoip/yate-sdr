@@ -206,6 +206,7 @@ API.on_set_sdr_mode = function(params,msg)
 	ybts_conf.setValue("ybts","autostart",true);
 	enb_conf.setValue("general","autostart",false);
 	cal_conf.setValue("general","mode","bts");
+	ysipchan_conf.setValue("general","multi_ringing",true);
 
 	if (params.sdr_mode == "nipc" || params.sdr_mode == "roaming") {
 	    gtp_conf.setValue("ran_u","enable",false);
